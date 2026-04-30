@@ -294,10 +294,28 @@
     <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
         <div class="max-w-7xl mx-auto text-center">
             <p class="text-gray-400">霍尔效应位移测量实验 AI 辅助诊断系统</p>
-            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js 构建</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
         </div>
     </footer>
 
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
+    <script>
+        new CozeWebSDK.WebChatClient({
+            config: {
+                bot_id: '7634527397312266266',
+            },
+            componentProps: {
+                title: '霍尔效应实验助手',
+            },
+            auth: {
+                type: 'token',
+                token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                onRefreshToken: function () {
+                    return 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP';
+                }
+            }
+        });
+    </script>
     <script>
         const questions = [
             { id: 1, correctAnswer: 'B', topic: '霍尔电压与磁场的关系', knowledge: '霍尔电压公式及比例关系' },
