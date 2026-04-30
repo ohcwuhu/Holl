@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预习诊断 - 霍尔效应位移测量实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .active-nav::after {
+            width: 100%;
+        }
+        .collapse-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .collapse-content.open {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">霍尔效应 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link active-nav text-blue-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验前 AI 预习诊断</h2>
+                <p class="text-gray-600">通过视频学习和问答测试，评估您的预习效果</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">预习视频</h3>
+                <div class="relative bg-gray-900 rounded-lg aspect-video overflow-hidden">
+                    <img src="https://picsum.photos/1280/720?random=1" alt="视频封面" class="w-full h-full object-cover opacity-80">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <button id="playVideo" class="w-20 h-20 bg-blue-500 hover:bg-blue-600 rounded-full flex items-center justify-center transition-colors btn-hover">
+                            <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="absolute bottom-4 left-4 text-white bg-black/60 px-3 py-1 rounded">
+                        05:00
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800">预习问答</h3>
+                
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="question-header bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 cursor-pointer" onclick="toggleAnswer(1)">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold">Q1：霍尔电压与磁感应强度的关系？</span>
+                            <span id="q1-icon" class="transition-transform">▼</span>
+                        </div>
+                    </div>
+                    <div id="q1-answer" class="collapse-content bg-gray-50">
+                        <div class="p-4">
+                            <p class="text-gray-700 mb-2">霍尔电压 \( U_H \) 与磁感应强度 \( B \) 成正比关系，公式为：</p>
+                            <p class="text-center text-lg font-mono text-blue-600 my-4">\( U_H = \frac{IB}{nqd} \)</p>
+                            <p class="text-gray-600 text-sm">其中 \( I \) 为电流，\( n \) 为载流子浓度，\( q \) 为电荷量，\( d \) 为导体厚度。当电流恒定时，霍尔电压随磁感应强度线性变化。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="question-header bg-gradient-to-r from-green-500 to-green-600 text-white p-4 cursor-pointer" onclick="toggleAnswer(2)">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold">Q2：霍尔传感器为何能测微小位移？</span>
+                            <span id="q2-icon" class="transition-transform">▼</span>
+                        </div>
+                    </div>
+                    <div id="q2-answer" class="collapse-content bg-gray-50">
+                        <div class="p-4">
+                            <p class="text-gray-700 mb-2">霍尔传感器测量微小位移基于以下原理：</p>
+                            <ul class="space-y-2 text-gray-600 text-sm">
+                                <li>• 霍尔元件置于梯度磁场中</li>
+                                <li>• 位移变化导致磁感应强度 \( B \) 变化</li>
+                                <li>• 根据 \( U_H \propto B \)，电压变化反映位移变化</li>
+                                <li>• 配合放大电路可检测微小位移（可达微米级）</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="question-header bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 cursor-pointer" onclick="toggleAnswer(3)">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold">Q3：不等位电势如何产生、怎么消除？</span>
+                            <span id="q3-icon" class="transition-transform">▼</span>
+                        </div>
+                    </div>
+                    <div id="q3-answer" class="collapse-content bg-gray-50">
+                        <div class="p-4">
+                            <p class="text-gray-700 mb-3"><strong>产生原因：</strong></p>
+                            <p class="text-gray-600 text-sm mb-3">霍尔元件的两个输出电极不在同一等势面上，当电流通过时，即使不加磁场也会产生电势差。这是由于元件制造时电极位置不对称或材料不均匀造成的。</p>
+                            <p class="text-gray-700 mb-3"><strong>消除方法：</strong></p>
+                            <ul class="space-y-2 text-gray-600 text-sm">
+                                <li>• 电流反向法：改变电流方向，取两次测量的平均值</li>
+                                <li>• 磁场反向法：改变磁场方向，取两次测量的平均值</li>
+                                <li>• 电位器补偿：外接电位器手动补偿不等位电势</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="question-header bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 cursor-pointer" onclick="toggleAnswer(4)">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold">Q4：霍尔效应中的载流子类型如何判断？</span>
+                            <span id="q4-icon" class="transition-transform">▼</span>
+                        </div>
+                    </div>
+                    <div id="q4-answer" class="collapse-content bg-gray-50">
+                        <div class="p-4">
+                            <p class="text-gray-700 mb-3">根据霍尔电压的正负可以判断载流子类型：</p>
+                            <ul class="space-y-2 text-gray-600 text-sm">
+                                <li>• <strong>N型半导体（电子导电）：</strong>霍尔电压为负</li>
+                                <li>• <strong>P型半导体（空穴导电）：</strong>霍尔电压为正</li>
+                            </ul>
+                            <p class="text-gray-600 text-sm mt-3">原理：根据左手定则，电子和空穴在磁场中的偏转方向相反，导致霍尔电压极性不同。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">预习诊断结果</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-yellow-50 rounded-lg p-4">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="font-medium text-gray-800">薄弱知识点</span>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• 霍尔电压与磁场的定量关系</li>
+                            <li>• 不等位电势的补偿方法</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="font-medium text-gray-800">掌握较好</span>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• 霍尔传感器工作原理</li>
+                            <li>• 载流子类型判断方法</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                    <p class="text-blue-800 text-sm">
+                        <strong>学习建议：</strong>建议复习霍尔电压公式的推导过程，重点理解不等位电势的补偿原理，这对实验数据处理非常重要。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">霍尔效应位移测量实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleAnswer(num) {
+            const answer = document.getElementById(`q${num}-answer`);
+            const icon = document.getElementById(`q${num}-icon`);
+            answer.classList.toggle('open');
+            icon.style.transform = answer.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0)';
+        }
+
+        document.getElementById('playVideo').addEventListener('click', () => {
+            alert('视频播放功能演示：霍尔效应实验原理讲解\n\n实际应用中，这里将播放真实的预习视频。');
+        });
+    </script>
+</body>
+</html>

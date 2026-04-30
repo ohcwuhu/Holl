@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据校验 - 霍尔效应位移测量实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.min.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .active-nav::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">霍尔效应 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link active-nav text-blue-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验中数据实时校验</h2>
+                <p class="text-gray-600">输入实验数据，系统将进行实时质量校验和 AI 分析</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">数据输入</h3>
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-600">序号</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-600">位移 x (mm)</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-600">霍尔电压 U (mV)</th>
+                                <th class="border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-600">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTable">
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-x w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="0.0"></td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-u w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="0.00"></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-x w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.0"></td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-u w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="2.50"></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-x w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="2.0"></td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-u w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="5.00"></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex gap-3 mb-4">
+                    <button onclick="addRow()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">
+                        + 添加行
+                    </button>
+                    <button onclick="clearAll()" class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">
+                        清空数据
+                    </button>
+                </div>
+                <button onclick="validateData()" class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg transition-colors btn-hover">
+                    提交校验
+                </button>
+            </div>
+
+            <div id="validationResults" class="hidden">
+                <div class="grid md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">数据点数</div>
+                        <div class="text-2xl font-bold text-gray-800" id="dataCount">0</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">相关系数 R²</div>
+                        <div class="text-2xl font-bold" id="rSquared">0.00</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">拟合灵敏度 k</div>
+                        <div class="text-2xl font-bold text-blue-600" id="sensitivity">0.00</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">异常点数量</div>
+                        <div class="text-2xl font-bold" id="anomalyCount">0</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">AI 诊断反馈</h3>
+                    <div id="aiFeedback" class="space-y-3"></div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">数据表格</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">序号</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">位移 x (mm)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">霍尔电压 U (mV)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">拟合值 (mV)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">残差 (mV)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">霍尔效应位移测量实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        let experimentData = null;
+        let analysisResult = null;
+
+        function validateData() {
+            const xInputs = document.querySelectorAll('.data-input-x');
+            const uInputs = document.querySelectorAll('.data-input-u');
+            const data = [];
+            
+            try {
+                for (let i = 0; i < xInputs.length; i++) {
+                    const x = parseFloat(xInputs[i].value);
+                    const u = parseFloat(uInputs[i].value);
+                    if (!isNaN(x) && !isNaN(u)) {
+                        data.push({ x, u, index: i });
+                    }
+                }
+            } catch (e) {
+                alert('数据格式错误，请检查输入');
+                return;
+            }
+
+            if (data.length === 0) {
+                alert('请输入实验数据');
+                return;
+            }
+
+            if (data.length < 3) {
+                alert('至少需要3个数据点进行分析');
+                return;
+            }
+
+            experimentData = data;
+            analysisResult = analyzeData(data);
+
+            displayValidationResults();
+
+            localStorage.setItem('experimentData', JSON.stringify(data));
+            localStorage.setItem('analysisResult', JSON.stringify(analysisResult));
+        }
+
+        function addRow() {
+            const table = document.getElementById('dataTable');
+            const rowCount = table.rows.length;
+            const newRow = table.insertRow();
+            
+            newRow.innerHTML = `
+                <td class="border border-gray-300 px-4 py-2">${rowCount + 1}</td>
+                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-x w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="${rowCount * 1.0}"></td>
+                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-u w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="${(rowCount * 2.5).toFixed(2)}"></td>
+                <td class="border border-gray-300 px-4 py-2 text-center">
+                    <button onclick="deleteRow(this)" class="text-red-500 hover:text-red-700 text-sm">删除</button>
+                </td>
+            `;
+        }
+
+        function deleteRow(btn) {
+            const row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+            updateRowNumbers();
+        }
+
+        function updateRowNumbers() {
+            const table = document.getElementById('dataTable');
+            for (let i = 0; i < table.rows.length; i++) {
+                table.rows[i].cells[0].textContent = i + 1;
+            }
+        }
+
+        function clearAll() {
+            const table = document.getElementById('dataTable');
+            while (table.rows.length > 0) {
+                table.deleteRow(0);
+            }
+            
+            table.innerHTML = `
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">1</td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-x w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="0.0"></td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-u w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="0.00"></td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">2</td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-x w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.0"></td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-u w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="2.50"></td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">3</td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-x w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="2.0"></td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-u w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="5.00"></td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                </tr>
+            `;
+        }
+
+        function analyzeData(data) {
+            const n = data.length;
+            const xValues = data.map(d => d.x);
+            const yValues = data.map(d => d.u);
+
+            const xMean = math.mean(xValues);
+            const yMean = math.mean(yValues);
+
+            let sumXY = 0, sumXX = 0, sumYY = 0;
+            for (let i = 0; i < n; i++) {
+                sumXY += (xValues[i] - xMean) * (yValues[i] - yMean);
+                sumXX += Math.pow(xValues[i] - xMean, 2);
+                sumYY += Math.pow(yValues[i] - yMean, 2);
+            }
+
+            const k = sumXY / sumXX;
+            const b = yMean - k * xMean;
+            const r = sumXY / Math.sqrt(sumXX * sumYY);
+            const rSquared = Math.pow(r, 2);
+
+            const residuals = [];
+            const fitValues = [];
+            for (let i = 0; i < n; i++) {
+                const fit = k * xValues[i] + b;
+                fitValues.push(fit);
+                residuals.push(yValues[i] - fit);
+            }
+
+            const residualStd = math.std(residuals);
+            const threshold = 2 * residualStd;
+
+            const anomalies = [];
+            for (let i = 0; i < n; i++) {
+                if (Math.abs(residuals[i]) > threshold) {
+                    anomalies.push(i);
+                }
+            }
+
+            const jumps = [];
+            const jumpThreshold = 5;
+            for (let i = 1; i < n; i++) {
+                const diff = Math.abs(yValues[i] - yValues[i-1]);
+                if (diff > jumpThreshold) {
+                    jumps.push(i);
+                }
+            }
+
+            let isMonotonic = true;
+            for (let i = 1; i < n; i++) {
+                if (yValues[i] < yValues[i-1]) {
+                    isMonotonic = false;
+                    break;
+                }
+            }
+
+            const maxError = Math.max(...residuals.map(r => Math.abs(r)));
+            const avgError = math.mean(residuals.map(r => Math.abs(r)));
+            const relativeError = (maxError / yMean) * 100;
+
+            return {
+                n,
+                k: parseFloat(k.toFixed(4)),
+                b: parseFloat(b.toFixed(4)),
+                rSquared: parseFloat(rSquared.toFixed(4)),
+                fitValues,
+                residuals: residuals.map(r => parseFloat(r.toFixed(4))),
+                residualStd: parseFloat(residualStd.toFixed(4)),
+                anomalies,
+                jumps,
+                isMonotonic,
+                maxError: parseFloat(maxError.toFixed(4)),
+                avgError: parseFloat(avgError.toFixed(4)),
+                relativeError: parseFloat(relativeError.toFixed(2))
+            };
+        }
+
+        function displayValidationResults() {
+            document.getElementById('validationResults').classList.remove('hidden');
+
+            document.getElementById('dataCount').textContent = analysisResult.n;
+            document.getElementById('rSquared').textContent = analysisResult.rSquared;
+            document.getElementById('rSquared').className = analysisResult.rSquared >= 0.99 ? 'text-2xl font-bold text-green-600' : 
+                                                          analysisResult.rSquared >= 0.95 ? 'text-2xl font-bold text-yellow-600' : 
+                                                          'text-2xl font-bold text-red-600';
+            document.getElementById('sensitivity').textContent = analysisResult.k;
+            document.getElementById('anomalyCount').textContent = analysisResult.anomalies.length;
+            document.getElementById('anomalyCount').className = analysisResult.anomalies.length > 0 ? 'text-2xl font-bold text-red-600' : 'text-2xl font-bold text-gray-800';
+
+            generateAIFeedback();
+            updateDataTable();
+        }
+
+        function generateAIFeedback() {
+            const feedback = document.getElementById('aiFeedback');
+            feedback.innerHTML = '';
+
+            const items = [];
+
+            if (analysisResult.rSquared >= 0.99) {
+                items.push({ type: 'success', text: `相关系数 R² = ${analysisResult.rSquared}，数据优良，线性关系显著` });
+            } else if (analysisResult.rSquared >= 0.95) {
+                items.push({ type: 'warning', text: `相关系数 R² = ${analysisResult.rSquared}，数据较好，但建议检查是否存在误差来源` });
+            } else {
+                items.push({ type: 'error', text: `相关系数 R² = ${analysisResult.rSquared}，数据线性关系较差，建议检查传感器接线或重新测量` });
+            }
+
+            if (analysisResult.anomalies.length > 0) {
+                items.push({ type: 'error', text: `检测到 ${analysisResult.anomalies.length} 个异常点（第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 个数据点），可能存在测量误差` });
+            } else {
+                items.push({ type: 'success', text: '未检测到异常点，数据质量良好' });
+            }
+
+            if (analysisResult.jumps.length > 0) {
+                items.push({ type: 'error', text: `检测到电压跳变（第 ${analysisResult.jumps.map(i => i + 1).join('、')} 个数据点），建议检查连接线是否松动` });
+            }
+
+            if (!analysisResult.isMonotonic) {
+                items.push({ type: 'warning', text: '数据非单调递增，霍尔电压应随位移增大而增大，请检查测量顺序或数据输入' });
+            } else {
+                items.push({ type: 'success', text: '数据单调递增，符合霍尔效应规律' });
+            }
+
+            items.forEach(item => {
+                const bgClass = item.type === 'success' ? 'bg-green-50 border-green-200' : 
+                               item.type === 'warning' ? 'bg-yellow-50 border-yellow-200' : 
+                               'bg-red-50 border-red-200';
+                const iconClass = item.type === 'success' ? 'text-green-600' : 
+                                  item.type === 'warning' ? 'text-yellow-600' : 
+                                  'text-red-600';
+                
+                feedback.innerHTML += `
+                    <div class="${bgClass} border rounded-lg p-4 flex items-start">
+                        <svg class="w-5 h-5 ${iconClass} mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${item.type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>' : 
+                              item.type === 'warning' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>' : 
+                              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>'}
+                        </svg>
+                        <span class="${item.type === 'success' ? 'text-green-800' : item.type === 'warning' ? 'text-yellow-800' : 'text-red-800'}">${item.text}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function updateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            experimentData.forEach((data, index) => {
+                const isAnomaly = analysisResult.anomalies.includes(index);
+                const isJump = analysisResult.jumps.includes(index);
+                const rowClass = isAnomaly ? 'bg-red-50' : isJump ? 'bg-yellow-50' : '';
+
+                tbody.innerHTML += `
+                    <tr class="${rowClass}">
+                        <td class="px-4 py-3 border-b border-gray-200">${index + 1}</td>
+                        <td class="px-4 py-3 border-b border-gray-200">${data.x}</td>
+                        <td class="px-4 py-3 border-b border-gray-200">${data.u}</td>
+                        <td class="px-4 py-3 border-b border-gray-200">${analysisResult.fitValues[index].toFixed(4)}</td>
+                        <td class="px-4 py-3 border-b border-gray-200 ${isAnomaly ? 'text-red-600 font-medium' : ''}">${analysisResult.residuals[index]}</td>
+                        <td class="px-4 py-3 border-b border-gray-200">
+                            ${isAnomaly ? '<span class="text-red-600 font-medium">异常</span>' : 
+                              isJump ? '<span class="text-yellow-600 font-medium">跳变</span>' : 
+                              '<span class="text-green-600">正常</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
