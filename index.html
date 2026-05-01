@@ -148,7 +148,7 @@
                 </div>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <a href="preview.html" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6 text-center btn-hover">
                     <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,6 +176,15 @@
                     <h4 class="text-lg font-semibold mb-2">报告诊断</h4>
                     <p class="text-sm opacity-90">生成智能诊断报告，提供改进建议</p>
                 </a>
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl shadow-lg p-6 text-center btn-hover cursor-pointer" id="aiAssistantCard">
+                    <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-semibold mb-2">AI 助教</h4>
+                    <p class="text-sm opacity-90">点击右下方悬浮窗 智能答疑</p>
+                </div>
             </div>
         </div>
     </section>
@@ -189,20 +198,28 @@
 
     <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
     <script>
-        new CozeWebSDK.WebChatClient({
-            config: {
-                bot_id: '7634527397312266266',
-            },
-            componentProps: {
-                title: '霍尔效应实验助手',
-            },
-            auth: {
-                type: 'token',
-                token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
-                onRefreshToken: function () {
-                    return 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP';
+        let webChatClient;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            webChatClient = new CozeWebSDK.WebChatClient({
+                config: {
+                    bot_id: '7634527397312266266',
+                },
+                componentProps: {
+                    title: '霍尔效应实验助手',
+                },
+                auth: {
+                    type: 'token',
+                    token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                    onRefreshToken: function () {
+                        return 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP';
+                    }
                 }
-            }
+            });
+            
+            document.getElementById('aiAssistantCard').addEventListener('click', () => {
+                document.querySelector('.coze-launch-btn')?.click();
+            });
         });
     </script>
 </body>
