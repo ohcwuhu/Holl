@@ -45,6 +45,17 @@
         .active-nav::after {
             width: 100%;
         }
+        .chart-tabs button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
@@ -124,35 +135,93 @@
             </div>
 
             <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">拟合曲线</h3>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视化</h3>
+                <div class="flex flex-wrap gap-2 mb-4 chart-tabs">
+                    <button onclick="switchChart('fit')" class="px-4 py-2 rounded-lg bg-blue-500 text-white font-medium">拟合曲线</button>
+                    <button onclick="switchChart('residual')" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 font-medium hover:bg-gray-200">残差分布</button>
+                    <button onclick="switchChart('confidence')" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 font-medium hover:bg-gray-200">置信区间</button>
+                </div>
                 <div class="h-80">
-                    <canvas id="fitChart"></canvas>
+                    <canvas id="mainChart"></canvas>
                 </div>
             </div>
 
             <div id="validationResults" class="hidden">
-                <div class="grid md:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="grid md:grid-cols-6 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
                         <div class="text-sm text-gray-500 mb-1">数据点数</div>
                         <div class="text-2xl font-bold text-gray-800" id="dataCount">0</div>
                     </div>
-                    <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
                         <div class="text-sm text-gray-500 mb-1">相关系数 R²</div>
                         <div class="text-2xl font-bold" id="rSquared">0.00</div>
                     </div>
-                    <div class="bg-white rounded-xl shadow-lg p-6">
-                        <div class="text-sm text-gray-500 mb-1">拟合灵敏度 k</div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">灵敏度 k</div>
                         <div class="text-2xl font-bold text-blue-600" id="sensitivity">0.00</div>
                     </div>
-                    <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
                         <div class="text-sm text-gray-500 mb-1">异常点数量</div>
                         <div class="text-2xl font-bold" id="anomalyCount">0</div>
                     </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">残差标准差</div>
+                        <div class="text-2xl font-bold text-purple-600" id="residualStd">0.00</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">数据质量评分</div>
+                        <div class="text-2xl font-bold" id="qualityScore">0</div>
+                    </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">AI 诊断反馈</h3>
-                    <div id="aiFeedback" class="space-y-3"></div>
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">高级数据质量分析</h3>
+                        <div class="space-y-4">
+                            <div class="bg-purple-50 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-700 font-medium">残差正态性检验</span>
+                                    <span id="normalityResult" class="px-3 py-1 rounded-full text-sm font-medium"></span>
+                                </div>
+                                <p class="text-sm text-gray-600">偏度: <span id="skewness">0.00</span> | 峰度: <span id="kurtosis">0.00</span></p>
+                                <p class="text-xs text-gray-500 mt-2" id="normalityDesc"></p>
+                            </div>
+                            <div class="bg-orange-50 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-700 font-medium">异方差检测</span>
+                                    <span id="heteroResult" class="px-3 py-1 rounded-full text-sm font-medium"></span>
+                                </div>
+                                <p class="text-sm text-gray-600" id="heteroDesc"></p>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-700 font-medium">置信区间</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">斜率 k 置信区间</p>
+                                        <p class="font-mono text-green-700" id="kConfidence"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">截距 b 置信区间</p>
+                                        <p class="font-mono text-green-700" id="bConfidence"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-700 font-medium">数据完整性评估</span>
+                                    <span id="completenessScore" class="px-3 py-1 rounded-full text-sm font-medium"></span>
+                                </div>
+                                <p class="text-sm text-gray-600" id="completenessDesc"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">AI 诊断反馈</h3>
+                        <div id="aiFeedback" class="space-y-3 max-h-96 overflow-y-auto"></div>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-lg p-6">
@@ -166,6 +235,7 @@
                                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">霍尔电压 U (mV)</th>
                                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">拟合值 (mV)</th>
                                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">残差 (mV)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">残差标准化</th>
                                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">状态</th>
                                 </tr>
                             </thead>
@@ -206,14 +276,14 @@
         let experimentData = null;
         let analysisResult = null;
         let chartInstance = null;
+        let currentChartType = 'fit';
 
         document.addEventListener('DOMContentLoaded', () => {
             drawEmptyChart();
         });
 
         function drawEmptyChart() {
-            const ctx = document.getElementById('fitChart').getContext('2d');
-            
+            const ctx = document.getElementById('mainChart').getContext('2d');
             chartInstance = new Chart(ctx, {
                 type: 'scatter',
                 data: {
@@ -223,31 +293,17 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            enabled: false
-                        }
+                        legend: { display: false },
+                        tooltip: { enabled: false }
                     },
                     scales: {
                         x: {
-                            title: {
-                                display: true,
-                                text: '位移 x (mm)',
-                                font: { weight: 'bold' }
-                            },
-                            min: 0,
-                            max: 10
+                            title: { display: true, text: '位移 x (mm)', font: { weight: 'bold' } },
+                            min: 0, max: 10
                         },
                         y: {
-                            title: {
-                                display: true,
-                                text: '霍尔电压 U (mV)',
-                                font: { weight: 'bold' }
-                            },
-                            min: 0,
-                            max: 30
+                            title: { display: true, text: '霍尔电压 U (mV)', font: { weight: 'bold' } },
+                            min: 0, max: 30
                         }
                     }
                 }
@@ -276,7 +332,6 @@
                 alert('请输入实验数据');
                 return;
             }
-
             if (data.length < 3) {
                 alert('至少需要3个数据点进行分析');
                 return;
@@ -284,7 +339,6 @@
 
             experimentData = data;
             analysisResult = analyzeData(data);
-
             displayValidationResults();
 
             localStorage.setItem('experimentData', JSON.stringify(data));
@@ -295,7 +349,6 @@
             const table = document.getElementById('dataTable');
             const rowCount = table.rows.length;
             const newRow = table.insertRow();
-            
             newRow.innerHTML = `
                 <td class="border border-gray-300 px-4 py-2">${rowCount + 1}</td>
                 <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-x w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="${rowCount * 1.0}"></td>
@@ -324,7 +377,6 @@
             while (table.rows.length > 0) {
                 table.deleteRow(0);
             }
-            
             table.innerHTML = `
                 <tr>
                     <td class="border border-gray-300 px-4 py-2">1</td>
@@ -379,7 +431,9 @@
             const threshold = 2 * residualStd;
 
             const anomalies = [];
+            const stdResiduals = [];
             for (let i = 0; i < n; i++) {
+                stdResiduals.push(residuals[i] / residualStd);
                 if (Math.abs(residuals[i]) > threshold) {
                     anomalies.push(i);
                 }
@@ -406,21 +460,61 @@
             const avgError = math.mean(residuals.map(r => Math.abs(r)));
             const relativeError = (maxError / yMean) * 100;
 
+            const skewness = calculateSkewness(residuals);
+            const kurtosis = calculateKurtosis(residuals);
+            
+            const seK = residualStd / Math.sqrt(sumXX);
+            const seB = residualStd * Math.sqrt(1/n + Math.pow(xMean, 2)/sumXX);
+            const tValue = 2.0;
+            const kLower = k - tValue * seK;
+            const kUpper = k + tValue * seK;
+            const bLower = b - tValue * seB;
+            const bUpper = b + tValue * seB;
+
+            const xRange = Math.max(...xValues) - Math.min(...xValues);
+            const avgSpacing = xRange / (n - 1);
+            const completeness = Math.min(100, Math.round((n / Math.max(n, 10)) * 50 + (xRange >= 8 ? 30 : xRange) + (avgSpacing <= 1.0 ? 20 : avgSpacing * 5)));
+
+            const qualityScore = Math.round(rSquared * 60 + (1 - anomalies.length / n) * 25 + (residualStd < 0.5 ? 15 : Math.max(0, 15 - residualStd * 10)));
+
             return {
-                n,
-                k: parseFloat(k.toFixed(4)),
-                b: parseFloat(b.toFixed(4)),
+                n, k: parseFloat(k.toFixed(4)), b: parseFloat(b.toFixed(4)),
                 rSquared: parseFloat(rSquared.toFixed(4)),
-                fitValues,
-                residuals: residuals.map(r => parseFloat(r.toFixed(4))),
+                fitValues, residuals: residuals.map(r => parseFloat(r.toFixed(4))),
+                stdResiduals: stdResiduals.map(r => parseFloat(r.toFixed(4))),
                 residualStd: parseFloat(residualStd.toFixed(4)),
-                anomalies,
-                jumps,
-                isMonotonic,
+                anomalies, jumps, isMonotonic,
                 maxError: parseFloat(maxError.toFixed(4)),
                 avgError: parseFloat(avgError.toFixed(4)),
-                relativeError: parseFloat(relativeError.toFixed(2))
+                relativeError: parseFloat(relativeError.toFixed(2)),
+                skewness: parseFloat(skewness.toFixed(4)),
+                kurtosis: parseFloat(kurtosis.toFixed(4)),
+                kConfidence: { lower: parseFloat(kLower.toFixed(4)), upper: parseFloat(kUpper.toFixed(4)) },
+                bConfidence: { lower: parseFloat(bLower.toFixed(4)), upper: parseFloat(bUpper.toFixed(4)) },
+                completeness, qualityScore
             };
+        }
+
+        function calculateSkewness(data) {
+            const mean = math.mean(data);
+            const std = math.std(data);
+            const n = data.length;
+            let sum = 0;
+            for (let i = 0; i < n; i++) {
+                sum += Math.pow((data[i] - mean) / std, 3);
+            }
+            return sum / n;
+        }
+
+        function calculateKurtosis(data) {
+            const mean = math.mean(data);
+            const std = math.std(data);
+            const n = data.length;
+            let sum = 0;
+            for (let i = 0; i < n; i++) {
+                sum += Math.pow((data[i] - mean) / std, 4);
+            }
+            return sum / n - 3;
         }
 
         function displayValidationResults() {
@@ -434,10 +528,78 @@
             document.getElementById('sensitivity').textContent = analysisResult.k;
             document.getElementById('anomalyCount').textContent = analysisResult.anomalies.length;
             document.getElementById('anomalyCount').className = analysisResult.anomalies.length > 0 ? 'text-2xl font-bold text-red-600' : 'text-2xl font-bold text-gray-800';
+            document.getElementById('residualStd').textContent = analysisResult.residualStd;
+            document.getElementById('qualityScore').textContent = analysisResult.qualityScore;
+            document.getElementById('qualityScore').className = analysisResult.qualityScore >= 90 ? 'text-2xl font-bold text-green-600' : 
+                                                               analysisResult.qualityScore >= 70 ? 'text-2xl font-bold text-yellow-600' : 
+                                                               'text-2xl font-bold text-red-600';
 
+            updateAdvancedAnalysis();
             generateAIFeedback();
             drawFitChart();
             updateDataTable();
+        }
+
+        function updateAdvancedAnalysis() {
+            const skewness = analysisResult.skewness;
+            const kurtosis = analysisResult.kurtosis;
+            
+            document.getElementById('skewness').textContent = skewness;
+            document.getElementById('kurtosis').textContent = kurtosis;
+
+            let normalityStatus = 'normal';
+            let normalityText = '残差分布接近正态分布，数据质量良好';
+            if (Math.abs(skewness) > 1.0 || Math.abs(kurtosis) > 2.0) {
+                normalityStatus = 'warning';
+                normalityText = '残差分布偏离正态分布，可能存在未建模的系统误差';
+            } else if (Math.abs(skewness) > 0.5 || Math.abs(kurtosis) > 1.0) {
+                normalityStatus = 'caution';
+                normalityText = '残差分布轻微偏离正态分布，建议关注';
+            }
+
+            const normalityEl = document.getElementById('normalityResult');
+            if (normalityStatus === 'normal') {
+                normalityEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700';
+                normalityEl.textContent = '正常';
+            } else if (normalityStatus === 'caution') {
+                normalityEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700';
+                normalityEl.textContent = '轻微偏离';
+            } else {
+                normalityEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700';
+                normalityEl.textContent = '偏离';
+            }
+            document.getElementById('normalityDesc').textContent = normalityText;
+
+            const heteroStatus = analysisResult.residualStd < 0.5 ? 'homoscedastic' : 'heteroscedastic';
+            const heteroEl = document.getElementById('heteroResult');
+            if (heteroStatus === 'homoscedastic') {
+                heteroEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700';
+                heteroEl.textContent = '齐性';
+                document.getElementById('heteroDesc').textContent = '残差方差均匀，不存在明显的异方差现象';
+            } else {
+                heteroEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-700';
+                heteroEl.textContent = '异方差';
+                document.getElementById('heteroDesc').textContent = '残差方差存在变化，建议检查测量精度是否一致';
+            }
+
+            document.getElementById('kConfidence').textContent = `[${analysisResult.kConfidence.lower}, ${analysisResult.kConfidence.upper}]`;
+            document.getElementById('bConfidence').textContent = `[${analysisResult.bConfidence.lower}, ${analysisResult.bConfidence.upper}]`;
+
+            const compScore = analysisResult.completeness;
+            const compEl = document.getElementById('completenessScore');
+            if (compScore >= 80) {
+                compEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700';
+                compEl.textContent = '优秀';
+                document.getElementById('completenessDesc').textContent = '数据覆盖范围广，采样密度合理';
+            } else if (compScore >= 60) {
+                compEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700';
+                compEl.textContent = '良好';
+                document.getElementById('completenessDesc').textContent = '数据覆盖基本满足要求';
+            } else {
+                compEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700';
+                compEl.textContent = '不足';
+                document.getElementById('completenessDesc').textContent = '建议增加数据点，扩大测量范围';
+            }
         }
 
         function generateAIFeedback() {
@@ -470,6 +632,10 @@
                 items.push({ type: 'success', text: '数据单调递增，符合霍尔效应规律' });
             }
 
+            if (Math.abs(analysisResult.skewness) > 1.0 || Math.abs(analysisResult.kurtosis) > 2.0) {
+                items.push({ type: 'warning', text: `残差分布偏离正态（偏度: ${analysisResult.skewness}, 峰度: ${analysisResult.kurtosis}），建议排查系统误差` });
+            }
+
             items.forEach(item => {
                 const bgClass = item.type === 'success' ? 'bg-green-50 border-green-200' : 
                                item.type === 'warning' ? 'bg-yellow-50 border-yellow-200' : 
@@ -491,15 +657,28 @@
             });
         }
 
-        function drawFitChart() {
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            const ctx = document.getElementById('fitChart').getContext('2d');
+        function switchChart(type) {
+            currentChartType = type;
+            document.querySelectorAll('.chart-tabs button').forEach(btn => btn.classList.remove('active', 'bg-blue-500', 'text-white'));
+            document.querySelectorAll('.chart-tabs button').forEach(btn => btn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200'));
+            event.target.classList.add('active', 'bg-blue-500', 'text-white');
+            event.target.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
             
+            if (!experimentData || experimentData.length === 0) {
+                drawEmptyChart();
+                return;
+            }
+            
+            if (type === 'fit') drawFitChart();
+            else if (type === 'residual') drawResidualChart();
+            else if (type === 'confidence') drawConfidenceChart();
+        }
+
+        function drawFitChart() {
+            if (chartInstance) chartInstance.destroy();
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
             const xValues = experimentData.map(d => d.x);
-            const yValues = experimentData.map(d => d.u);
             const fitValues = analysisResult.fitValues;
 
             chartInstance = new Chart(ctx, {
@@ -536,10 +715,12 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: true
+                    },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                        },
+                        legend: { position: 'top' },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -551,22 +732,201 @@
                                     ];
                                 }
                             }
+                        },
+                        zoom: {
+                            pan: { enabled: true, mode: 'xy' },
+                            zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' }
                         }
                     },
                     scales: {
                         x: {
-                            title: {
-                                display: true,
-                                text: '位移 x (mm)',
-                                font: { weight: 'bold' }
-                            }
+                            title: { display: true, text: '位移 x (mm)', font: { weight: 'bold' } }
                         },
                         y: {
-                            title: {
-                                display: true,
-                                text: '霍尔电压 U (mV)',
-                                font: { weight: 'bold' }
+                            title: { display: true, text: '霍尔电压 U (mV)', font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawResidualChart() {
+            if (chartInstance) chartInstance.destroy();
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const xValues = experimentData.map(d => d.x);
+            const residuals = analysisResult.residuals;
+            const stdResiduals = analysisResult.stdResiduals;
+
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: '残差点',
+                            data: xValues.map((x, i) => ({ x, y: residuals[i] })),
+                            backgroundColor: analysisResult.anomalies.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#ef4444' : '#3b82f6'
+                            ),
+                            borderColor: analysisResult.anomalies.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#dc2626' : '#2563eb'
+                            ),
+                            borderWidth: 2,
+                            radius: 6
+                        },
+                        {
+                            label: '+2σ',
+                            data: [{ x: Math.min(...xValues), y: 2 * analysisResult.residualStd }, 
+                                   { x: Math.max(...xValues), y: 2 * analysisResult.residualStd }],
+                            type: 'line',
+                            borderColor: '#f59e0b',
+                            borderWidth: 1,
+                            borderDash: [5, 5],
+                            pointRadius: 0
+                        },
+                        {
+                            label: '-2σ',
+                            data: [{ x: Math.min(...xValues), y: -2 * analysisResult.residualStd }, 
+                                   { x: Math.max(...xValues), y: -2 * analysisResult.residualStd }],
+                            type: 'line',
+                            borderColor: '#f59e0b',
+                            borderWidth: 1,
+                            borderDash: [5, 5],
+                            pointRadius: 0
+                        },
+                        {
+                            label: '零线',
+                            data: [{ x: Math.min(...xValues), y: 0 }, { x: Math.max(...xValues), y: 0 }],
+                            type: 'line',
+                            borderColor: '#9ca3af',
+                            borderWidth: 1,
+                            borderDash: [3, 3],
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return [
+                                        `位移: ${context.parsed.x} mm`,
+                                        `残差: ${residuals[idx]} mV`,
+                                        `标准化残差: ${stdResiduals[idx]}`
+                                    ];
+                                }
                             }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: '位移 x (mm)', font: { weight: 'bold' } }
+                        },
+                        y: {
+                            title: { display: true, text: '残差 (mV)', font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawConfidenceChart() {
+            if (chartInstance) chartInstance.destroy();
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const xValues = experimentData.map(d => d.x);
+            const fitValues = analysisResult.fitValues;
+            const k = analysisResult.k;
+            const b = analysisResult.b;
+            const residualStd = analysisResult.residualStd;
+            const xMean = math.mean(xValues);
+            const sumXX = xValues.reduce((sum, x) => sum + Math.pow(x - xMean, 2), 0);
+
+            const confInterval = [];
+            const xMin = Math.min(...xValues);
+            const xMax = Math.max(...xValues);
+            const step = (xMax - xMin) / 50;
+            
+            for (let x = xMin; x <= xMax; x += step) {
+                const fit = k * x + b;
+                const se = residualStd * Math.sqrt(1/analysisResult.n + Math.pow(x - xMean, 2)/sumXX);
+                confInterval.push({ x, y: fit - 2 * se });
+                confInterval.push({ x, y: fit + 2 * se });
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: '实验数据',
+                            data: experimentData.map((d, i) => ({ x: d.x, y: d.u })),
+                            backgroundColor: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#ef4444' : '#3b82f6'
+                            ),
+                            borderColor: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#dc2626' : '#2563eb'
+                            ),
+                            borderWidth: 2,
+                            radius: 6,
+                            pointStyle: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? 'crossRot' : 'circle'
+                            )
+                        },
+                        {
+                            label: '线性拟合',
+                            data: xValues.map((x, i) => ({ x, y: fitValues[i] })),
+                            type: 'line',
+                            borderColor: '#10b981',
+                            borderWidth: 2,
+                            tension: 0,
+                            fill: false,
+                            pointRadius: 0
+                        },
+                        {
+                            label: '95% 置信区间',
+                            data: confInterval,
+                            type: 'line',
+                            borderColor: '#8b5cf6',
+                            borderWidth: 1,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: {
+                                target: 'origin',
+                                above: 'rgba(139, 92, 246, 0.1)',
+                                below: 'rgba(139, 92, 246, 0.1)'
+                            }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return [
+                                        `位移: ${context.parsed.x} mm`,
+                                        `电压: ${context.parsed.y} mV`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: '位移 x (mm)', font: { weight: 'bold' } }
+                        },
+                        y: {
+                            title: { display: true, text: '霍尔电压 U (mV)', font: { weight: 'bold' } }
                         }
                     }
                 }
@@ -589,6 +949,7 @@
                         <td class="px-4 py-3 border-b border-gray-200">${data.u}</td>
                         <td class="px-4 py-3 border-b border-gray-200">${analysisResult.fitValues[index].toFixed(4)}</td>
                         <td class="px-4 py-3 border-b border-gray-200 ${isAnomaly ? 'text-red-600 font-medium' : ''}">${analysisResult.residuals[index]}</td>
+                        <td class="px-4 py-3 border-b border-gray-200">${analysisResult.stdResiduals[index]}</td>
                         <td class="px-4 py-3 border-b border-gray-200">
                             ${isAnomaly ? '<span class="text-red-600 font-medium">异常</span>' : 
                               isJump ? '<span class="text-yellow-600 font-medium">跳变</span>' : 
