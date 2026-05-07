@@ -222,6 +222,11 @@
                         <h3 class="text-xl font-semibold text-gray-800 mb-4">AI 诊断反馈</h3>
                         <div id="aiFeedback" class="space-y-3 max-h-96 overflow-y-auto"></div>
                     </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">操作建议</h3>
+                        <div id="actionSuggestions" class="space-y-3 max-h-96 overflow-y-auto"></div>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-lg p-6">
@@ -652,6 +657,83 @@
                               '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>'}
                         </svg>
                         <span class="${item.type === 'success' ? 'text-green-800' : item.type === 'warning' ? 'text-yellow-800' : 'text-red-800'}">${item.text}</span>
+                    </div>
+                `;
+            });
+
+            generateActionSuggestions();
+        }
+
+        function generateActionSuggestions() {
+            const suggestions = document.getElementById('actionSuggestions');
+            suggestions.innerHTML = '';
+
+            const actionItems = [];
+
+            if (analysisResult.rSquared < 0.95) {
+                actionItems.push({ priority: 'high', text: '检查传感器接线是否牢固，确保接触良好' });
+                actionItems.push({ priority: 'high', text: '检查实验装置是否处于稳定状态' });
+            }
+
+            if (analysisResult.anomalies.length > 0) {
+                actionItems.push({ priority: 'high', text: `重新测量第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 个数据点，排除测量失误` });
+            }
+
+            if (analysisResult.jumps.length > 0) {
+                actionItems.push({ priority: 'high', text: '检查连接线，避免接触不良导致电压跳变' });
+            }
+
+            if (!analysisResult.isMonotonic) {
+                actionItems.push({ priority: 'medium', text: '检查测量顺序是否正确，霍尔电压应随位移增大而增大' });
+            }
+
+            if (Math.abs(analysisResult.skewness) > 1.0 || Math.abs(analysisResult.kurtosis) > 2.0) {
+                actionItems.push({ priority: 'medium', text: '排查系统误差来源，可能存在未建模的影响因素' });
+            }
+
+            if (analysisResult.qualityScore < 70) {
+                actionItems.push({ priority: 'high', text: '建议重新进行实验测量，确保数据质量' });
+            }
+
+            actionItems.push({ priority: 'low', text: '建议增加数据采集点，提高测量精度' });
+            actionItems.push({ priority: 'low', text: '实验前预热仪器，减少温度漂移影响' });
+
+            if (actionItems.length === 0) {
+                suggestions.innerHTML = `
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-blue-800">数据质量优良，无需特殊操作建议</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            actionItems.forEach(item => {
+                const bgClass = item.priority === 'high' ? 'bg-red-50 border-red-200' : 
+                               item.priority === 'medium' ? 'bg-yellow-50 border-yellow-200' : 
+                               'bg-green-50 border-green-200';
+                const badgeClass = item.priority === 'high' ? 'bg-red-100 text-red-700' : 
+                                   item.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 
+                                   'bg-green-100 text-green-700';
+                const badgeText = item.priority === 'high' ? '高优先级' : 
+                                  item.priority === 'medium' ? '中优先级' : '低优先级';
+                const iconClass = item.priority === 'high' ? 'text-red-600' : 
+                                  item.priority === 'medium' ? 'text-yellow-600' : 
+                                  'text-green-600';
+                
+                suggestions.innerHTML += `
+                    <div class="${bgClass} border rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <svg class="w-4 h-4 ${iconClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-xs px-2 py-0.5 rounded-full ${badgeClass} font-medium">${badgeText}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm">${item.text}</p>
                     </div>
                 `;
             });
