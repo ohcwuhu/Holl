@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报告诊断 - 伏安法测量电阻实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+        .btn-hover { transition: all 0.2s ease; }
+        .btn-hover:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background-color: #3b82f6; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .active-nav::after { width: 100%; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-white to-pink-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">伏安法实验 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview_resistance.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">预习诊断</a>
+                    <a href="validation_resistance.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
+                    <a href="report_resistance.html" class="nav-link active-nav text-purple-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">伏安法实验 AI 报告诊断</h2>
+                <p class="text-gray-600">数据可视化分析与智能诊断报告生成</p>
+            </div>
+
+            <div id="reportContent" class="hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视化</h3>
+                    <div class="h-80">
+                        <canvas id="dataChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">拟合参数</h3>
+                        <div class="space-y-4">
+                            <div class="bg-purple-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-600 mb-1">拟合公式</p>
+                                <p class="text-xl font-mono text-purple-600 font-semibold" id="fitEquation">U = kI + b</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">斜率 k</p>
+                                    <p class="text-xl font-bold text-gray-800" id="slopeK">0.00</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">截距 b</p>
+                                    <p class="text-xl font-bold text-gray-800" id="interceptB">0.00</p>
+                                </div>
+                            </div>
+                            <div class="bg-pink-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-600 mb-1">电阻 R</p>
+                                <p class="text-xl font-mono text-pink-600 font-semibold" id="resistanceValue">0.00 Ω</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">误差分析</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600">相关系数 R²</span>
+                                <span class="font-medium" id="rSquared">0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600">残差标准差</span>
+                                <span class="font-medium" id="residualStd">0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600">异常点位置</span>
+                                <span class="font-medium" id="anomalyPositions">-</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600">单位</span>
+                                <span class="font-medium text-purple-600">Ω</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">智能诊断报告</h3>
+                    <div id="diagnosticReport" class="space-y-4"></div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="downloadReport()" class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium px-8 py-3 rounded-lg transition-colors btn-hover">
+                        下载诊断报告
+                    </button>
+                </div>
+            </div>
+
+            <div id="noDataHint" class="bg-white rounded-xl shadow-lg p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">暂无实验数据</h3>
+                <p class="text-gray-600 mb-4">请先在「数据校验」模块输入并校验实验数据</p>
+                <a href="validation_resistance.html" class="inline-block bg-purple-500 hover:bg-purple-600 text-white font-medium px-6 py-2 rounded-lg transition-colors">
+                    去输入数据
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">伏安法测量电阻实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        let experimentData = null;
+        let analysisResult = null;
+        let chartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+
+        function loadData() {
+            const dataStr = localStorage.getItem('experimentData_resistance');
+            const resultStr = localStorage.getItem('analysisResult_resistance');
+            
+            if (dataStr && resultStr) {
+                experimentData = JSON.parse(dataStr);
+                analysisResult = JSON.parse(resultStr);
+                displayReport();
+            }
+        }
+
+        function displayReport() {
+            document.getElementById('noDataHint').classList.add('hidden');
+            document.getElementById('reportContent').classList.remove('hidden');
+
+            document.getElementById('fitEquation').textContent = `U = ${analysisResult.k}I + ${analysisResult.b}`;
+            document.getElementById('slopeK').textContent = analysisResult.k;
+            document.getElementById('interceptB').textContent = analysisResult.b;
+            document.getElementById('resistanceValue').textContent = `${analysisResult.resistance} Ω`;
+
+            document.getElementById('rSquared').textContent = analysisResult.rSquared;
+            document.getElementById('residualStd').textContent = analysisResult.residualStd;
+            document.getElementById('anomalyPositions').textContent = analysisResult.anomalies.length > 0 ? 
+                `第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 点` : '无';
+
+            generateDiagnosticReport();
+            drawChart();
+        }
+
+        function generateDiagnosticReport() {
+            const report = document.getElementById('diagnosticReport');
+            const qualityScore = analysisResult.rSquared >= 0.99 ? 95 : 
+                                analysisResult.rSquared >= 0.95 ? 85 : 
+                                analysisResult.rSquared >= 0.90 ? 70 : 50;
+
+            report.innerHTML = `
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                        <p class="text-sm opacity-80">数据质量评分</p>
+                        <p class="text-3xl font-bold">${qualityScore}分</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg p-4 text-white">
+                        <p class="text-sm opacity-80">拟合效果</p>
+                        <p class="text-3xl font-bold">${analysisResult.rSquared >= 0.99 ? '优良' : analysisResult.rSquared >= 0.95 ? '较好' : '需改进'}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-lg p-4 text-white">
+                        <p class="text-sm opacity-80">电阻值</p>
+                        <p class="text-3xl font-bold">${analysisResult.resistance} Ω</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-gray-800 mb-2">一、数据质量分析</h4>
+                        <p class="text-gray-600 text-sm">
+                            本次实验共采集 ${analysisResult.n} 个数据点。相关系数 R² = ${analysisResult.rSquared}，表明电压与电流之间存在${analysisResult.rSquared >= 0.99 ? '显著的线性关系' : analysisResult.rSquared >= 0.95 ? '较好的线性关系' : '一定的线性关系'}。
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-gray-800 mb-2">二、电阻测量结果</h4>
+                        <ul class="text-gray-600 text-sm space-y-1">
+                            <li>• 测量值：${analysisResult.resistance} Ω</li>
+                            ${analysisResult.anomalies.length > 0 ? `<li>• 异常点：第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 个数据点</li>` : ''}
+                        </ul>
+                    </div>
+
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-gray-800 mb-2">三、误差类型判断</h4>
+                        <p class="text-gray-600 text-sm">
+                            ${analysisResult.rSquared >= 0.99 ? '随机误差为主，数据可靠性高。' : 
+                              analysisResult.anomalies.length > 0 ? '存在粗大误差（异常点），可能由测量失误或电路连接问题引起。' : 
+                              '误差来源需进一步分析，建议重复测量验证。'}
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-purple-50 rounded-lg">
+                        <h4 class="font-semibold text-purple-800 mb-2">四、改进建议</h4>
+                        <ul class="text-purple-700 text-sm space-y-1">
+                            ${analysisResult.rSquared < 0.95 ? '<li>• 检查电路连接是否正确，确保电流表和电压表接线无误</li>' : ''}
+                            ${analysisResult.anomalies.length > 0 ? '<li>• 重新测量异常点数据，排除测量失误</li>' : ''}
+                            ${analysisResult.rSquared >= 0.99 ? '<li>• 数据质量优良，实验操作规范</li>' : ''}
+                            <li>• 建议增加数据采集点，提高测量精度</li>
+                            <li>• 根据被测电阻大小选择合适的测量接法（内接或外接）</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function drawChart() {
+            const ctx = document.getElementById('dataChart').getContext('2d');
+            const iValues = experimentData.map(d => d.i);
+            const fitValues = analysisResult.fitValues;
+
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: '实验数据',
+                            data: experimentData.map((d, i) => ({ x: d.i, y: d.u })),
+                            backgroundColor: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#ef4444' : '#a855f7'
+                            ),
+                            borderColor: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#dc2626' : '#9333ea'
+                            ),
+                            borderWidth: 2,
+                            radius: 6,
+                            pointStyle: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? 'crossRot' : 'circle'
+                            )
+                        },
+                        {
+                            label: '线性拟合',
+                            data: iValues.map((i, idx) => ({ x: i, y: fitValues[idx] })),
+                            type: 'line',
+                            borderColor: '#a855f7',
+                            borderWidth: 2,
+                            tension: 0,
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return [
+                                        `电流: ${context.parsed.x} mA`,
+                                        `电压: ${context.parsed.y.toFixed(2)} V`,
+                                        `电阻: ${experimentData[idx].r} Ω`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: '电流 I (mA)', font: { weight: 'bold' } } },
+                        y: { title: { display: true, text: '电压 U (V)', font: { weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        function downloadReport() {
+            const reportModal = document.createElement('div');
+            reportModal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+            reportModal.innerHTML = `
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto m-4">
+                    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-gray-800">伏安法实验诊断报告</h3>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">伏安法测量电阻实验诊断报告</h2>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">一、实验数据概览</h3>
+                            <table class="w-full text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-300 px-3 py-2">序号</th>
+                                        <th class="border border-gray-300 px-3 py-2">电压 U (V)</th>
+                                        <th class="border border-gray-300 px-3 py-2">电流 I (mA)</th>
+                                        <th class="border border-gray-300 px-3 py-2">电阻 R (Ω)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${experimentData.map((d, i) => `
+                                        <tr>
+                                            <td class="border border-gray-300 px-3 py-2">${i + 1}</td>
+                                            <td class="border border-gray-300 px-3 py-2">${d.u.toFixed(1)}</td>
+                                            <td class="border border-gray-300 px-3 py-2">${d.i.toFixed(1)}</td>
+                                            <td class="border border-gray-300 px-3 py-2">${d.r}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">二、拟合结果</h3>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <p class="text-purple-800 font-mono text-lg">U = ${analysisResult.k}I + ${analysisResult.b}</p>
+                                <p class="text-purple-600 mt-2">电阻 R = ${analysisResult.resistance} Ω</p>
+                                <p class="text-purple-600">相关系数 R² = ${analysisResult.rSquared}</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">三、误差分析</h3>
+                            <ul class="text-gray-600 space-y-1">
+                                <li>• 残差标准差：${analysisResult.residualStd}</li>
+                                <li>• 异常点：${analysisResult.anomalies.length > 0 ? `第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 点` : '无'}</li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">四、诊断结论</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-gray-700">
+                                    ${analysisResult.rSquared >= 0.99 ? '数据优良，线性关系显著，实验操作规范。' : 
+                                      analysisResult.rSquared >= 0.95 ? '数据较好，建议检查并优化测量方法。' : 
+                                      '数据质量一般，建议重新测量并检查电路连接。'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="text-right text-gray-400 text-sm">伏安法测量电阻实验 AI 辅助诊断系统生成</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(reportModal);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据校验 - 单摆测量重力加速度实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+        .btn-hover { transition: all 0.2s ease; }
+        .btn-hover:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background-color: #3b82f6; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .active-nav::after { width: 100%; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">单摆实验 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview_pendulum.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">预习诊断</a>
+                    <a href="validation_pendulum.html" class="nav-link active-nav text-green-600 font-medium">数据校验</a>
+                    <a href="report_pendulum.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">单摆实验数据实时校验</h2>
+                <p class="text-gray-600">输入摆长和周期数据，系统将进行实时质量校验和 AI 分析</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">数据输入</h3>
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-600">序号</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-600">摆长 l (cm)</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-600">周期 T (s)</th>
+                                <th class="border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-600">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTable">
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-l w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="50.0"></td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-t w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.42"></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-l w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="60.0"></td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-t w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.55"></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-l w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="70.0"></td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-t w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.68"></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex gap-3 mb-4">
+                    <button onclick="addRow()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">+ 添加行</button>
+                    <button onclick="clearAll()" class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">清空数据</button>
+                </div>
+                <button onclick="validateData()" class="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-3 rounded-lg transition-colors btn-hover">提交校验</button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视化</h3>
+                <div class="h-80">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <div id="validationResults" class="hidden">
+                <div class="grid md:grid-cols-6 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">数据点数</div>
+                        <div class="text-2xl font-bold text-gray-800" id="dataCount">0</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">相关系数 R²</div>
+                        <div class="text-2xl font-bold" id="rSquared">0.00</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">重力加速度 g</div>
+                        <div class="text-2xl font-bold text-green-600" id="gravity">0.00</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">异常点数量</div>
+                        <div class="text-2xl font-bold" id="anomalyCount">0</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">残差标准差</div>
+                        <div class="text-2xl font-bold text-purple-600" id="residualStd">0.00</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="text-sm text-gray-500 mb-1">数据质量评分</div>
+                        <div class="text-2xl font-bold" id="qualityScore">0</div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">AI 诊断反馈</h3>
+                        <div id="aiFeedback" class="space-y-3"></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">操作建议</h3>
+                        <div id="actionSuggestions" class="space-y-3"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">数据表格</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">序号</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">摆长 l (cm)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">周期 T (s)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">T² (s²)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">残差</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">单摆测量重力加速度实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        let experimentData = null;
+        let analysisResult = null;
+        let chartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            drawEmptyChart();
+        });
+
+        function drawEmptyChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: { datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: {
+                        x: { title: { display: true, text: '摆长 l (cm)', font: { weight: 'bold' } }, min: 0, max: 100 },
+                        y: { title: { display: true, text: '周期平方 T² (s²)', font: { weight: 'bold' } }, min: 0, max: 4 }
+                    }
+                }
+            });
+        }
+
+        function validateData() {
+            const lInputs = document.querySelectorAll('.data-input-l');
+            const tInputs = document.querySelectorAll('.data-input-t');
+            const data = [];
+
+            try {
+                for (let i = 0; i < lInputs.length; i++) {
+                    const l = parseFloat(lInputs[i].value);
+                    const t = parseFloat(tInputs[i].value);
+                    if (!isNaN(l) && !isNaN(t)) {
+                        data.push({ l: l / 100, t, t2: t * t, index: i });
+                    }
+                }
+            } catch (e) {
+                alert('数据格式错误，请检查输入');
+                return;
+            }
+
+            if (data.length === 0) {
+                alert('请输入实验数据');
+                return;
+            }
+            if (data.length < 3) {
+                alert('至少需要3个数据点进行分析');
+                return;
+            }
+
+            experimentData = data;
+            analysisResult = analyzeData(data);
+            displayValidationResults();
+
+            localStorage.setItem('experimentData_pendulum', JSON.stringify(data));
+            localStorage.setItem('analysisResult_pendulum', JSON.stringify(analysisResult));
+        }
+
+        function addRow() {
+            const table = document.getElementById('dataTable');
+            const rowCount = table.rows.length;
+            const newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td class="border border-gray-300 px-4 py-2">${rowCount + 1}</td>
+                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-l w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="${50 + rowCount * 10}"></td>
+                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-t w-full px-2 py-1 border border-gray-300 rounded text-center"></td>
+                <td class="border border-gray-300 px-4 py-2 text-center"><button onclick="deleteRow(this)" class="text-red-500 hover:text-red-700 text-sm">删除</button></td>
+            `;
+        }
+
+        function deleteRow(btn) {
+            const row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+            updateRowNumbers();
+        }
+
+        function updateRowNumbers() {
+            const table = document.getElementById('dataTable');
+            for (let i = 0; i < table.rows.length; i++) {
+                table.rows[i].cells[0].textContent = i + 1;
+            }
+        }
+
+        function clearAll() {
+            const table = document.getElementById('dataTable');
+            while (table.rows.length > 0) {
+                table.deleteRow(0);
+            }
+            table.innerHTML = `
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">1</td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-l w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="50.0"></td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-t w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.42"></td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">2</td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-l w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="60.0"></td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-t w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.55"></td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">3</td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-l w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="70.0"></td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.01" class="data-input-t w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.68"></td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                </tr>
+            `;
+        }
+
+        function analyzeData(data) {
+            const n = data.length;
+            const lValues = data.map(d => d.l);
+            const t2Values = data.map(d => d.t2);
+
+            const lMean = math.mean(lValues);
+            const t2Mean = math.mean(t2Values);
+
+            let sumLT = 0, sumLL = 0;
+            for (let i = 0; i < n; i++) {
+                sumLT += (lValues[i] - lMean) * (t2Values[i] - t2Mean);
+                sumLL += Math.pow(lValues[i] - lMean, 2);
+            }
+
+            const k = sumLT / sumLL;
+            const b = t2Mean - k * lMean;
+            const r = sumLT / Math.sqrt(sumLL * t2Values.reduce((sum, t2) => sum + Math.pow(t2 - t2Mean, 2), 0));
+            const rSquared = Math.pow(r, 2);
+
+            const g = (4 * Math.pow(Math.PI, 2)) / k;
+
+            const residuals = [];
+            const fitValues = [];
+            for (let i = 0; i < n; i++) {
+                const fit = k * lValues[i] + b;
+                fitValues.push(fit);
+                residuals.push(t2Values[i] - fit);
+            }
+
+            const residualStd = math.std(residuals);
+            const threshold = 2 * residualStd;
+            const anomalies = residuals.map((r, i) => Math.abs(r) > threshold ? i : -1).filter(i => i >= 0);
+
+            let isMonotonic = true;
+            for (let i = 1; i < n; i++) {
+                if (t2Values[i] < t2Values[i - 1]) {
+                    isMonotonic = false;
+                    break;
+                }
+            }
+
+            const qualityScore = Math.round(rSquared * 60 + (1 - anomalies.length / n) * 25 + (residualStd < 0.05 ? 15 : Math.max(0, 15 - residualStd * 100)));
+
+            return {
+                n, k: parseFloat(k.toFixed(4)), b: parseFloat(b.toFixed(4)),
+                rSquared: parseFloat(rSquared.toFixed(4)), g: parseFloat(g.toFixed(2)),
+                fitValues, residuals: residuals.map(r => parseFloat(r.toFixed(4))),
+                residualStd: parseFloat(residualStd.toFixed(4)),
+                anomalies, isMonotonic, qualityScore
+            };
+        }
+
+        function displayValidationResults() {
+            document.getElementById('validationResults').classList.remove('hidden');
+
+            document.getElementById('dataCount').textContent = analysisResult.n;
+            document.getElementById('rSquared').textContent = analysisResult.rSquared;
+            document.getElementById('rSquared').className = analysisResult.rSquared >= 0.99 ? 'text-2xl font-bold text-green-600' : 
+                                                          analysisResult.rSquared >= 0.95 ? 'text-2xl font-bold text-yellow-600' : 
+                                                          'text-2xl font-bold text-red-600';
+            document.getElementById('gravity').textContent = analysisResult.g;
+            document.getElementById('anomalyCount').textContent = analysisResult.anomalies.length;
+            document.getElementById('anomalyCount').className = analysisResult.anomalies.length > 0 ? 'text-2xl font-bold text-red-600' : 'text-2xl font-bold text-gray-800';
+            document.getElementById('residualStd').textContent = analysisResult.residualStd;
+            document.getElementById('qualityScore').textContent = analysisResult.qualityScore;
+            document.getElementById('qualityScore').className = analysisResult.qualityScore >= 90 ? 'text-2xl font-bold text-green-600' : 
+                                                               analysisResult.qualityScore >= 70 ? 'text-2xl font-bold text-yellow-600' : 
+                                                               'text-2xl font-bold text-red-600';
+
+            generateAIFeedback();
+            drawFitChart();
+            updateDataTable();
+        }
+
+        function generateAIFeedback() {
+            const feedback = document.getElementById('aiFeedback');
+            feedback.innerHTML = '';
+
+            const items = [];
+
+            if (analysisResult.rSquared >= 0.99) {
+                items.push({ type: 'success', text: `相关系数 R² = ${analysisResult.rSquared}，数据优良，线性关系显著` });
+            } else if (analysisResult.rSquared >= 0.95) {
+                items.push({ type: 'warning', text: `相关系数 R² = ${analysisResult.rSquared}，数据较好，但建议检查是否存在误差来源` });
+            } else {
+                items.push({ type: 'error', text: `相关系数 R² = ${analysisResult.rSquared}，数据线性关系较差，建议检查摆长测量或周期计时` });
+            }
+
+            items.push({ type: 'success', text: `计算得到重力加速度 g = ${analysisResult.g} m/s²` });
+
+            const expectedG = 9.8;
+            const gError = Math.abs((analysisResult.g - expectedG) / expectedG * 100);
+            if (gError < 5) {
+                items.push({ type: 'success', text: `测量值与标准值(${expectedG} m/s²)偏差仅 ${gError.toFixed(1)}%，结果非常准确！` });
+            } else if (gError < 10) {
+                items.push({ type: 'warning', text: `测量值与标准值偏差 ${gError.toFixed(1)}%，建议检查实验操作` });
+            } else {
+                items.push({ type: 'error', text: `测量值与标准值偏差 ${gError.toFixed(1)}%，请重新检查数据或实验装置` });
+            }
+
+            if (analysisResult.anomalies.length > 0) {
+                items.push({ type: 'error', text: `检测到 ${analysisResult.anomalies.length} 个异常点（第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 个数据点）` });
+            } else {
+                items.push({ type: 'success', text: '未检测到异常点，数据质量良好' });
+            }
+
+            if (!analysisResult.isMonotonic) {
+                items.push({ type: 'warning', text: '数据非单调递增，周期平方应随摆长增大而增大' });
+            }
+
+            items.forEach(item => {
+                const bgClass = item.type === 'success' ? 'bg-green-50 border-green-200' : 
+                               item.type === 'warning' ? 'bg-yellow-50 border-yellow-200' : 
+                               'bg-red-50 border-red-200';
+                const iconClass = item.type === 'success' ? 'text-green-600' : 
+                                  item.type === 'warning' ? 'text-yellow-600' : 
+                                  'text-red-600';
+
+                feedback.innerHTML += `
+                    <div class="${bgClass} border rounded-lg p-4 flex items-start">
+                        <svg class="w-5 h-5 ${iconClass} mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${item.type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>' : 
+                              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>'}
+                        </svg>
+                        <span class="${item.type === 'success' ? 'text-green-800' : item.type === 'warning' ? 'text-yellow-800' : 'text-red-800'}">${item.text}</span>
+                    </div>
+                `;
+            });
+
+            generateActionSuggestions();
+        }
+
+        function generateActionSuggestions() {
+            const suggestions = document.getElementById('actionSuggestions');
+            suggestions.innerHTML = '';
+
+            const actionItems = [];
+
+            if (analysisResult.rSquared < 0.95) {
+                actionItems.push({ priority: 'high', text: '检查摆长测量是否准确，确保从悬点到摆球质心的距离' });
+                actionItems.push({ priority: 'high', text: '检查周期计时是否准确，建议测量多次周期取平均值' });
+            }
+
+            if (analysisResult.anomalies.length > 0) {
+                actionItems.push({ priority: 'high', text: `重新测量第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 个数据点` });
+            }
+
+            if (!analysisResult.isMonotonic) {
+                actionItems.push({ priority: 'medium', text: '检查测量顺序是否正确，确保摆长递增测量' });
+            }
+
+            if (analysisResult.qualityScore < 70) {
+                actionItems.push({ priority: 'high', text: '建议重新进行实验测量' });
+            }
+
+            actionItems.push({ priority: 'low', text: '建议增加数据采集点，提高测量精度' });
+            actionItems.push({ priority: 'low', text: '确保摆角小于5度，满足简谐运动条件' });
+
+            actionItems.forEach(item => {
+                const bgClass = item.priority === 'high' ? 'bg-red-50 border-red-200' : 
+                               item.priority === 'medium' ? 'bg-yellow-50 border-yellow-200' : 
+                               'bg-green-50 border-green-200';
+                const badgeClass = item.priority === 'high' ? 'bg-red-100 text-red-700' : 
+                                   item.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 
+                                   'bg-green-100 text-green-700';
+                const badgeText = item.priority === 'high' ? '高优先级' : 
+                                  item.priority === 'medium' ? '中优先级' : '低优先级';
+
+                suggestions.innerHTML += `
+                    <div class="${bgClass} border rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <svg class="w-4 h-4 ${item.priority === 'high' ? 'text-red-600' : item.priority === 'medium' ? 'text-yellow-600' : 'text-green-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-xs px-2 py-0.5 rounded-full ${badgeClass} font-medium">${badgeText}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm">${item.text}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function drawFitChart() {
+            if (chartInstance) chartInstance.destroy();
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const lValues = experimentData.map(d => d.l * 100);
+            const t2Values = experimentData.map(d => d.t2);
+            const fitValues = analysisResult.fitValues;
+
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: '实验数据',
+                            data: experimentData.map((d, i) => ({ x: d.l * 100, y: d.t2 })),
+                            backgroundColor: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#ef4444' : '#22c55e'
+                            ),
+                            borderColor: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#dc2626' : '#16a34a'
+                            ),
+                            borderWidth: 2,
+                            radius: 6,
+                            pointStyle: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? 'crossRot' : 'circle'
+                            )
+                        },
+                        {
+                            label: '线性拟合',
+                            data: lValues.map((l, i) => ({ x: l, y: fitValues[i] })),
+                            type: 'line',
+                            borderColor: '#10b981',
+                            borderWidth: 2,
+                            tension: 0,
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return [
+                                        `摆长: ${context.parsed.x} cm`,
+                                        `T²: ${context.parsed.y.toFixed(4)} s²`,
+                                        `残差: ${analysisResult.residuals[idx]} s²`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: '摆长 l (cm)', font: { weight: 'bold' } } },
+                        y: { title: { display: true, text: '周期平方 T² (s²)', font: { weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        function updateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            experimentData.forEach((d, i) => {
+                const isAnomaly = analysisResult.anomalies.includes(i);
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="px-4 py-2">${i + 1}</td>
+                        <td class="px-4 py-2">${(d.l * 100).toFixed(1)}</td>
+                        <td class="px-4 py-2">${d.t.toFixed(2)}</td>
+                        <td class="px-4 py-2">${d.t2.toFixed(4)}</td>
+                        <td class="px-4 py-2">${analysisResult.residuals[i]}</td>
+                        <td class="px-4 py-2">${isAnomaly ? '<span class="text-red-600 font-medium">异常</span>' : '<span class="text-green-600 font-medium">正常</span>'}</td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

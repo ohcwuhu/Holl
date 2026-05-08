@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预习诊断 - 单摆测量重力加速度实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+        .btn-hover { transition: all 0.2s ease; }
+        .btn-hover:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background-color: #3b82f6; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .active-nav::after { width: 100%; }
+        .collapse-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .collapse-content.open { max-height: 600px; }
+        .option-btn { transition: all 0.2s ease; border: 2px solid #e5e7eb; }
+        .option-btn:hover { border-color: #3b82f6; background-color: #eff6ff; }
+        .option-btn.selected { border-color: #3b82f6; background-color: #dbeafe; }
+        .option-btn.correct { border-color: #10b981; background-color: #dcfce7; }
+        .option-btn.incorrect { border-color: #ef4444; background-color: #fee2e2; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">单摆实验 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview_pendulum.html" class="nav-link active-nav text-green-600 font-medium">预习诊断</a>
+                    <a href="validation_pendulum.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
+                    <a href="report_pendulum.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">单摆测量重力加速度 - 预习诊断</h2>
+                <p class="text-gray-600">通过视频学习和问答测试，评估您的预习效果</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">预习视频</h3>
+                <div class="relative bg-gray-900 rounded-lg aspect-video overflow-hidden">
+                    <img src="https://picsum.photos/1280/720?random=2" alt="单摆实验视频" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-20 h-20 bg-green-500/80 rounded-full flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors">
+                            <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">预习问答测试</h3>
+                    <div class="text-sm text-gray-500">已答: <span id="answeredCount">0</span> / <span id="totalCount">4</span></div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="border border-gray-200 rounded-xl p-6" id="question1">
+                        <div class="flex items-start mb-4">
+                            <span class="flex-shrink-0 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">1</span>
+                            <h4 class="text-lg font-medium text-gray-800">单摆的周期公式是什么？</h4>
+                        </div>
+                        <div class="space-y-3 ml-11">
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'A')">
+                                <span class="font-medium">A. \( T = 2\pi\sqrt{\frac{l}{g}} \)</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'B')">
+                                <span class="font-medium">B. \( T = 2\pi\sqrt{\frac{g}{l}} \)</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'C')">
+                                <span class="font-medium">C. \( T = \pi\sqrt{\frac{l}{g}} \)</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'D')">
+                                <span class="font-medium">D. \( T = \frac{1}{2\pi}\sqrt{\frac{l}{g}} \)</span>
+                            </button>
+                        </div>
+                        <div id="q1-explanation" class="collapse-content mt-4 ml-11">
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <p class="text-gray-700 mb-2"><strong>正确答案：A</strong></p>
+                                <p class="text-gray-600 text-sm">单摆周期公式为 \( T = 2\pi\sqrt{\frac{l}{g}} \)，其中 \( l \) 是摆长，\( g \) 是重力加速度。周期与摆长的平方根成正比，与重力加速度的平方根成反比。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-6" id="question2">
+                        <div class="flex items-start mb-4">
+                            <span class="flex-shrink-0 w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">2</span>
+                            <h4 class="text-lg font-medium text-gray-800">单摆做简谐运动的条件是什么？</h4>
+                        </div>
+                        <div class="space-y-3 ml-11">
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'A')">
+                                <span class="font-medium">A. 摆角可以任意大</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'B')">
+                                <span class="font-medium">B. 摆角小于5度</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'C')">
+                                <span class="font-medium">C. 摆角小于10度</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'D')">
+                                <span class="font-medium">D. 摆角小于15度</span>
+                            </button>
+                        </div>
+                        <div id="q2-explanation" class="collapse-content mt-4 ml-11">
+                            <div class="p-4 bg-cyan-50 rounded-lg">
+                                <p class="text-gray-700 mb-2"><strong>正确答案：B</strong></p>
+                                <p class="text-gray-600 text-sm">当摆角小于5度时，\( \sin\theta \approx \theta \)，单摆的运动近似为简谐运动。摆角过大时，周期会随摆角增大而变长。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-6" id="question3">
+                        <div class="flex items-start mb-4">
+                            <span class="flex-shrink-0 w-8 h-8 bg-teal-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">3</span>
+                            <h4 class="text-lg font-medium text-gray-800">如何通过单摆测量重力加速度？</h4>
+                        </div>
+                        <div class="space-y-3 ml-11">
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'A')">
+                                <span class="font-medium">A. 测量一次周期，计算 \( g = \frac{4\pi^2 l}{T^2} \)</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'B')">
+                                <span class="font-medium">B. 测量多个不同摆长对应的周期，作 \( T^2-l \) 图求斜率</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'C')">
+                                <span class="font-medium">C. 只测量一个摆长的周期即可</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'D')">
+                                <span class="font-medium">D. 测量摆球质量和周期</span>
+                            </button>
+                        </div>
+                        <div id="q3-explanation" class="collapse-content mt-4 ml-11">
+                            <div class="p-4 bg-teal-50 rounded-lg">
+                                <p class="text-gray-700 mb-2"><strong>正确答案：B</strong></p>
+                                <p class="text-gray-600 text-sm">通过改变摆长 \( l \)，测量对应的周期 \( T \)，作 \( T^2-l \) 图，斜率 \( k = \frac{4\pi^2}{g} \)，从而求得 \( g = \frac{4\pi^2}{k} \)。这种方法可以减小误差。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-6" id="question4">
+                        <div class="flex items-start mb-4">
+                            <span class="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">4</span>
+                            <h4 class="text-lg font-medium text-gray-800">下列哪种因素会影响单摆周期？</h4>
+                        </div>
+                        <div class="space-y-3 ml-11">
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'A')">
+                                <span class="font-medium">A. 摆球质量</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'B')">
+                                <span class="font-medium">B. 摆长</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'C')">
+                                <span class="font-medium">C. 初始振幅（小角度时）</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'D')">
+                                <span class="font-medium">D. 空气阻力（忽略时）</span>
+                            </button>
+                        </div>
+                        <div id="q4-explanation" class="collapse-content mt-4 ml-11">
+                            <div class="p-4 bg-emerald-50 rounded-lg">
+                                <p class="text-gray-700 mb-2"><strong>正确答案：B</strong></p>
+                                <p class="text-gray-600 text-sm">根据周期公式 \( T = 2\pi\sqrt{\frac{l}{g}} \)，周期只与摆长 \( l \) 和重力加速度 \( g \) 有关，与摆球质量、初始振幅（小角度）无关。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button id="submitAnswers" class="bg-green-500 hover:bg-green-600 text-white font-medium px-8 py-3 rounded-lg transition-colors btn-hover">
+                        提交答案并查看诊断结果
+                    </button>
+                </div>
+            </div>
+
+            <div id="diagnosisResult" class="hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">预习诊断结果</h3>
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">答题正确率</p>
+                            <p class="text-4xl font-bold" id="accuracy">0%</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">掌握程度</p>
+                            <p class="text-4xl font-bold" id="masteryLevel">0%</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">评级</p>
+                            <p class="text-4xl font-bold" id="grade">-</p>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-yellow-50 rounded-lg p-4">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <span class="font-medium text-gray-800">薄弱知识点</span>
+                            </div>
+                            <ul class="text-sm text-gray-600 space-y-1" id="weakPoints"></ul>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <span class="font-medium text-gray-800">掌握较好</span>
+                            </div>
+                            <ul class="text-sm text-gray-600 space-y-1" id="strongPoints"></ul>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <p class="text-green-800"><strong>学习建议：</strong><span id="suggestion"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">单摆测量重力加速度实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        const questions = [
+            { id: 1, correctAnswer: 'A', topic: '单摆周期公式', knowledge: '周期与摆长、重力加速度的关系' },
+            { id: 2, correctAnswer: 'B', topic: '简谐运动条件', knowledge: '小角度近似条件' },
+            { id: 3, correctAnswer: 'B', topic: '重力加速度测量方法', knowledge: 'T²-l 图像法' },
+            { id: 4, correctAnswer: 'B', topic: '周期影响因素', knowledge: '摆长是唯一影响因素' }
+        ];
+        const studentAnswers = {};
+        let isSubmitted = false;
+
+        function selectAnswer(questionId, answer) {
+            if (isSubmitted) return;
+            const questionDiv = document.getElementById(`question${questionId}`);
+            const options = questionDiv.querySelectorAll('.option-btn');
+            options.forEach(opt => opt.classList.remove('selected'));
+            const selectedOption = questionDiv.querySelector(`button[onclick="selectAnswer(${questionId}, '${answer}')"]`);
+            if (selectedOption) selectedOption.classList.add('selected');
+            studentAnswers[questionId] = answer;
+            updateAnsweredCount();
+        }
+
+        function updateAnsweredCount() {
+            const answered = Object.keys(studentAnswers).length;
+            document.getElementById('answeredCount').textContent = answered;
+        }
+
+        document.getElementById('submitAnswers').addEventListener('click', () => {
+            if (Object.keys(studentAnswers).length < questions.length) {
+                alert('请先回答所有问题');
+                return;
+            }
+            isSubmitted = true;
+            evaluateAnswers();
+            showExplanations();
+            document.getElementById('diagnosisResult').classList.remove('hidden');
+        });
+
+        function evaluateAnswers() {
+            let correctCount = 0;
+            const weakTopics = [], strongTopics = [];
+            questions.forEach(q => {
+                const isCorrect = studentAnswers[q.id] === q.correctAnswer;
+                if (isCorrect) { correctCount++; strongTopics.push(q.topic); }
+                else weakTopics.push(q.topic);
+            });
+            const accuracy = Math.round((correctCount / questions.length) * 100);
+            document.getElementById('accuracy').textContent = `${accuracy}%`;
+            document.getElementById('masteryLevel').textContent = `${accuracy}%`;
+            document.getElementById('grade').textContent = getGrade(accuracy);
+            
+            const weakPointsList = document.getElementById('weakPoints');
+            const strongPointsList = document.getElementById('strongPoints');
+            
+            if (weakTopics.length > 0) {
+                weakTopics.forEach(topic => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `• ${topic}`;
+                    weakPointsList.appendChild(li);
+                });
+            } else weakPointsList.innerHTML = '<li>• 暂无薄弱知识点</li>';
+
+            if (strongTopics.length > 0) {
+                strongTopics.forEach(topic => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `• ${topic}`;
+                    strongPointsList.appendChild(li);
+                });
+            } else strongPointsList.innerHTML = '<li>• 暂无掌握较好的知识点</li>';
+
+            document.getElementById('suggestion').textContent = generateSuggestion(accuracy, weakTopics);
+        }
+
+        function showExplanations() {
+            questions.forEach(q => {
+                document.getElementById(`q${q.id}-explanation`).classList.add('open');
+                const options = document.getElementById(`question${q.id}`).querySelectorAll('.option-btn');
+                options.forEach(opt => {
+                    opt.classList.remove('selected');
+                    const isCorrectOption = opt.textContent.trim().startsWith(q.correctAnswer);
+                    const isStudentAnswer = opt.textContent.trim().startsWith(studentAnswers[q.id]);
+                    if (isCorrectOption) opt.classList.add('correct');
+                    else if (isStudentAnswer && !isCorrectOption) opt.classList.add('incorrect');
+                    opt.style.pointerEvents = 'none';
+                });
+            });
+        }
+
+        function getGrade(accuracy) {
+            if (accuracy >= 90) return 'A';
+            if (accuracy >= 80) return 'B';
+            if (accuracy >= 70) return 'C';
+            if (accuracy >= 60) return 'D';
+            return 'F';
+        }
+
+        function generateSuggestion(accuracy, weakTopics) {
+            if (accuracy >= 90) return '预习效果优秀！您已掌握单摆实验的核心知识点，可以进入实验环节。建议回顾一下实验操作步骤。';
+            if (accuracy >= 70) return `预习效果良好，但仍有部分知识点需要加强。建议重点复习：${weakTopics.join('、')}。这些知识点对实验数据处理非常重要。`;
+            if (accuracy >= 50) return `预习效果一般，需要加强学习。建议重新观看预习视频，重点理解：${weakTopics.join('、')}。如有疑问可以咨询指导教师。`;
+            return '建议重新观看预习视频，系统学习单摆实验相关知识。重点关注：周期公式、简谐运动条件、重力加速度测量方法和周期影响因素。';
+        }
+    </script>
+</body>
+</html>
