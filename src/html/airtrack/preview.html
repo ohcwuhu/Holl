@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预习诊断 - 气垫技术及其应用实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #14b8a6;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .active-nav::after {
+            width: 100%;
+        }
+        .question-card {
+            transition: all 0.3s ease;
+        }
+        .question-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover {
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-teal-50 via-white to-cyan-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">气垫导轨 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-teal-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link active-nav text-teal-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link text-gray-600 hover:text-teal-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link text-gray-600 hover:text-teal-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验预习诊断</h2>
+                <p class="text-gray-600">完成以下预习问答，系统将评估您对气垫导轨实验的知识掌握程度</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">📚 实验原理视频学习</h3>
+                <div class="aspect-video bg-gradient-to-br from-teal-100 to-cyan-100 rounded-lg flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-gray-600">气垫导轨实验原理视频</p>
+                        <p class="text-sm text-gray-400 mt-2">点击播放学习</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quizContainer" class="space-y-6">
+                <div class="bg-white rounded-xl shadow-lg p-6 question-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800">
+                            <span class="bg-teal-100 text-teal-600 px-2 py-1 rounded text-sm mr-2">Q1</span>
+                            气垫导轨的主要作用是什么？
+                        </h4>
+                        <span class="text-xs text-gray-400">知识点：气垫原理</span>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="selectAnswer(1, 'A')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">A</span>
+                            提供光滑表面，增大摩擦力
+                        </button>
+                        <button onclick="selectAnswer(1, 'B')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">B</span>
+                            利用气垫悬浮滑块，减小摩擦力
+                        </button>
+                        <button onclick="selectAnswer(1, 'C')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">C</span>
+                            测量滑块的质量
+                        </button>
+                        <button onclick="selectAnswer(1, 'D')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">D</span>
+                            产生高压气体
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 question-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800">
+                            <span class="bg-teal-100 text-teal-600 px-2 py-1 rounded text-sm mr-2">Q2</span>
+                            牛顿第二定律的表达式是什么？
+                        </h4>
+                        <span class="text-xs text-gray-400">知识点：牛顿第二定律</span>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="selectAnswer(2, 'A')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">A</span>
+                            F = ma
+                        </button>
+                        <button onclick="selectAnswer(2, 'B')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">B</span>
+                            E = mc²
+                        </button>
+                        <button onclick="selectAnswer(2, 'C')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">C</span>
+                            p = mv
+                        </button>
+                        <button onclick="selectAnswer(2, 'D')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">D</span>
+                            W = Fd
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 question-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800">
+                            <span class="bg-teal-100 text-teal-600 px-2 py-1 rounded text-sm mr-2">Q3</span>
+                            在完全弹性碰撞中，下列哪个物理量守恒？
+                        </h4>
+                        <span class="text-xs text-gray-400">知识点：动量守恒</span>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="selectAnswer(3, 'A')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">A</span>
+                            只有动量守恒
+                        </button>
+                        <button onclick="selectAnswer(3, 'B')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">B</span>
+                            只有动能守恒
+                        </button>
+                        <button onclick="selectAnswer(3, 'C')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">C</span>
+                            动量和动能都守恒
+                        </button>
+                        <button onclick="selectAnswer(3, 'D')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">D</span>
+                            动量和动能都不守恒
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 question-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800">
+                            <span class="bg-teal-100 text-teal-600 px-2 py-1 rounded text-sm mr-2">Q4</span>
+                            气垫导轨调平的目的是什么？
+                        </h4>
+                        <span class="text-xs text-gray-400">知识点：实验操作</span>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="selectAnswer(4, 'A')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">A</span>
+                            使滑块匀速运动，消除重力影响
+                        </button>
+                        <button onclick="selectAnswer(4, 'B')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">B</span>
+                            增加摩擦力
+                        </button>
+                        <button onclick="selectAnswer(4, 'C')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">C</span>
+                            方便安装光电门
+                        </button>
+                        <button onclick="selectAnswer(4, 'D')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">D</span>
+                            提高滑块速度
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 question-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800">
+                            <span class="bg-teal-100 text-teal-600 px-2 py-1 rounded text-sm mr-2">Q5</span>
+                            数字毫秒计的主要功能是什么？
+                        </h4>
+                        <span class="text-xs text-gray-400">知识点：仪器使用</span>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="selectAnswer(5, 'A')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">A</span>
+                            测量温度
+                        </button>
+                        <button onclick="selectAnswer(5, 'B')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">B</span>
+                            精确测量时间间隔
+                        </button>
+                        <button onclick="selectAnswer(5, 'C')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">C</span>
+                            测量质量
+                        </button>
+                        <button onclick="selectAnswer(5, 'D')" class="option-btn w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300">
+                            <span class="inline-block w-6 h-6 bg-gray-100 rounded-full text-center text-sm mr-3">D</span>
+                            产生气垫
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button onclick="submitQuiz()" class="bg-teal-500 hover:bg-teal-600 text-white font-medium px-8 py-3 rounded-lg transition-colors btn-hover">
+                    提交答案并查看诊断结果
+                </button>
+            </div>
+        </div>
+
+        <div id="resultModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full mx-4 transform transition-all">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">预习诊断结果</h3>
+                </div>
+
+                <div class="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-6 mb-6">
+                    <div class="text-center">
+                        <div class="text-5xl font-bold text-teal-600 mb-2" id="scoreDisplay">0</div>
+                        <div class="text-gray-600">得分 / 100分</div>
+                        <div class="mt-3 px-4 py-2 rounded-full inline-block" id="levelBadge">
+                            未评估
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span class="text-gray-600">掌握程度</span>
+                        <span class="font-medium" id="masteryLevel">-</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span class="text-gray-600">正确题数</span>
+                        <span class="font-medium" id="correctCount">-</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span class="text-gray-600">错误题数</span>
+                        <span class="font-medium" id="wrongCount">-</span>
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-orange-800 mb-2">💡 薄弱知识点</h4>
+                    <ul id="weakPoints" class="text-sm text-orange-700 space-y-1">
+                    </ul>
+                </div>
+
+                <div class="bg-green-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-green-800 mb-2">📖 学习建议</h4>
+                    <ul id="suggestions" class="text-sm text-green-700 space-y-1">
+                    </ul>
+                </div>
+
+                <button onclick="closeModal()" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 rounded-lg transition-colors">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <p>气垫技术及其应用实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        const correctAnswers = {
+            1: 'B',
+            2: 'A',
+            3: 'C',
+            4: 'A',
+            5: 'B'
+        };
+
+        const questionTopics = {
+            1: '气垫原理',
+            2: '牛顿第二定律',
+            3: '动量守恒',
+            4: '实验操作',
+            5: '仪器使用'
+        };
+
+        const userAnswers = {};
+
+        function selectAnswer(questionId, answer) {
+            userAnswers[questionId] = answer;
+            const buttons = document.querySelectorAll(`.question-card:nth-child(${questionId}) .option-btn`);
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-teal-100', 'border-teal-500');
+                btn.classList.add('border-gray-200');
+            });
+            event.target.classList.add('bg-teal-100', 'border-teal-500');
+            event.target.classList.remove('border-gray-200');
+        }
+
+        function submitQuiz() {
+            let correct = 0;
+            const wrongTopics = [];
+
+            Object.keys(correctAnswers).forEach(qId => {
+                if (userAnswers[qId] === correctAnswers[qId]) {
+                    correct++;
+                } else {
+                    wrongTopics.push(questionTopics[qId]);
+                }
+            });
+
+            const score = Math.round((correct / Object.keys(correctAnswers).length) * 100);
+            
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('correctCount').textContent = `${correct} / ${Object.keys(correctAnswers).length}`;
+            document.getElementById('wrongCount').textContent = `${Object.keys(correctAnswers).length - correct}`;
+
+            let level, mastery, badgeClass;
+            if (score >= 90) {
+                level = '优秀';
+                mastery = '完全掌握';
+                badgeClass = 'bg-green-100 text-green-700';
+            } else if (score >= 70) {
+                level = '良好';
+                mastery = '基本掌握';
+                badgeClass = 'bg-blue-100 text-blue-700';
+            } else if (score >= 60) {
+                level = '及格';
+                mastery = '初步掌握';
+                badgeClass = 'bg-yellow-100 text-yellow-700';
+            } else {
+                level = '需加强';
+                mastery = '未掌握';
+                badgeClass = 'bg-red-100 text-red-700';
+            }
+
+            document.getElementById('masteryLevel').textContent = mastery;
+            document.getElementById('levelBadge').textContent = level;
+            document.getElementById('levelBadge').className = `${badgeClass} px-4 py-2 rounded-full inline-block`;
+
+            const weakPointsList = document.getElementById('weakPoints');
+            weakPointsList.innerHTML = '';
+            if (wrongTopics.length > 0) {
+                wrongTopics.forEach(topic => {
+                    weakPointsList.innerHTML += `<li>• ${topic}</li>`;
+                });
+            } else {
+                weakPointsList.innerHTML = '<li>无明显薄弱知识点，继续保持！</li>';
+            }
+
+            const suggestionsList = document.getElementById('suggestions');
+            suggestionsList.innerHTML = '';
+            if (score >= 90) {
+                suggestionsList.innerHTML = '<li>预习效果优秀，可以开始实验！</li><li>建议重点关注实验操作细节</li>';
+            } else if (score >= 70) {
+                suggestionsList.innerHTML = '<li>预习效果良好，但仍有提升空间</li><li>建议复习错误知识点后再进行实验</li>';
+            } else if (score >= 60) {
+                suggestionsList.innerHTML = '<li>建议重新学习实验原理视频</li><li>重点复习薄弱知识点</li><li>熟悉实验仪器的使用方法</li>';
+            } else {
+                suggestionsList.innerHTML = '<li>建议重新学习气垫导轨实验原理</li><li>重点理解牛顿第二定律和动量守恒</li><li>学习数字毫秒计的使用方法</li><li>了解气垫导轨调平的方法</li>';
+            }
+
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

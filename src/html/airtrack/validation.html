@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据校验 - 气垫技术及其应用实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #14b8a6;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .active-nav::after {
+            width: 100%;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .chart-tab {
+            transition: all 0.2s ease;
+        }
+        .chart-tab:hover {
+            background-color: #d1fae5;
+        }
+        .chart-tab.active {
+            background-color: #14b8a6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-teal-50 via-white to-cyan-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">气垫导轨 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-teal-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-teal-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link active-nav text-teal-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link text-gray-600 hover:text-teal-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验中数据实时校验</h2>
+                <p class="text-gray-600">输入实验数据，系统将进行实时质量校验和 AI 分析</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">测量数据输入</h3>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-teal-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-teal-800 mb-3">基本参数</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">滑块质量 m₁ (g)</label>
+                                <input type="number" step="0.1" id="mass1" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="滑块1质量">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">滑块质量 m₂ (g)</label>
+                                <input type="number" step="0.1" id="mass2" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="滑块2质量">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">砝码质量 m₃ (g)</label>
+                                <input type="number" step="0.1" id="mass3" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="砝码质量" value="2.0">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">遮光片宽度 ΔL (cm)</label>
+                                <input type="number" step="0.01" id="deltaL" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="遮光片宽度" value="3.00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-cyan-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-cyan-800 mb-3">光电门间距</h4>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">两光电门间距 s (cm)</label>
+                            <input type="number" step="0.1" id="distanceS" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="光电门间距" value="50.0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-blue-800 mb-3">测量加速度（验证牛顿第二定律）</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-blue-100">
+                                    <th class="px-3 py-2 text-left text-sm font-medium">次数</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">Δt₁ (ms)</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">Δt₂ (ms)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-3 py-2">1</td><td><input type="number" step="0.01" id="accT1_1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="accT2_1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td></tr>
+                                <tr><td class="px-3 py-2">2</td><td><input type="number" step="0.01" id="accT1_2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="accT2_2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td></tr>
+                                <tr><td class="px-3 py-2">3</td><td><input type="number" step="0.01" id="accT1_3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="accT2_3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-purple-800 mb-3">完全弹性碰撞</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-purple-100">
+                                    <th class="px-3 py-2 text-left text-sm font-medium">次数</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">Δt₁₀ (ms)</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">Δt₂₀ (ms)</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">Δt₁ (ms)</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">Δt₂ (ms)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-3 py-2">1</td><td><input type="number" step="0.01" id="elasticT10_1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="elasticT20_1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="elasticT1_1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="elasticT2_1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td></tr>
+                                <tr><td class="px-3 py-2">2</td><td><input type="number" step="0.01" id="elasticT10_2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="elasticT20_2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="elasticT1_2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="elasticT2_2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td></tr>
+                                <tr><td class="px-3 py-2">3</td><td><input type="number" step="0.01" id="elasticT10_3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="elasticT20_3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="elasticT1_3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="elasticT2_3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-orange-800 mb-3">完全非弹性碰撞</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-orange-100">
+                                    <th class="px-3 py-2 text-left text-sm font-medium">次数</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">Δt₁₀ (ms)</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">Δt (ms)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-3 py-2">1</td><td><input type="number" step="0.01" id="inelasticT10_1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="inelasticT_1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td></tr>
+                                <tr><td class="px-3 py-2">2</td><td><input type="number" step="0.01" id="inelasticT10_2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="inelasticT_2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td></tr>
+                                <tr><td class="px-3 py-2">3</td><td><input type="number" step="0.01" id="inelasticT10_3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="inelasticT_3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="validateData()" class="bg-teal-500 hover:bg-teal-600 text-white font-medium px-6 py-3 rounded-lg transition-colors btn-hover">
+                        提交校验
+                    </button>
+                    <button onclick="clearAll()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-3 rounded-lg transition-colors btn-hover">
+                        清空数据
+                    </button>
+                </div>
+            </div>
+
+            <div id="validationResults" class="hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视化分析</h3>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button onclick="switchChart('acceleration')" class="chart-tab active px-4 py-2 rounded-lg bg-teal-500 text-white">加速度对比</button>
+                        <button onclick="switchChart('momentum')" class="chart-tab px-4 py-2 rounded-lg bg-gray-100 text-gray-600">动量守恒</button>
+                        <button onclick="switchChart('energy')" class="chart-tab px-4 py-2 rounded-lg bg-gray-100 text-gray-600">能量守恒</button>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">平均加速度</div>
+                        <div class="text-2xl font-bold text-teal-600" id="avgAcceleration">0.00 cm/s²</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">动量守恒率</div>
+                        <div class="text-2xl font-bold text-cyan-600" id="momentumConservation">0%</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">动能守恒率</div>
+                        <div class="text-2xl font-bold text-blue-600" id="energyConservation">0%</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">数据质量评分</div>
+                        <div class="text-2xl font-bold" id="qualityScore">0</div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">AI 诊断反馈</h3>
+                        <div id="aiFeedback" class="space-y-2">
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">操作建议</h3>
+                        <div id="actionSuggestions" class="space-y-2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">测量数据记录</h3>
+                    <div id="dataTables">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <p>气垫技术及其应用实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        let chartInstance = null;
+        let currentChartType = 'acceleration';
+        let currentResult = null;
+
+        function switchChart(type) {
+            currentChartType = type;
+            document.querySelectorAll('.chart-tab').forEach(tab => {
+                tab.classList.remove('active', 'bg-teal-500', 'text-white');
+                tab.classList.add('bg-gray-100', 'text-gray-600');
+            });
+            event.target.classList.add('active', 'bg-teal-500', 'text-white');
+            event.target.classList.remove('bg-gray-100', 'text-gray-600');
+            
+            if (currentResult) {
+                drawChart();
+            }
+        }
+
+        function drawChart() {
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            
+            if (currentChartType === 'acceleration') {
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['测量1', '测量2', '测量3'],
+                        datasets: [{
+                            label: '加速度 (cm/s²)',
+                            data: currentResult.accelerations,
+                            backgroundColor: '#14b8a6',
+                            borderColor: '#0d9488',
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: true } },
+                        scales: {
+                            y: {
+                                title: { display: true, text: '加速度 (cm/s²)', font: { weight: 'bold' } }
+                            }
+                        }
+                    }
+                });
+            } else if (currentChartType === 'momentum') {
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['碰撞前', '碰撞后'],
+                        datasets: [{
+                            label: '完全弹性碰撞',
+                            data: [currentResult.elasticMomentumBefore, currentResult.elasticMomentumAfter],
+                            backgroundColor: ['#3b82f6', '#10b981'],
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: true } },
+                        scales: {
+                            y: {
+                                title: { display: true, text: '动量 (g·cm/s)', font: { weight: 'bold' } }
+                            }
+                        }
+                    }
+                });
+            } else if (currentChartType === 'energy') {
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['碰撞前', '碰撞后'],
+                        datasets: [{
+                            label: '完全弹性碰撞动能',
+                            data: [currentResult.elasticKEBefore, currentResult.elasticKEAfter],
+                            backgroundColor: ['#8b5cf6', '#f59e0b'],
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: true } },
+                        scales: {
+                            y: {
+                                title: { display: true, text: '动能 (erg)', font: { weight: 'bold' } }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function validateData() {
+            const mass1 = parseFloat(document.getElementById('mass1').value);
+            const mass2 = parseFloat(document.getElementById('mass2').value);
+            const mass3 = parseFloat(document.getElementById('mass3').value) || 2.0;
+            const deltaL = parseFloat(document.getElementById('deltaL').value) || 3.00;
+            const distanceS = parseFloat(document.getElementById('distanceS').value) || 50.0;
+
+            const accData = [
+                { t1: parseFloat(document.getElementById('accT1_1').value), t2: parseFloat(document.getElementById('accT2_1').value) },
+                { t1: parseFloat(document.getElementById('accT1_2').value), t2: parseFloat(document.getElementById('accT2_2').value) },
+                { t1: parseFloat(document.getElementById('accT1_3').value), t2: parseFloat(document.getElementById('accT2_3').value) }
+            ];
+
+            const elasticData = [
+                { t10: parseFloat(document.getElementById('elasticT10_1').value), t20: parseFloat(document.getElementById('elasticT20_1').value), t1: parseFloat(document.getElementById('elasticT1_1').value), t2: parseFloat(document.getElementById('elasticT2_1').value) },
+                { t10: parseFloat(document.getElementById('elasticT10_2').value), t20: parseFloat(document.getElementById('elasticT20_2').value), t1: parseFloat(document.getElementById('elasticT1_2').value), t2: parseFloat(document.getElementById('elasticT2_2').value) },
+                { t10: parseFloat(document.getElementById('elasticT10_3').value), t20: parseFloat(document.getElementById('elasticT20_3').value), t1: parseFloat(document.getElementById('elasticT1_3').value), t2: parseFloat(document.getElementById('elasticT2_3').value) }
+            ];
+
+            const inelasticData = [
+                { t10: parseFloat(document.getElementById('inelasticT10_1').value), t: parseFloat(document.getElementById('inelasticT_1').value) },
+                { t10: parseFloat(document.getElementById('inelasticT10_2').value), t: parseFloat(document.getElementById('inelasticT_2').value) },
+                { t10: parseFloat(document.getElementById('inelasticT10_3').value), t: parseFloat(document.getElementById('inelasticT_3').value) }
+            ];
+
+            const result = analyzeData(mass1, mass2, mass3, deltaL, distanceS, accData, elasticData, inelasticData);
+            displayResults(result);
+        }
+
+        function analyzeData(mass1, mass2, mass3, deltaL, distanceS, accData, elasticData, inelasticData) {
+            const g = 980;
+
+            const accelerations = accData.filter(d => d.t1 && d.t2).map(d => {
+                const t1_ms = d.t1;
+                const t2_ms = d.t2;
+                const v1 = deltaL / (t1_ms / 1000);
+                const v2 = deltaL / (t2_ms / 1000);
+                const a = (v2 * v2 - v1 * v1) / (2 * distanceS);
+                return a;
+            });
+
+            const avgAcceleration = accelerations.length > 0 ? parseFloat(math.mean(accelerations).toFixed(2)) : 0;
+            const accStd = accelerations.length > 1 ? parseFloat(math.std(accelerations).toFixed(2)) : 0;
+
+            const expectedAcc = mass3 > 0 && mass1 > 0 ? parseFloat(((mass3 * g) / (mass1 + mass3)).toFixed(2)) : 0;
+            const accDeviation = expectedAcc > 0 ? parseFloat(Math.abs((avgAcceleration - expectedAcc) / expectedAcc * 100).toFixed(2)) : 0;
+
+            const elasticMomentums = elasticData.filter(d => d.t10 && d.t20 && d.t1 && d.t2).map(d => {
+                const v10 = deltaL / (d.t10 / 1000);
+                const v20 = deltaL / (d.t20 / 1000);
+                const v1 = deltaL / (d.t1 / 1000);
+                const v2 = deltaL / (d.t2 / 1000);
+                return {
+                    before: mass1 * v10 + mass2 * v20,
+                    after: mass1 * v1 + mass2 * v2
+                };
+            });
+
+            const elasticMomentumBefore = elasticMomentums.length > 0 ? parseFloat(math.mean(elasticMomentums.map(m => m.before)).toFixed(2)) : 0;
+            const elasticMomentumAfter = elasticMomentums.length > 0 ? parseFloat(math.mean(elasticMomentums.map(m => m.after)).toFixed(2)) : 0;
+            const momentumConservation = elasticMomentumBefore > 0 ? parseFloat(Math.abs(elasticMomentumAfter / elasticMomentumBefore * 100 - 100).toFixed(2)) : 0;
+
+            const elasticKEs = elasticData.filter(d => d.t10 && d.t20 && d.t1 && d.t2).map(d => {
+                const v10 = deltaL / (d.t10 / 1000);
+                const v20 = deltaL / (d.t20 / 1000);
+                const v1 = deltaL / (d.t1 / 1000);
+                const v2 = deltaL / (d.t2 / 1000);
+                return {
+                    before: 0.5 * mass1 * v10 * v10 + 0.5 * mass2 * v20 * v20,
+                    after: 0.5 * mass1 * v1 * v1 + 0.5 * mass2 * v2 * v2
+                };
+            });
+
+            const elasticKEBefore = elasticKEs.length > 0 ? parseFloat(math.mean(elasticKEs.map(ke => ke.before)).toFixed(2)) : 0;
+            const elasticKEAfter = elasticKEs.length > 0 ? parseFloat(math.mean(elasticKEs.map(ke => ke.after)).toFixed(2)) : 0;
+            const energyConservation = elasticKEBefore > 0 ? parseFloat(Math.abs(elasticKEAfter / elasticKEBefore * 100 - 100).toFixed(2)) : 0;
+
+            const inelasticMomentums = inelasticData.filter(d => d.t10 && d.t).map(d => {
+                const v10 = deltaL / (d.t10 / 1000);
+                const v = deltaL / (d.t / 1000);
+                return {
+                    before: mass1 * v10,
+                    after: (mass1 + mass2) * v
+                };
+            });
+
+            const inelasticMomentumBefore = inelasticMomentums.length > 0 ? parseFloat(math.mean(inelasticMomentums.map(m => m.before)).toFixed(2)) : 0;
+            const inelasticMomentumAfter = inelasticMomentums.length > 0 ? parseFloat(math.mean(inelasticMomentums.map(m => m.after)).toFixed(2)) : 0;
+            const inelasticMomentumConservation = inelasticMomentumBefore > 0 ? parseFloat(Math.abs(inelasticMomentumAfter / inelasticMomentumBefore * 100 - 100).toFixed(2)) : 0;
+
+            let qualityScore = 100;
+            if (accStd > 2) qualityScore -= Math.min(15, (accStd - 2) * 7.5);
+            if (momentumConservation > 3) qualityScore -= Math.min(20, (momentumConservation - 3) * 6.67);
+            if (energyConservation > 8) qualityScore -= Math.min(20, (energyConservation - 8) * 2.5);
+            if (accDeviation > 8) qualityScore -= Math.min(25, (accDeviation - 8) * 3.125);
+            if (inelasticMomentumConservation > 5) qualityScore -= Math.min(20, (inelasticMomentumConservation - 5) * 4);
+            qualityScore = Math.max(0, Math.round(qualityScore));
+
+            return {
+                mass1, mass2, mass3, deltaL, distanceS,
+                accelerations, avgAcceleration, accStd, expectedAcc, accDeviation,
+                elasticMomentumBefore, elasticMomentumAfter, momentumConservation,
+                elasticKEBefore, elasticKEAfter, energyConservation,
+                inelasticMomentumBefore, inelasticMomentumAfter, inelasticMomentumConservation,
+                qualityScore
+            };
+        }
+
+        function displayResults(result) {
+            currentResult = result;
+            document.getElementById('validationResults').classList.remove('hidden');
+
+            document.getElementById('avgAcceleration').textContent = `${result.avgAcceleration} cm/s²`;
+            document.getElementById('momentumConservation').textContent = `${(100 - result.momentumConservation).toFixed(1)}%`;
+            document.getElementById('energyConservation').textContent = `${(100 - result.energyConservation).toFixed(1)}%`;
+            
+            const qualityScoreEl = document.getElementById('qualityScore');
+            qualityScoreEl.textContent = result.qualityScore;
+            qualityScoreEl.className = result.qualityScore >= 90 ? 'text-2xl font-bold text-green-600' :
+                                     result.qualityScore >= 70 ? 'text-2xl font-bold text-yellow-600' :
+                                     'text-2xl font-bold text-red-600';
+
+            generateAIFeedback(result);
+            generateActionSuggestions(result);
+            updateDataTables(result);
+            drawChart();
+        }
+
+        function generateAIFeedback(result) {
+            const feedback = document.getElementById('aiFeedback');
+            feedback.innerHTML = '';
+
+            const items = [];
+
+            if (result.qualityScore >= 90) {
+                items.push({ type: 'success', text: '数据质量优秀！实验结果与理论值吻合良好' });
+            } else if (result.qualityScore >= 70) {
+                items.push({ type: 'warning', text: '数据质量良好，但仍有改进空间' });
+            } else {
+                items.push({ type: 'error', text: '数据质量一般，建议检查实验操作' });
+            }
+
+            if (result.expectedAcc > 0) {
+                items.push({ type: result.accDeviation <= 8 ? 'success' : result.accDeviation <= 15 ? 'warning' : 'error', 
+                    text: `牛顿第二定律验证：测量加速度 ${result.avgAcceleration} cm/s²，理论值 ${result.expectedAcc} cm/s²，偏差 ${result.accDeviation}%` });
+            }
+
+            if (result.momentumConservation >= 0) {
+                items.push({ type: result.momentumConservation <= 3 ? 'success' : result.momentumConservation <= 6 ? 'warning' : 'error', 
+                    text: `完全弹性碰撞动量守恒偏差 ${result.momentumConservation}%` });
+            }
+
+            if (result.inelasticMomentumConservation >= 0 && result.inelasticMomentumBefore > 0) {
+                items.push({ type: result.inelasticMomentumConservation <= 5 ? 'success' : result.inelasticMomentumConservation <= 10 ? 'warning' : 'error', 
+                    text: `完全非弹性碰撞动量守恒偏差 ${result.inelasticMomentumConservation}%` });
+            }
+
+            if (result.energyConservation >= 0) {
+                items.push({ type: result.energyConservation <= 8 ? 'success' : result.energyConservation <= 15 ? 'warning' : 'error', 
+                    text: `完全弹性碰撞动能损失 ${result.energyConservation}%（实验允许范围内）` });
+            }
+
+            items.forEach(item => {
+                feedback.innerHTML += `
+                    <div class="flex items-start p-3 rounded-lg ${item.type === 'success' ? 'bg-green-50' : item.type === 'warning' ? 'bg-yellow-50' : 'bg-red-50'}">
+                        <span class="mr-2">${item.type === 'success' ? '✓' : item.type === 'warning' ? '⚠' : '✗'}</span>
+                        <span class="${item.type === 'success' ? 'text-green-700' : item.type === 'warning' ? 'text-yellow-700' : 'text-red-700'}">${item.text}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function generateActionSuggestions(result) {
+            const suggestions = document.getElementById('actionSuggestions');
+            suggestions.innerHTML = '';
+
+            const items = [];
+
+            if (result.accDeviation > 8) {
+                items.push({ priority: 'high', text: `加速度偏差 ${result.accDeviation}%，建议检查导轨水平度和滑轮顺畅度` });
+            }
+            if (result.momentumConservation > 3) {
+                items.push({ priority: 'high', text: `弹性碰撞动量偏差较大，检查导轨是否水平，滑块是否匀速运动` });
+            }
+            if (result.inelasticMomentumConservation > 5 && result.inelasticMomentumBefore > 0) {
+                items.push({ priority: 'medium', text: `非弹性碰撞动量偏差较大，检查碰撞接触面是否平整` });
+            }
+            if (result.energyConservation > 8) {
+                items.push({ priority: 'medium', text: `动能损失较大，检查弹簧片是否完好，确保完全弹性碰撞` });
+            }
+            if (result.accStd > 2) {
+                items.push({ priority: 'medium', text: `加速度测量重复性较差（标准差 ${result.accStd}），建议增加测量次数` });
+            }
+
+            if (items.length === 0) {
+                items.push({ priority: 'low', text: '实验操作规范，数据质量良好' });
+            }
+
+            items.forEach(item => {
+                suggestions.innerHTML += `
+                    <div class="flex items-start p-3 rounded-lg bg-gray-50">
+                        <span class="px-2 py-0.5 text-xs font-medium rounded ${item.priority === 'high' ? 'bg-red-100 text-red-700' : item.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'} mr-2">
+                            ${item.priority === 'high' ? '高' : item.priority === 'medium' ? '中' : '低'}
+                        </span>
+                        <span class="text-gray-700">${item.text}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function updateDataTables(result) {
+            const container = document.getElementById('dataTables');
+            container.innerHTML = `
+                <h4 class="font-semibold text-gray-700 mb-3">加速度测量</h4>
+                <table class="w-full mb-6">
+                    <thead><tr class="bg-teal-100"><th class="px-3 py-2">次数</th><th class="px-3 py-2">加速度 (cm/s²)</th></tr></thead>
+                    <tbody>
+                        ${result.accelerations.map((acc, i) => `<tr><td class="px-3 py-2">${i + 1}</td><td class="px-3 py-2">${acc.toFixed(2)}</td></tr>`).join('')}
+                        <tr class="bg-gray-50"><td class="px-3 py-2 font-medium">平均值</td><td class="px-3 py-2 font-medium">${result.avgAcceleration.toFixed(2)}</td></tr>
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input').forEach(input => {
+                if (input.value !== '' && input.id !== 'mass3' && input.id !== 'deltaL' && input.id !== 'distanceS') {
+                    input.value = '';
+                }
+            });
+            document.getElementById('validationResults').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

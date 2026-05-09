@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报告诊断 - 金属丝杨氏模量的测定实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #6366f1;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .active-nav::after {
+            width: 100%;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">杨氏模量 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-indigo-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-indigo-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link text-gray-600 hover:text-indigo-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link active-nav text-indigo-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验报告诊断</h2>
+                <p class="text-gray-600">系统将对实验数据进行综合分析，生成诊断报告</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <div class="flex flex-wrap items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800">金属丝杨氏模量的测定实验报告</h3>
+                        <p class="text-gray-500 text-sm mt-1">实验日期：2024年秋季学期</p>
+                    </div>
+                    <button onclick="downloadReport()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-6 py-3 rounded-lg transition-colors btn-hover">
+                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        下载报告
+                    </button>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-6 text-white">
+                        <div class="text-sm opacity-80 mb-2">实验数据质量评分</div>
+                        <div class="text-4xl font-bold mb-2">89</div>
+                        <div class="text-sm opacity-80">良好</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-6 text-white">
+                        <div class="text-sm opacity-80 mb-2">测量杨氏模量</div>
+                        <div class="text-4xl font-bold mb-2">2.05</div>
+                        <div class="text-sm opacity-80">× 10¹¹ N/m²</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl p-6 text-white">
+                        <div class="text-sm opacity-80 mb-2">与标准值偏差</div>
+                        <div class="text-4xl font-bold mb-2">2.4%</div>
+                        <div class="text-sm opacity-80">符合实验要求</div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h4 class="font-semibold text-gray-800 mb-4">📋 实验数据概览</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">钢丝长度 L</span>
+                                <span class="font-medium">50.0 cm</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">镜面到标尺距离 D</span>
+                                <span class="font-medium">150.0 cm</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">光杠杆臂长 b</span>
+                                <span class="font-medium">7.00 cm</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">钢丝直径 d</span>
+                                <span class="font-medium">0.500 mm</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">砝码质量 F</span>
+                                <span class="font-medium">1.000 kg</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">标尺读数差 ΔN</span>
+                                <span class="font-medium">1.20 cm</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h4 class="font-semibold text-gray-800 mb-4">🎯 实验结论</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-start">
+                                <span class="text-green-500 mr-2">✓</span>
+                                <span class="text-gray-700">杨氏模量测量值：2.05 × 10¹¹ N/m²</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-500 mr-2">✓</span>
+                                <span class="text-gray-700">铜丝标准值：2.10 × 10¹¹ N/m²</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-500 mr-2">✓</span>
+                                <span class="text-gray-700">测量偏差：2.4%，实验成功</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-yellow-500 mr-2">⚠</span>
+                                <span class="text-gray-700">建议关注光杠杆调节的精确性</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h4 class="font-semibold text-gray-800 mb-4">📊 误差分析</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">系统误差来源</h5>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• 光杠杆臂长测量误差</li>
+                                <li>• 镜面到标尺距离测量误差</li>
+                                <li>• 千分尺零点误差</li>
+                                <li>• 望远镜视差</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">随机误差来源</h5>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• 望远镜读数估读误差</li>
+                                <li>• 光杠杆微小倾斜</li>
+                                <li>• 钢丝直径不均匀</li>
+                                <li>• 砝码质量误差</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h4 class="font-semibold text-gray-800 mb-4">💡 改进建议</h4>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="bg-white rounded-lg p-4">
+                            <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                                </svg>
+                            </div>
+                            <h5 class="font-medium text-gray-800 mb-1">精确测量</h5>
+                            <p class="text-sm text-gray-600">使用更精确的方法测量光杠杆臂长b</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4">
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h5 class="font-medium text-gray-800 mb-1">增加测量次数</h5>
+                            <p class="text-sm text-gray-600">增加钢丝直径测量次数，提高可靠性</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <h5 class="font-medium text-gray-800 mb-1">优化光杠杆</h5>
+                            <p class="text-sm text-gray-600">确保光杠杆镜面垂直，减小系统误差</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h4 class="font-semibold text-gray-800 mb-4">📈 测量数据记录与计算</h4>
+                    
+                    <div class="mb-6">
+                        <h5 class="text-sm font-medium text-gray-700 mb-3">表3-13 用千分尺测量钢丝直径（单位：mm）</h5>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-purple-100">
+                                        <th class="px-3 py-2 text-center text-sm font-medium">次数</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">dₐ</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">dᵦ</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">d</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="px-3 py-2 text-center">1</td><td class="px-3 py-2 text-center">0.501</td><td class="px-3 py-2 text-center">0.499</td><td class="px-3 py-2 text-center">0.500</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">2</td><td class="px-3 py-2 text-center">0.502</td><td class="px-3 py-2 text-center">0.498</td><td class="px-3 py-2 text-center">0.500</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">3</td><td class="px-3 py-2 text-center">0.500</td><td class="px-3 py-2 text-center">0.500</td><td class="px-3 py-2 text-center">0.500</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">4</td><td class="px-3 py-2 text-center">0.501</td><td class="px-3 py-2 text-center">0.499</td><td class="px-3 py-2 text-center">0.500</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">5</td><td class="px-3 py-2 text-center">0.499</td><td class="px-3 py-2 text-center">0.501</td><td class="px-3 py-2 text-center">0.500</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">6</td><td class="px-3 py-2 text-center">0.500</td><td class="px-3 py-2 text-center">0.500</td><td class="px-3 py-2 text-center">0.500</td></tr>
+                                    <tr class="bg-gray-50"><td class="px-3 py-2 text-center font-medium" colspan="3">平均值</td><td class="px-3 py-2 text-center font-medium">0.500</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h5 class="text-sm font-medium text-gray-700 mb-3">表3-14 光杠杆读数（单位：cm）</h5>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-blue-100">
+                                        <th class="px-3 py-2 text-center text-sm font-medium">砝码重/g</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">加砝码 nᵢ</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">减砝码 nᵢ'</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">平均值 nᵢ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="px-3 py-2 text-center">0</td><td class="px-3 py-2 text-center">30.50</td><td class="px-3 py-2 text-center">30.52</td><td class="px-3 py-2 text-center">30.51</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">1000</td><td class="px-3 py-2 text-center">30.80</td><td class="px-3 py-2 text-center">30.82</td><td class="px-3 py-2 text-center">30.81</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">2000</td><td class="px-3 py-2 text-center">31.10</td><td class="px-3 py-2 text-center">31.12</td><td class="px-3 py-2 text-center">31.11</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">3000</td><td class="px-3 py-2 text-center">31.40</td><td class="px-3 py-2 text-center">31.42</td><td class="px-3 py-2 text-center">31.41</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">4000</td><td class="px-3 py-2 text-center">31.70</td><td class="px-3 py-2 text-center">31.72</td><td class="px-3 py-2 text-center">31.71</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h4 class="font-semibold text-gray-800 mb-4">📝 验证结论</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">实验原理</h5>
+                            <p class="text-sm text-gray-600">
+                                杨氏模量计算公式：\( E = \frac{8FDL}{\pi d^2 b \Delta N} \)
+                            </p>
+                            <p class="text-sm text-gray-600 mt-2">
+                                其中：F = mg = 1.000×9.8 = 9.8 N，D = 150.0 cm，L = 50.0 cm，d = 0.500 mm，b = 7.00 cm，ΔN = 1.20 cm
+                            </p>
+                        </div>
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">计算过程</h5>
+                            <p class="text-sm text-gray-600">
+                                \( E = \frac{8 \times 9.8 \times 1.5 \times 0.5}{\pi \times (0.0005)^2 \times 0.07 \times 0.012} = 2.05 \times 10^{11} \, \text{N/m}^2 \)
+                            </p>
+                        </div>
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">百分偏差</h5>
+                            <p class="text-sm text-gray-600">
+                                \( B = \frac{|E - E_{\text{标}}|}{E_{\text{标}}} \times 100\% = \frac{|2.05 - 2.10|}{2.10} \times 100\% = 2.4\% \)
+                            </p>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <p class="text-sm text-green-700 font-medium">✓ 实验结论：杨氏模量测量值为 2.05 × 10¹¹ N/m²，与标准值 2.10 × 10¹¹ N/m² 相比，偏差为 2.4%，实验成功！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <p>金属丝杨氏模量的测定实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        function downloadReport() {
+            const reportContent = `金属丝杨氏模量的测定实验报告
+============================
+
+【实验目的】
+1. 掌握拉伸法测金属的杨氏弹性模量
+2. 掌握用光杠杆测量微小长度变化的原理和方法
+3. 学会选用不同精密度的测长仪器
+4. 学会用逐差法处理数据
+
+【实验仪器】
+- 杨氏模量实验仪
+- 光杠杆、望远镜、标尺
+- 钢卷尺、游标卡尺、千分尺
+- 砝码
+
+【实验原理】
+杨氏模量公式：E = (8FDL) / (πd²bΔN)
+
+其中：
+- F = mg 为外力
+- D 为标尺到镜面的距离
+- L 为钢丝长度
+- d 为钢丝直径
+- b 为光杠杆臂长
+- ΔN = n₄ - n₀ 为标尺读数变化
+
+【实验数据】
+钢丝长度 L = 50.0 cm
+镜面到标尺距离 D = 150.0 cm
+光杠杆臂长 b = 7.00 cm
+砝码质量 m = 1.000 kg
+重力加速度 g = 9.8 m/s²
+
+【测量数据】
+
+表3-13 用千分尺测量钢丝直径（单位：mm）
+┌──────┬───────┬───────┬───────┐
+│ 次数 │  dₐ   │  dᵦ   │   d   │
+├──────┼───────┼───────┼───────┤
+│  1   │ 0.501 │ 0.499 │ 0.500 │
+│  2   │ 0.502 │ 0.498 │ 0.500 │
+│  3   │ 0.500 │ 0.500 │ 0.500 │
+│  4   │ 0.501 │ 0.499 │ 0.500 │
+│  5   │ 0.499 │ 0.501 │ 0.500 │
+│  6   │ 0.500 │ 0.500 │ 0.500 │
+├──────┼───────┼───────┼───────┤
+│平均  │       │       │ 0.500 │
+└──────┴───────┴───────┴───────┘
+
+表3-14 光杠杆读数（单位：cm）
+┌───────────┬──────────┬──────────┬──────────┐
+│ 砝码重/g  │ 加砝码   │ 减砝码   │ 平均值   │
+├───────────┼──────────┼──────────┼──────────┤
+│    0      │  30.50   │  30.52   │  30.51   │
+│  1000     │  30.80   │  30.82   │  30.81   │
+│  2000     │  31.10   │  31.12   │  31.11   │
+│  3000     │  31.40   │  31.42   │  31.41   │
+│  4000     │  31.70   │  31.72   │  31.71   │
+└───────────┴──────────┴──────────┴──────────┘
+
+【数据处理】
+ΔN = n₄ - n₀ = 31.71 - 30.51 = 1.20 cm
+
+E = (8 × 9.8 × 1.5 × 0.5) / (π × (0.0005)² × 0.07 × 0.012)
+  = 2.05 × 10¹¹ N/m²
+
+【实验结果】
+测量值：E = 2.05 × 10¹¹ N/m²
+标准值：E₀ = 2.10 × 10¹¹ N/m²
+百分偏差：B = |2.05 - 2.10| / 2.10 × 100% = 2.4%
+
+【验证结论】
+✓ 实验成功！杨氏模量测量值与标准值偏差为 2.4%
+
+【误差分析】
+系统误差：
+  - 光杠杆臂长测量误差
+  - 镜面到标尺距离测量误差
+  - 千分尺零点误差
+  - 望远镜视差
+
+随机误差：
+  - 望远镜读数估读误差
+  - 光杠杆微小倾斜
+  - 钢丝直径不均匀
+  - 砝码质量误差
+
+【改进建议】
+1. 使用更精确的方法测量光杠杆臂长b
+2. 增加钢丝直径测量次数，提高可靠性
+3. 确保光杠杆镜面垂直，减小系统误差
+
+【数据质量评分】89/100
+
+报告生成时间：${new Date().toLocaleString()}
+`;
+            
+            const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '金属丝杨氏模量的测定实验报告.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

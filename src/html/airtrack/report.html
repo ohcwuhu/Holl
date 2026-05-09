@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报告诊断 - 气垫技术及其应用实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #14b8a6;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .active-nav::after {
+            width: 100%;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-teal-50 via-white to-cyan-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">气垫导轨 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-teal-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-teal-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link text-gray-600 hover:text-teal-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link active-nav text-teal-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验报告诊断</h2>
+                <p class="text-gray-600">系统将对实验数据进行综合分析，生成诊断报告</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <div class="flex flex-wrap items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800">气垫技术及其应用实验报告</h3>
+                        <p class="text-gray-500 text-sm mt-1">实验日期：2024年秋季学期</p>
+                    </div>
+                    <button onclick="downloadReport()" class="bg-teal-500 hover:bg-teal-600 text-white font-medium px-6 py-3 rounded-lg transition-colors btn-hover">
+                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        下载报告
+                    </button>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl p-6 text-white">
+                        <div class="text-sm opacity-80 mb-2">实验数据质量评分</div>
+                        <div class="text-4xl font-bold mb-2">87</div>
+                        <div class="text-sm opacity-80">良好</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-6 text-white">
+                        <div class="text-sm opacity-80 mb-2">动量守恒验证</div>
+                        <div class="text-4xl font-bold mb-2">98.5%</div>
+                        <div class="text-sm opacity-80">符合理论预期</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl p-6 text-white">
+                        <div class="text-sm opacity-80 mb-2">动能守恒验证</div>
+                        <div class="text-4xl font-bold mb-2">92.3%</div>
+                        <div class="text-sm opacity-80">存在轻微能量损失</div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h4 class="font-semibold text-gray-800 mb-4">📋 实验数据概览</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">滑块质量 m₁</span>
+                                <span class="font-medium">248.5 g</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">滑块质量 m₂</span>
+                                <span class="font-medium">251.2 g</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">砝码质量 m₃</span>
+                                <span class="font-medium">2.0 g</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">遮光片宽度 ΔL</span>
+                                <span class="font-medium">3.00 cm</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">光电门间距 s</span>
+                                <span class="font-medium">50.0 cm</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">平均加速度</span>
+                                <span class="font-medium">7.65 cm/s²</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">理论加速度</span>
+                                <span class="font-medium">7.84 cm/s²</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">加速度偏差</span>
+                                <span class="font-medium">2.4%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h4 class="font-semibold text-gray-800 mb-4">🎯 实验结论</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-start">
+                                <span class="text-green-500 mr-2">✓</span>
+                                <span class="text-gray-700">牛顿第二定律验证成功，测量值与理论值偏差为 2.4%</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-500 mr-2">✓</span>
+                                <span class="text-gray-700">动量守恒定律验证成功，弹性碰撞动量守恒率达 98.5%</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-500 mr-2">✓</span>
+                                <span class="text-gray-700">非弹性碰撞动量守恒率达 97.8%</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-yellow-500 mr-2">⚠</span>
+                                <span class="text-gray-700">动能守恒存在轻微损失（约 7.7%），可能由空气阻力引起</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h4 class="font-semibold text-gray-800 mb-4">📊 误差分析</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">系统误差来源</h5>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• 气垫导轨未完全水平</li>
+                                <li>• 光电门位置误差</li>
+                                <li>• 数字毫秒计精度限制（最小显示 0.01ms）</li>
+                                <li>• 空气阻力影响</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">随机误差来源</h5>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• 滑块释放位置不一致</li>
+                                <li>• 碰撞位置微小变化</li>
+                                <li>• 读数误差</li>
+                                <li>• 气流波动影响</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h4 class="font-semibold text-gray-800 mb-4">💡 改进建议</h4>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="bg-white rounded-lg p-4">
+                            <div class="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                                </svg>
+                            </div>
+                            <h5 class="font-medium text-gray-800 mb-1">精确调平</h5>
+                            <p class="text-sm text-gray-600">使用更精确的调平方法，确保导轨完全水平</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4">
+                            <div class="w-8 h-8 bg-cyan-100 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h5 class="font-medium text-gray-800 mb-1">增加测量次数</h5>
+                            <p class="text-sm text-gray-600">增加每次实验的测量次数，提高数据可靠性</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <h5 class="font-medium text-gray-800 mb-1">优化碰撞装置</h5>
+                            <p class="text-sm text-gray-600">检查并优化碰撞弹簧片，确保完全弹性碰撞</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                    <h4 class="font-semibold text-gray-800 mb-4">📈 测量数据记录与计算</h4>
+                    
+                    <div class="mb-6">
+                        <h5 class="text-sm font-medium text-gray-700 mb-3">表3-8 测量加速度（验证牛顿第二定律）</h5>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-teal-100">
+                                        <th class="px-3 py-2 text-center text-sm font-medium">次数</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">Δt₁ / ms</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">Δt₂ / ms</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">v₁ / (cm/s)</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">v₂ / (cm/s)</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">a / (cm/s²)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="px-3 py-2 text-center">1</td><td class="px-3 py-2 text-center">14.20</td><td class="px-3 py-2 text-center">15.80</td><td class="px-3 py-2 text-center">211.27</td><td class="px-3 py-2 text-center">190.51</td><td class="px-3 py-2 text-center">7.52</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">2</td><td class="px-3 py-2 text-center">14.15</td><td class="px-3 py-2 text-center">15.75</td><td class="px-3 py-2 text-center">212.02</td><td class="px-3 py-2 text-center">190.48</td><td class="px-3 py-2 text-center">7.68</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">3</td><td class="px-3 py-2 text-center">14.25</td><td class="px-3 py-2 text-center">15.85</td><td class="px-3 py-2 text-center">210.53</td><td class="px-3 py-2 text-center">190.03</td><td class="px-3 py-2 text-center">7.75</td></tr>
+                                    <tr class="bg-gray-50"><td class="px-3 py-2 text-center font-medium" colspan="5">平均值</td><td class="px-3 py-2 text-center font-medium">7.65</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">计算说明：v = ΔL / Δt，a = (v₂² - v₁²) / (2s)，其中 ΔL = 3.00 cm，s = 50.0 cm</p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h5 class="text-sm font-medium text-gray-700 mb-3">表3-11 完全弹性碰撞</h5>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-purple-100">
+                                        <th class="px-3 py-2 text-center text-sm font-medium">次数</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">Δt₁₀ / ms</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">Δt₂₀ / ms</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">Δt₁ / ms</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">Δt₂ / ms</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">动量守恒 / %</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">动能守恒 / %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="px-3 py-2 text-center">1</td><td class="px-3 py-2 text-center">14.50</td><td class="px-3 py-2 text-center">-</td><td class="px-3 py-2 text-center">-</td><td class="px-3 py-2 text-center">14.45</td><td class="px-3 py-2 text-center">99.7</td><td class="px-3 py-2 text-center">99.3</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">2</td><td class="px-3 py-2 text-center">14.48</td><td class="px-3 py-2 text-center">-</td><td class="px-3 py-2 text-center">-</td><td class="px-3 py-2 text-center">14.42</td><td class="px-3 py-2 text-center">99.6</td><td class="px-3 py-2 text-center">99.2</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">3</td><td class="px-3 py-2 text-center">14.52</td><td class="px-3 py-2 text-center">-</td><td class="px-3 py-2 text-center">-</td><td class="px-3 py-2 text-center">14.48</td><td class="px-3 py-2 text-center">99.8</td><td class="px-3 py-2 text-center">99.5</td></tr>
+                                    <tr class="bg-gray-50"><td class="px-3 py-2 text-center font-medium" colspan="5">平均值</td><td class="px-3 py-2 text-center font-medium">99.7</td><td class="px-3 py-2 text-center font-medium">99.3</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">计算说明：v = ΔL / Δt，动量 p = mv，动能 E = ½mv²</p>
+                    </div>
+
+                    <div>
+                        <h5 class="text-sm font-medium text-gray-700 mb-3">表3-12 完全非弹性碰撞</h5>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-orange-100">
+                                        <th class="px-3 py-2 text-center text-sm font-medium">次数</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">Δt₁₀ / ms</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">Δt / ms</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">v₁₀ / (cm/s)</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">v / (cm/s)</th>
+                                        <th class="px-3 py-2 text-center text-sm font-medium">动量守恒 / %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="px-3 py-2 text-center">1</td><td class="px-3 py-2 text-center">14.30</td><td class="px-3 py-2 text-center">28.90</td><td class="px-3 py-2 text-center">209.79</td><td class="px-3 py-2 text-center">103.81</td><td class="px-3 py-2 text-center">98.5</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">2</td><td class="px-3 py-2 text-center">14.28</td><td class="px-3 py-2 text-center">28.85</td><td class="px-3 py-2 text-center">210.08</td><td class="px-3 py-2 text-center">103.99</td><td class="px-3 py-2 text-center">98.7</td></tr>
+                                    <tr><td class="px-3 py-2 text-center">3</td><td class="px-3 py-2 text-center">14.32</td><td class="px-3 py-2 text-center">28.95</td><td class="px-3 py-2 text-center">209.49</td><td class="px-3 py-2 text-center">103.63</td><td class="px-3 py-2 text-center">98.4</td></tr>
+                                    <tr class="bg-gray-50"><td class="px-3 py-2 text-center font-medium" colspan="4">平均值</td><td class="px-3 py-2 text-center font-medium">103.81</td><td class="px-3 py-2 text-center font-medium">98.5</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">计算说明：碰撞后两滑块粘在一起，v = ΔL / Δt，动量守恒 = [(m₁+m₂)v] / [m₁v₁₀] × 100%</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h4 class="font-semibold text-gray-800 mb-4">📝 验证结论</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">牛顿第二定律验证</h5>
+                            <p class="text-sm text-gray-600">
+                                理论值：a₀ = m₃g / (m₁ + m₃) = 2.0×980 / (248.5 + 2.0) = 7.84 cm/s²<br>
+                                实验值：ā = 7.65 cm/s²<br>
+                                百分偏差：σ = |ā - a₀| / a₀ × 100% = 2.4%
+                            </p>
+                            <p class="text-sm text-green-600 mt-2">✓ 验证成立</p>
+                        </div>
+                        <div>
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">动量守恒定律验证</h5>
+                            <p class="text-sm text-gray-600">
+                                完全弹性碰撞动量守恒率：99.7%（偏差 0.3%）<br>
+                                完全非弹性碰撞动量守恒率：98.5%（偏差 1.5%）
+                            </p>
+                            <p class="text-sm text-green-600 mt-2">✓ 验证成立</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <p>气垫技术及其应用实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        function downloadReport() {
+            const reportContent = `气垫技术及其应用实验报告
+============================
+
+【实验目的】
+1. 验证牛顿第二定律 F = ma
+2. 验证动量守恒定律
+3. 验证完全弹性碰撞中动能守恒
+
+【实验仪器】
+- 气垫导轨及附件
+- 数字毫秒计（精度：0.01 ms）
+- 物理天平
+- 游标卡尺
+
+【实验数据】
+滑块质量 m₁ = 248.5 g
+滑块质量 m₂ = 251.2 g
+砝码质量 m₃ = 2.0 g
+遮光片宽度 ΔL = 3.00 cm
+光电门间距 s = 50.0 cm
+重力加速度 g = 980 cm/s²
+
+【实验原理】
+1. 牛顿第二定律：a = F/m = m₃g/(m₁ + m₃)
+2. 动量守恒：m₁v₁₀ + m₂v₂₀ = m₁v₁ + m₂v₂
+3. 速度计算：v = ΔL / Δt
+
+【测量数据】
+
+表3-8 测量加速度（验证牛顿第二定律）
+┌──────┬─────────┬─────────┬────────────┬────────────┬─────────────┐
+│ 次数 │ Δt₁/ms │ Δt₂/ms │ v₁/(cm/s) │ v₂/(cm/s) │ a/(cm/s²)  │
+├──────┼─────────┼─────────┼────────────┼────────────┼─────────────┤
+│  1   │  14.20  │  15.80  │   211.27   │   190.51   │    7.52     │
+│  2   │  14.15  │  15.75  │   212.02   │   190.48   │    7.68     │
+│  3   │  14.25  │  15.85  │   210.53   │   190.03   │    7.75     │
+├──────┼─────────┼─────────┼────────────┼────────────┼─────────────┤
+│平均  │         │         │            │            │    7.65     │
+└──────┴─────────┴─────────┴────────────┴────────────┴─────────────┘
+
+表3-11 完全弹性碰撞
+┌──────┬──────────┬──────────┬────────┬────────┬──────────────┬──────────────┐
+│ 次数 │ Δt₁₀/ms │ Δt₂₀/ms │ Δt₁/ms │ Δt₂/ms │ 动量守恒/%   │ 动能守恒/%   │
+├──────┼──────────┼──────────┼────────┼────────┼──────────────┼──────────────┤
+│  1   │  14.50   │    -     │   -    │ 14.45  │    99.7      │    99.3      │
+│  2   │  14.48   │    -     │   -    │ 14.42  │    99.6      │    99.2      │
+│  3   │  14.52   │    -     │   -    │ 14.48  │    99.8      │    99.5      │
+├──────┼──────────┼──────────┼────────┼────────┼──────────────┼──────────────┤
+│平均  │          │          │        │        │    99.7      │    99.3      │
+└──────┴──────────┴──────────┴────────┴────────┴──────────────┴──────────────┘
+
+表3-12 完全非弹性碰撞
+┌──────┬──────────┬─────────┬──────────────┬────────────┬──────────────┐
+│ 次数 │ Δt₁₀/ms │ Δt/ms  │ v₁₀/(cm/s)  │ v/(cm/s)   │ 动量守恒/%   │
+├──────┼──────────┼─────────┼──────────────┼────────────┼──────────────┤
+│  1   │  14.30   │  28.90  │   209.79     │  103.81    │    98.5      │
+│  2   │  14.28   │  28.85  │   210.08     │  103.99    │    98.7      │
+│  3   │  14.32   │  28.95  │   209.49     │  103.63    │    98.4      │
+├──────┼──────────┼─────────┼──────────────┼────────────┼──────────────┤
+│平均  │          │         │              │  103.81    │    98.5      │
+└──────┴──────────┴─────────┴──────────────┴────────────┴──────────────┘
+
+【实验结果】
+平均加速度 ā = 7.65 cm/s²
+理论加速度 a₀ = 7.84 cm/s²
+加速度偏差 = 2.4%
+
+完全弹性碰撞：
+  动量守恒率 = 99.7%（偏差 0.3%）
+  动能守恒率 = 99.3%（损失 0.7%）
+
+完全非弹性碰撞：
+  动量守恒率 = 98.5%（偏差 1.5%）
+
+【验证结论】
+1. ✓ 牛顿第二定律验证成立（偏差 2.4%）
+2. ✓ 动量守恒定律验证成立
+3. ✓ 完全弹性碰撞动能近似守恒
+
+【误差分析】
+系统误差：
+  - 气垫导轨未完全水平
+  - 光电门位置误差
+  - 数字毫秒计精度限制
+  - 空气阻力影响
+
+随机误差：
+  - 滑块释放位置不一致
+  - 碰撞位置微小变化
+  - 读数误差
+  - 气流波动影响
+
+【改进建议】
+1. 使用更精确的调平方法，确保导轨完全水平
+2. 增加测量次数提高数据可靠性
+3. 优化碰撞装置确保完全弹性碰撞
+
+【数据质量评分】87/100
+
+报告生成时间：${new Date().toLocaleString()}
+`;
+            
+            const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '气垫技术及其应用实验报告.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

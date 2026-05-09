@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>预习诊断 - 单摆测量重力加速度实验 AI 辅助诊断系统</title>
+    <title>预习诊断 - 伏安法测量电阻实验 AI 辅助诊断系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
@@ -25,23 +25,23 @@
         .option-btn.incorrect { border-color: #ef4444; background-color: #fee2e2; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen">
+<body class="bg-gradient-to-br from-purple-50 via-white to-pink-50 min-h-screen">
     <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <span class="text-xl font-bold text-gray-800">单摆实验 AI 诊断</span>
+                    <span class="text-xl font-bold text-gray-800">伏安法实验 AI 诊断</span>
                 </div>
                 <div class="hidden md:flex items-center space-x-6">
-                    <a href="index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
-                    <a href="preview_pendulum.html" class="nav-link active-nav text-green-600 font-medium">预习诊断</a>
-                    <a href="validation_pendulum.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
-                    <a href="report_pendulum.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">报告诊断</a>
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link active-nav text-purple-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">报告诊断</a>
                 </div>
             </div>
         </div>
@@ -50,16 +50,16 @@
     <section class="pt-24 pb-16 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">单摆测量重力加速度 - 预习诊断</h2>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">伏安法测量电阻 - 预习诊断</h2>
                 <p class="text-gray-600">通过视频学习和问答测试，评估您的预习效果</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
                 <h3 class="text-xl font-semibold text-gray-800 mb-6">预习视频</h3>
                 <div class="relative bg-gray-900 rounded-lg aspect-video overflow-hidden">
-                    <img src="https://picsum.photos/1280/720?random=2" alt="单摆实验视频" class="w-full h-full object-cover">
+                    <img src="https://picsum.photos/1280/720?random=3" alt="伏安法实验视频" class="w-full h-full object-cover">
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="w-20 h-20 bg-green-500/80 rounded-full flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors">
+                        <div class="w-20 h-20 bg-purple-500/80 rounded-full flex items-center justify-center cursor-pointer hover:bg-purple-600 transition-colors">
                             <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
@@ -77,115 +77,115 @@
                 <div class="space-y-6">
                     <div class="border border-gray-200 rounded-xl p-6" id="question1">
                         <div class="flex items-start mb-4">
-                            <span class="flex-shrink-0 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">1</span>
-                            <h4 class="text-lg font-medium text-gray-800">单摆的周期公式是什么？</h4>
+                            <span class="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">1</span>
+                            <h4 class="text-lg font-medium text-gray-800">欧姆定律的表达式是什么？</h4>
                         </div>
                         <div class="space-y-3 ml-11">
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'A')">
-                                <span class="font-medium">A. \( T = 2\pi\sqrt{\frac{l}{g}} \)</span>
+                                <span class="font-medium">A. \( U = IR \)</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'B')">
-                                <span class="font-medium">B. \( T = 2\pi\sqrt{\frac{g}{l}} \)</span>
+                                <span class="font-medium">B. \( R = \frac{U}{I} \)</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'C')">
-                                <span class="font-medium">C. \( T = \pi\sqrt{\frac{l}{g}} \)</span>
+                                <span class="font-medium">C. \( I = \frac{U}{R} \)</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'D')">
-                                <span class="font-medium">D. \( T = \frac{1}{2\pi}\sqrt{\frac{l}{g}} \)</span>
+                                <span class="font-medium">D. 以上都正确</span>
                             </button>
                         </div>
                         <div id="q1-explanation" class="collapse-content mt-4 ml-11">
-                            <div class="p-4 bg-green-50 rounded-lg">
-                                <p class="text-gray-700 mb-2"><strong>正确答案：A</strong></p>
-                                <p class="text-gray-600 text-sm">单摆周期公式为 \( T = 2\pi\sqrt{\frac{l}{g}} \)，其中 \( l \) 是摆长，\( g \) 是重力加速度。周期与摆长的平方根成正比，与重力加速度的平方根成反比。</p>
+                            <div class="p-4 bg-purple-50 rounded-lg">
+                                <p class="text-gray-700 mb-2"><strong>正确答案：D</strong></p>
+                                <p class="text-gray-600 text-sm">欧姆定律的三种表达形式：\( U = IR \)、\( R = \frac{U}{I} \)、\( I = \frac{U}{R} \) 都是正确的，它们可以相互转换。其中 \( R = \frac{U}{I} \) 是伏安法测量电阻的基本公式。</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="border border-gray-200 rounded-xl p-6" id="question2">
                         <div class="flex items-start mb-4">
-                            <span class="flex-shrink-0 w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">2</span>
-                            <h4 class="text-lg font-medium text-gray-800">单摆做简谐运动的条件是什么？</h4>
+                            <span class="flex-shrink-0 w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">2</span>
+                            <h4 class="text-lg font-medium text-gray-800">伏安法测电阻有哪两种接法？</h4>
                         </div>
                         <div class="space-y-3 ml-11">
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'A')">
-                                <span class="font-medium">A. 摆角可以任意大</span>
+                                <span class="font-medium">A. 串联法和并联法</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'B')">
-                                <span class="font-medium">B. 摆角小于5度</span>
+                                <span class="font-medium">B. 电流表内接法和外接法</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'C')">
-                                <span class="font-medium">C. 摆角小于10度</span>
+                                <span class="font-medium">C. 直接法和间接法</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'D')">
-                                <span class="font-medium">D. 摆角小于15度</span>
+                                <span class="font-medium">D. 交流法和直流法</span>
                             </button>
                         </div>
                         <div id="q2-explanation" class="collapse-content mt-4 ml-11">
-                            <div class="p-4 bg-cyan-50 rounded-lg">
+                            <div class="p-4 bg-pink-50 rounded-lg">
                                 <p class="text-gray-700 mb-2"><strong>正确答案：B</strong></p>
-                                <p class="text-gray-600 text-sm">当摆角小于5度时，\( \sin\theta \approx \theta \)，单摆的运动近似为简谐运动。摆角过大时，周期会随摆角增大而变长。</p>
+                                <p class="text-gray-600 text-sm">伏安法测电阻有两种基本接法：电流表内接法和电流表外接法。内接法适合测量大电阻，外接法适合测量小电阻。</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="border border-gray-200 rounded-xl p-6" id="question3">
                         <div class="flex items-start mb-4">
-                            <span class="flex-shrink-0 w-8 h-8 bg-teal-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">3</span>
-                            <h4 class="text-lg font-medium text-gray-800">如何通过单摆测量重力加速度？</h4>
+                            <span class="flex-shrink-0 w-8 h-8 bg-rose-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">3</span>
+                            <h4 class="text-lg font-medium text-gray-800">电流表外接法适合测量哪种电阻？</h4>
                         </div>
                         <div class="space-y-3 ml-11">
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'A')">
-                                <span class="font-medium">A. 测量一次周期，计算 \( g = \frac{4\pi^2 l}{T^2} \)</span>
+                                <span class="font-medium">A. 大电阻（远大于电流表内阻）</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'B')">
-                                <span class="font-medium">B. 测量多个不同摆长对应的周期，作 \( T^2-l \) 图求斜率</span>
+                                <span class="font-medium">B. 小电阻（远小于电压表内阻）</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'C')">
-                                <span class="font-medium">C. 只测量一个摆长的周期即可</span>
+                                <span class="font-medium">C. 中等电阻</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'D')">
-                                <span class="font-medium">D. 测量摆球质量和周期</span>
+                                <span class="font-medium">D. 任意电阻</span>
                             </button>
                         </div>
                         <div id="q3-explanation" class="collapse-content mt-4 ml-11">
-                            <div class="p-4 bg-teal-50 rounded-lg">
+                            <div class="p-4 bg-rose-50 rounded-lg">
                                 <p class="text-gray-700 mb-2"><strong>正确答案：B</strong></p>
-                                <p class="text-gray-600 text-sm">通过改变摆长 \( l \)，测量对应的周期 \( T \)，作 \( T^2-l \) 图，斜率 \( k = \frac{4\pi^2}{g} \)，从而求得 \( g = \frac{4\pi^2}{k} \)。这种方法可以减小误差。</p>
+                                <p class="text-gray-600 text-sm">电流表外接法中，电压表测量的是电阻两端的真实电压，但电流表测量的是电压表和电阻的总电流。当被测电阻远小于电压表内阻时，电压表分流很小，测量误差较小。</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="border border-gray-200 rounded-xl p-6" id="question4">
                         <div class="flex items-start mb-4">
-                            <span class="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">4</span>
-                            <h4 class="text-lg font-medium text-gray-800">下列哪种因素会影响单摆周期？</h4>
+                            <span class="flex-shrink-0 w-8 h-8 bg-fuchsia-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">4</span>
+                            <h4 class="text-lg font-medium text-gray-800">如何减小伏安法测电阻的误差？</h4>
                         </div>
                         <div class="space-y-3 ml-11">
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'A')">
-                                <span class="font-medium">A. 摆球质量</span>
+                                <span class="font-medium">A. 只测量一次即可</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'B')">
-                                <span class="font-medium">B. 摆长</span>
+                                <span class="font-medium">B. 多次测量取平均值</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'C')">
-                                <span class="font-medium">C. 初始振幅（小角度时）</span>
+                                <span class="font-medium">C. 使用外接法测量所有电阻</span>
                             </button>
                             <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'D')">
-                                <span class="font-medium">D. 空气阻力（忽略时）</span>
+                                <span class="font-medium">D. 忽略仪表内阻影响</span>
                             </button>
                         </div>
                         <div id="q4-explanation" class="collapse-content mt-4 ml-11">
-                            <div class="p-4 bg-emerald-50 rounded-lg">
+                            <div class="p-4 bg-fuchsia-50 rounded-lg">
                                 <p class="text-gray-700 mb-2"><strong>正确答案：B</strong></p>
-                                <p class="text-gray-600 text-sm">根据周期公式 \( T = 2\pi\sqrt{\frac{l}{g}} \)，周期只与摆长 \( l \) 和重力加速度 \( g \) 有关，与摆球质量、初始振幅（小角度）无关。</p>
+                                <p class="text-gray-600 text-sm">多次测量取平均值可以减小随机误差。此外，选择合适的电路接法（内接或外接）也能减小系统误差。</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-8 text-center">
-                    <button id="submitAnswers" class="bg-green-500 hover:bg-green-600 text-white font-medium px-8 py-3 rounded-lg transition-colors btn-hover">
+                    <button id="submitAnswers" class="bg-purple-500 hover:bg-purple-600 text-white font-medium px-8 py-3 rounded-lg transition-colors btn-hover">
                         提交答案并查看诊断结果
                     </button>
                 </div>
@@ -195,15 +195,15 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <h3 class="text-xl font-semibold text-gray-800 mb-6">预习诊断结果</h3>
                     <div class="grid md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white text-center">
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white text-center">
                             <p class="text-sm opacity-80 mb-2">答题正确率</p>
                             <p class="text-4xl font-bold" id="accuracy">0%</p>
                         </div>
-                        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-6 text-white text-center">
+                        <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-6 text-white text-center">
                             <p class="text-sm opacity-80 mb-2">掌握程度</p>
                             <p class="text-4xl font-bold" id="masteryLevel">0%</p>
                         </div>
-                        <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-6 text-white text-center">
+                        <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl p-6 text-white text-center">
                             <p class="text-sm opacity-80 mb-2">评级</p>
                             <p class="text-4xl font-bold" id="grade">-</p>
                         </div>
@@ -232,8 +232,8 @@
                             <ul class="text-sm text-gray-600 space-y-1" id="strongPoints"></ul>
                         </div>
                     </div>
-                    <div class="bg-green-50 rounded-lg p-4">
-                        <p class="text-green-800"><strong>学习建议：</strong><span id="suggestion"></span></p>
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <p class="text-purple-800"><strong>学习建议：</strong><span id="suggestion"></span></p>
                     </div>
                 </div>
             </div>
@@ -242,17 +242,17 @@
 
     <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
         <div class="max-w-7xl mx-auto text-center">
-            <p class="text-gray-400">单摆测量重力加速度实验 AI 辅助诊断系统</p>
+            <p class="text-gray-400">伏安法测量电阻实验 AI 辅助诊断系统</p>
             <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS 构建</p>
         </div>
     </footer>
 
     <script>
         const questions = [
-            { id: 1, correctAnswer: 'A', topic: '单摆周期公式', knowledge: '周期与摆长、重力加速度的关系' },
-            { id: 2, correctAnswer: 'B', topic: '简谐运动条件', knowledge: '小角度近似条件' },
-            { id: 3, correctAnswer: 'B', topic: '重力加速度测量方法', knowledge: 'T²-l 图像法' },
-            { id: 4, correctAnswer: 'B', topic: '周期影响因素', knowledge: '摆长是唯一影响因素' }
+            { id: 1, correctAnswer: 'D', topic: '欧姆定律表达式', knowledge: 'U=IR, R=U/I, I=U/R' },
+            { id: 2, correctAnswer: 'B', topic: '伏安法接法', knowledge: '电流表内接法和外接法' },
+            { id: 3, correctAnswer: 'B', topic: '外接法适用条件', knowledge: '测量小电阻' },
+            { id: 4, correctAnswer: 'B', topic: '误差减小方法', knowledge: '多次测量取平均值' }
         ];
         const studentAnswers = {};
         let isSubmitted = false;
@@ -343,10 +343,10 @@
         }
 
         function generateSuggestion(accuracy, weakTopics) {
-            if (accuracy >= 90) return '预习效果优秀！您已掌握单摆实验的核心知识点，可以进入实验环节。建议回顾一下实验操作步骤。';
+            if (accuracy >= 90) return '预习效果优秀！您已掌握伏安法实验的核心知识点，可以进入实验环节。建议回顾一下实验操作步骤。';
             if (accuracy >= 70) return `预习效果良好，但仍有部分知识点需要加强。建议重点复习：${weakTopics.join('、')}。这些知识点对实验数据处理非常重要。`;
             if (accuracy >= 50) return `预习效果一般，需要加强学习。建议重新观看预习视频，重点理解：${weakTopics.join('、')}。如有疑问可以咨询指导教师。`;
-            return '建议重新观看预习视频，系统学习单摆实验相关知识。重点关注：周期公式、简谐运动条件、重力加速度测量方法和周期影响因素。';
+            return '建议重新观看预习视频，系统学习伏安法实验相关知识。重点关注：欧姆定律、两种测量接法、误差分析和测量方法。';
         }
     </script>
 </body>

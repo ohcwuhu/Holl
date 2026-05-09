@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报告诊断 - 迈克尔逊干涉仪实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.0/lib/browser/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+        .btn-hover { transition: all 0.2s ease; }
+        .btn-hover:hover { transform: scale(1.02); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background-color: #3b82f6; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .active-nav::after { width: 100%; }
+        .badge-success { background-color: #dcfce7; color: #166534; }
+        .badge-warning { background-color: #fef3c7; color: #92400e; }
+        .badge-error { background-color: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-white to-indigo-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">迈克尔逊干涉仪 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link active-nav text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验报告 AI 诊断</h2>
+                <p class="text-gray-600">AI 智能分析实验数据，生成专业诊断报告</p>
+            </div>
+
+            <div id="noData" class="bg-white rounded-xl shadow-lg p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">暂无数据</h3>
+                <p class="text-gray-600 mb-6">请先在「数据校验」页面输入并提交实验数据</p>
+                <a href="validation.html" class="bg-purple-500 hover:bg-purple-600 text-white font-medium px-6 py-2 rounded-lg transition-colors btn-hover">
+                    前往数据校验
+                </a>
+            </div>
+
+            <div id="reportContent" class="hidden">
+                <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800">迈克尔逊干涉仪实验报告</h3>
+                            <p class="text-gray-500 mt-1">报告生成时间：<span id="reportTime"></span></p>
+                        </div>
+                        <button id="downloadReport" class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">
+                            下载报告
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">测量波长</p>
+                            <p class="text-3xl font-bold" id="reportWavelength">-</p>
+                            <p class="text-sm opacity-80">nm</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">标准波长</p>
+                            <p class="text-3xl font-bold" id="standardWavelength">-</p>
+                            <p class="text-sm opacity-80">nm</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">相对误差</p>
+                            <p class="text-3xl font-bold" id="reportError">-</p>
+                            <p class="text-sm opacity-80">%</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">数据质量</p>
+                            <p class="text-3xl font-bold" id="reportQuality">-</p>
+                            <p class="text-sm opacity-80">评分</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h4 class="font-semibold text-gray-800 mb-4">实验原理</h4>
+                            <div class="space-y-3 text-gray-600 text-sm">
+                                <p>迈克尔逊干涉仪是利用分振幅法产生双光束干涉的精密光学仪器。当 \( M_2 \) 移动 \( \Delta d \) 距离时，干涉条纹会有 \( N \) 个条纹"涌出"或"陷入"，满足关系：</p>
+                                <p class="text-center text-lg font-medium text-purple-800">\( \Delta d = N \cdot \frac{\lambda}{2} \)</p>
+                                <p>由此可得激光波长：</p>
+                                <p class="text-center text-lg font-medium text-indigo-800">\( \lambda = \frac{2\Delta d}{N} \)</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h4 class="font-semibold text-gray-800 mb-4">实验仪器</h4>
+                            <ul class="space-y-2 text-gray-600 text-sm">
+                                <li class="flex items-center">
+                                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                                    迈克尔逊干涉仪
+                                </li>
+                                <li class="flex items-center">
+                                    <span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+                                    He-Ne 激光器（\( \lambda = 632.8 \, \text{nm} \)）
+                                </li>
+                                <li class="flex items-center">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                    观察屏
+                                </li>
+                                <li class="flex items-center">
+                                    <span class="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
+                                    扩束镜
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h4 class="font-semibold text-gray-800 mb-4">测量数据</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">序号</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">d₁ (mm)</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">d₂ (mm)</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">Δd (mm)</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">λ (nm)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h4 class="font-semibold text-gray-800 mb-4">数据分析</h4>
+                        <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-6">
+                            <div class="grid md:grid-cols-3 gap-6">
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-1">测量次数</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="reportCount">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-1">平均 Δd</p>
+                                    <p class="text-2xl font-bold text-purple-600" id="reportAvgDelta">-</p>
+                                    <p class="text-xs text-gray-500">mm</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-1">条纹移动数</p>
+                                    <p class="text-2xl font-bold text-indigo-600" id="reportN">-</p>
+                                    <p class="text-xs text-gray-500">条</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-8 text-white mb-8">
+                        <h4 class="font-semibold text-lg mb-4">AI 智能诊断报告</h4>
+                        <div id="diagnosisReport"></div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <h4 class="font-semibold text-gray-800 mb-4">实验注意事项</h4>
+                            <ul class="space-y-3 text-gray-600 text-sm">
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">✗</span>
+                                    <span>不可用手触摸各光学元件的表面</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">✗</span>
+                                    <span>测量过程中避免仪器振动</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">✗</span>
+                                    <span>勿让激光直射入眼</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">✗</span>
+                                    <span>微调手轮只能朝同一方向转动</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <h4 class="font-semibold text-gray-800 mb-4">误差分析</h4>
+                            <div class="space-y-3 text-gray-600 text-sm">
+                                <p><strong>仪器误差：</strong>干涉仪最小刻度 0.0001 mm，估读误差约 0.00005 mm</p>
+                                <p><strong>读数误差：</strong>主尺、读数窗口、微调手轮的读数误差累积</p>
+                                <p><strong>系统误差：</strong>导轨不水平、反射镜不垂直等</p>
+                                <p><strong>随机误差：</strong>环境振动、温度变化等</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">迈克尔逊干涉仪实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
+    <script>
+        new CozeWebSDK.WebChatClient({
+            config: { bot_id: '7634527397312266266' },
+            componentProps: { title: '迈克尔逊干涉仪实验助手' },
+            auth: {
+                type: 'token',
+                token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                onRefreshToken: () => 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP'
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReport();
+        });
+
+        function loadReport() {
+            const data = localStorage.getItem('experimentData');
+            if (!data) {
+                document.getElementById('noData').classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const parsedData = JSON.parse(data);
+                if (parsedData.experiment !== 'michelson') {
+                    document.getElementById('noData').classList.remove('hidden');
+                    return;
+                }
+                displayReport(parsedData);
+            } catch (e) {
+                document.getElementById('noData').classList.remove('hidden');
+            }
+        }
+
+        function displayReport(data) {
+            document.getElementById('noData').classList.add('hidden');
+            document.getElementById('reportContent').classList.remove('hidden');
+
+            document.getElementById('reportTime').textContent = new Date().toLocaleString('zh-CN');
+            document.getElementById('reportWavelength').textContent = data.analysis.avgWavelength.toFixed(2);
+            document.getElementById('standardWavelength').textContent = data.wavelength;
+            document.getElementById('reportError').textContent = data.analysis.relativeError.toFixed(2);
+            document.getElementById('reportQuality').textContent = data.analysis.qualityScore;
+            document.getElementById('reportCount').textContent = data.data.length;
+            document.getElementById('reportAvgDelta').textContent = data.analysis.avgDeltaD.toFixed(4);
+            document.getElementById('reportN').textContent = data.N;
+
+            populateReportTable(data);
+            generateDiagnosisReport(data);
+        }
+
+        function populateReportTable(data) {
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = '';
+
+            data.data.forEach((item, i) => {
+                const deltaD = item.d2 - item.d1;
+                const wavelength = (2 * deltaD / data.N) * 1e6;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-sm border">${i + 1}</td>
+                    <td class="px-4 py-3 text-sm border">${item.d1.toFixed(4)}</td>
+                    <td class="px-4 py-3 text-sm border">${item.d2.toFixed(4)}</td>
+                    <td class="px-4 py-3 text-sm border">${deltaD.toFixed(4)}</td>
+                    <td class="px-4 py-3 text-sm border">${wavelength.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function generateDiagnosisReport(data) {
+            const error = data.analysis.relativeError;
+            const quality = data.analysis.qualityScore;
+            
+            let diagnosis = '';
+
+            diagnosis += `<div class="mb-4">
+                <h5 class="font-medium mb-2">📊 测量结果分析</h5>
+                <p class="text-purple-100">测量得到的 He-Ne 激光波长为 <strong>${data.analysis.avgWavelength.toFixed(2)} nm</strong>，与标准值 <strong>${data.wavelength} nm</strong> 进行比较。</p>
+            </div>`;
+
+            if (error < 1) {
+                diagnosis += `<div class="mb-4">
+                    <h5 class="font-medium mb-2">✅ 精度评估</h5>
+                    <p class="text-green-100">相对误差为 <strong>${error.toFixed(2)}%</strong>，测量精度高，数据质量优秀。实验操作规范，测量结果可靠。</p>
+                </div>`;
+            } else if (error < 3) {
+                diagnosis += `<div class="mb-4">
+                    <h5 class="font-medium mb-2">⚠️ 精度评估</h5>
+                    <p class="text-yellow-100">相对误差为 <strong>${error.toFixed(2)}%</strong>，测量精度尚可。建议检查测量过程，特别是读数时是否存在误差。</p>
+                </div>`;
+            } else {
+                diagnosis += `<div class="mb-4">
+                    <h5 class="font-medium mb-2">❌ 精度评估</h5>
+                    <p class="text-red-100">相对误差为 <strong>${error.toFixed(2)}%</strong>，误差较大。建议重新检查实验装置，特别是反射镜的调节和读数方法。</p>
+                </div>`;
+            }
+
+            diagnosis += `<div class="mb-4">
+                <h5 class="font-medium mb-2">📈 数据质量评分</h5>
+                <p class="text-purple-100">本次实验数据质量评分为 <strong>${quality} 分</strong>。`;
+            
+            if (quality >= 80) {
+                diagnosis += '数据质量优秀，实验完成良好。';
+            } else if (quality >= 60) {
+                diagnosis += '数据质量中等，建议进行部分数据的重新测量。';
+            } else {
+                diagnosis += '数据质量较差，建议重新进行实验。';
+            }
+            diagnosis += `</p>
+            </div>`;
+
+            diagnosis += `<div>
+                <h5 class="font-medium mb-2">💡 改进建议</h5>
+                <ul class="text-purple-100 text-sm space-y-1">
+                    <li>• 确保微调手轮单向转动，避免空程误差</li>
+                    <li>• 测量时保持环境安静，减少振动影响</li>
+                    <li>• 仔细调节反射镜，确保干涉条纹清晰</li>
+                    <li>• 多次测量取平均值，提高数据可靠性</li>
+                </ul>
+            </div>`;
+
+            document.getElementById('diagnosisReport').innerHTML = diagnosis;
+        }
+
+        document.getElementById('downloadReport').addEventListener('click', () => {
+            const data = localStorage.getItem('experimentData');
+            if (!data) return;
+
+            const parsedData = JSON.parse(data);
+            let reportText = `迈克尔逊干涉仪实验报告\n`;
+            reportText += `==========================\n\n`;
+            reportText += `报告生成时间: ${new Date().toLocaleString('zh-CN')}\n\n`;
+            reportText += `【实验参数】\n`;
+            reportText += `光源波长: ${parsedData.wavelength} nm\n`;
+            reportText += `条纹移动数 N: ${parsedData.N}\n\n`;
+            reportText += `【测量数据】\n`;
+            reportText += `序号\t初始位置 d₁(mm)\t末位置 d₂(mm)\tΔd(mm)\tλ(nm)\n`;
+            
+            parsedData.data.forEach((item, i) => {
+                const deltaD = item.d2 - item.d1;
+                const wavelength = (2 * deltaD / parsedData.N) * 1e6;
+                reportText += `${i + 1}\t${item.d1.toFixed(4)}\t${item.d2.toFixed(4)}\t${deltaD.toFixed(4)}\t${wavelength.toFixed(2)}\n`;
+            });
+            
+            reportText += `\n【实验结果】\n`;
+            reportText += `平均 Δd: ${parsedData.analysis.avgDeltaD.toFixed(4)} mm\n`;
+            reportText += `测量波长: ${parsedData.analysis.avgWavelength.toFixed(2)} nm\n`;
+            reportText += `相对误差: ${parsedData.analysis.relativeError.toFixed(2)}%\n`;
+            reportText += `数据质量评分: ${parsedData.analysis.qualityScore} 分\n\n`;
+            reportText += `【诊断结论】\n`;
+            if (parsedData.analysis.relativeError < 1) {
+                reportText += `测量精度高，实验完成优秀！\n`;
+            } else if (parsedData.analysis.relativeError < 3) {
+                reportText += `测量精度尚可，建议检查读数方法。\n`;
+            } else {
+                reportText += `误差较大，建议重新测量。\n`;
+            }
+
+            const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `迈克尔逊干涉仪实验报告_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>

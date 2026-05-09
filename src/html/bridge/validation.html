@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据校验 - 电桥法测电阻实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+        .btn-hover { transition: all 0.2s ease; }
+        .btn-hover:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background-color: #3b82f6; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .active-nav::after { width: 100%; }
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-cyan-50 via-white to-teal-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">电桥法测电阻 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link active-nav text-blue-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验中数据实时校验</h2>
+                <p class="text-gray-600">输入实验数据，系统将进行实时质量校验和 AI 分析</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">比例臂设置</h3>
+                <div class="grid md:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">比例臂 R₁ (Ω)</label>
+                        <input type="number" id="ratioR1" value="100" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="100">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">比例臂 R₂ (Ω)</label>
+                        <input type="number" id="ratioR2" value="100" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="100">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">比例系数 k</label>
+                        <input type="number" id="ratioK" value="1" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="updateRatio()" class="bg-cyan-500 hover:bg-cyan-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">
+                            更新比例
+                        </button>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">数据输入</h3>
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-600">序号</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-600">标准电阻 R₃ (Ω)</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-600">检流计偏转 Δn (格)</th>
+                                <th class="border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-600">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTable">
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">1</td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="1" class="data-input-r3 w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1000"></td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-dn w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="0.0"></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">2</td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="1" class="data-input-r3 w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1000"></td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-dn w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="0.5"></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">3</td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="1" class="data-input-r3 w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1000"></td>
+                                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-dn w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.0"></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex gap-3 mb-4">
+                    <button onclick="addRow()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">+ 添加行</button>
+                    <button onclick="clearAll()" class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">清空数据</button>
+                </div>
+                <button onclick="validateData()" class="bg-cyan-500 hover:bg-cyan-600 text-white font-medium px-6 py-3 rounded-lg transition-colors btn-hover">提交校验</button>
+            </div>
+
+            <div id="validationResults" class="hidden">
+                <div class="grid md:grid-cols-6 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">数据点数</div>
+                        <div class="text-2xl font-bold text-gray-800" id="dataCount">0</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">待测电阻 Rₓ</div>
+                        <div class="text-2xl font-bold text-cyan-600" id="rxValue">0.00</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">电桥灵敏度 S</div>
+                        <div class="text-2xl font-bold text-teal-600" id="sensitivity">0.00</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">灵敏度等级</div>
+                        <div class="text-2xl font-bold" id="sensitivityLevel">-</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">仪器误差 u(R)</div>
+                        <div class="text-2xl font-bold text-purple-600" id="instrumentError">0.00</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">数据质量评分</div>
+                        <div class="text-2xl font-bold" id="qualityScore">0</div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">测量结果分析</h3>
+                        <div class="space-y-4">
+                            <div class="bg-cyan-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-600 mb-1">测量公式</p>
+                                <p class="text-xl font-mono text-cyan-600 font-semibold">Rₓ = k × R₃</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">比例系数 k</p>
+                                    <p class="text-xl font-bold text-gray-800" id="kValue">0.00</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">标准电阻均值</p>
+                                    <p class="text-xl font-bold text-gray-800" id="r3Mean">0.00</p>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-600 mb-1">相对不确定度</p>
+                                <p class="text-xl font-mono text-green-600 font-semibold" id="relativeUncertainty">0.00%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">AI 诊断反馈</h3>
+                        <div id="aiFeedback" class="space-y-3 max-h-96 overflow-y-auto"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视化</h3>
+                    <div class="h-80">
+                        <canvas id="dataChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">数据表格</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">序号</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">标准电阻 R₃ (Ω)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">偏转 Δn (格)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">计算 Rₓ (Ω)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">相对偏差</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">电桥法测电阻实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
+    <script>
+        new CozeWebSDK.WebChatClient({
+            config: { bot_id: '7634527397312266266' },
+            componentProps: { title: '电桥法测电阻实验助手' },
+            auth: {
+                type: 'token',
+                token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                onRefreshToken: () => 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP'
+            }
+        });
+    </script>
+    <script>
+        let experimentData = null;
+        let analysisResult = null;
+
+        function updateRatio() {
+            const r1 = parseFloat(document.getElementById('ratioR1').value);
+            const r2 = parseFloat(document.getElementById('ratioR2').value);
+            if (!isNaN(r1) && !isNaN(r2) && r1 > 0) {
+                document.getElementById('ratioK').value = (r2 / r1).toFixed(4);
+            }
+        }
+
+        function validateData() {
+            const k = parseFloat(document.getElementById('ratioK').value);
+            const r3Inputs = document.querySelectorAll('.data-input-r3');
+            const dnInputs = document.querySelectorAll('.data-input-dn');
+            const data = [];
+            
+            try {
+                for (let i = 0; i < r3Inputs.length; i++) {
+                    const r3 = parseFloat(r3Inputs[i].value);
+                    const dn = parseFloat(dnInputs[i].value);
+                    if (!isNaN(r3) && !isNaN(dn)) {
+                        data.push({ r3, dn, rx: k * r3, index: i });
+                    }
+                }
+            } catch (e) {
+                alert('数据格式错误，请检查输入');
+                return;
+            }
+
+            if (data.length === 0) {
+                alert('请输入实验数据');
+                return;
+            }
+
+            experimentData = data;
+            analysisResult = analyzeData(data, k);
+            displayValidationResults();
+
+            localStorage.setItem('experimentData', JSON.stringify({ experiment: 'bridge', data: data }));
+            localStorage.setItem('analysisResult', JSON.stringify({ experiment: 'bridge', data: analysisResult }));
+        }
+
+        function addRow() {
+            const table = document.getElementById('dataTable');
+            const rowCount = table.rows.length;
+            const newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td class="border border-gray-300 px-4 py-2">${rowCount + 1}</td>
+                <td class="border border-gray-300 px-4 py-2"><input type="number" step="1" class="data-input-r3 w-full px-2 py-1 border border-gray-300 rounded text-center"></td>
+                <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-dn w-full px-2 py-1 border border-gray-300 rounded text-center"></td>
+                <td class="border border-gray-300 px-4 py-2 text-center"><button onclick="deleteRow(this)" class="text-red-500 hover:text-red-700 text-sm">删除</button></td>
+            `;
+        }
+
+        function deleteRow(btn) {
+            const row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+            updateRowNumbers();
+        }
+
+        function updateRowNumbers() {
+            const table = document.getElementById('dataTable');
+            for (let i = 0; i < table.rows.length; i++) {
+                table.rows[i].cells[0].textContent = i + 1;
+            }
+        }
+
+        function clearAll() {
+            const table = document.getElementById('dataTable');
+            while (table.rows.length > 0) {
+                table.deleteRow(0);
+            }
+            table.innerHTML = `
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">1</td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="1" class="data-input-r3 w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1000"></td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-dn w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="0.0"></td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">2</td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="1" class="data-input-r3 w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1000"></td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-dn w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="0.5"></td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2">3</td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="1" class="data-input-r3 w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1000"></td>
+                    <td class="border border-gray-300 px-4 py-2"><input type="number" step="0.1" class="data-input-dn w-full px-2 py-1 border border-gray-300 rounded text-center" placeholder="1.0"></td>
+                    <td class="border border-gray-300 px-4 py-2 text-center">-</td>
+                </tr>
+            `;
+        }
+
+        function analyzeData(data, k) {
+            const n = data.length;
+            const r3Values = data.map(d => d.r3);
+            const dnValues = data.map(d => d.dn);
+            const rxValues = data.map(d => d.rx);
+
+            const rxMean = math.mean(rxValues);
+            const rxStd = math.std(rxValues);
+            const relativeStd = (rxStd / rxMean) * 100;
+
+            const validDn = dnValues.filter(d => d > 0);
+            const sensitivity = validDn.length > 0 && rxStd > 0 ? math.mean(validDn) / rxStd : 0;
+            
+            const sensitivityLevel = sensitivity >= 5 ? '高' : sensitivity >= 2 ? '中' : sensitivity > 0 ? '低' : '无法计算';
+
+            const a = 0.05;
+            const m = 3;
+            const b = 0.2;
+            const instrumentError = rxMean * a / 100 + b * m;
+            const relativeUncertainty = ((instrumentError / rxMean) + relativeStd / 100) * 100;
+
+            const anomalies = [];
+            const threshold = 3 * rxStd;
+            
+            rxValues.forEach((rx, i) => {
+                const deviation = ((rx - rxMean) / rxMean) * 100;
+                
+                if (Math.abs(rx - rxMean) > threshold) {
+                    anomalies.push(i);
+                }
+                
+                if (Math.abs(deviation) > 50) {
+                    if (!anomalies.includes(i)) {
+                        anomalies.push(i);
+                    }
+                }
+            });
+
+            const deviations = rxValues.map(rx => ((rx - rxMean) / rxMean) * 100);
+
+            const qualityScore = Math.min(100, Math.round(
+                (1 - anomalies.length / n) * 40 +
+                (sensitivity >= 5 ? 30 : sensitivity >= 2 ? 20 : 10) +
+                (relativeUncertainty < 1 ? 30 : relativeUncertainty < 3 ? 20 : 10)
+            ));
+
+            return {
+                n, k, rxMean: parseFloat(rxMean.toFixed(4)), rxStd: parseFloat(rxStd.toFixed(4)),
+                relativeStd: parseFloat(relativeStd.toFixed(4)), sensitivity: parseFloat(sensitivity.toFixed(4)),
+                sensitivityLevel, instrumentError: parseFloat(instrumentError.toFixed(4)),
+                relativeUncertainty: parseFloat(relativeUncertainty.toFixed(4)),
+                anomalies, deviations: deviations.map(d => parseFloat(d.toFixed(4))),
+                r3Mean: parseFloat(math.mean(r3Values).toFixed(4)), qualityScore
+            };
+        }
+
+        function displayValidationResults() {
+            document.getElementById('validationResults').classList.remove('hidden');
+
+            document.getElementById('dataCount').textContent = analysisResult.n;
+            document.getElementById('rxValue').textContent = analysisResult.rxMean;
+            document.getElementById('sensitivity').textContent = analysisResult.sensitivity;
+            document.getElementById('sensitivityLevel').textContent = analysisResult.sensitivityLevel;
+            document.getElementById('sensitivityLevel').className = analysisResult.sensitivityLevel === '高' ? 'text-2xl font-bold text-green-600' : 
+                                                                  analysisResult.sensitivityLevel === '中' ? 'text-2xl font-bold text-yellow-600' : 'text-2xl font-bold text-red-600';
+            document.getElementById('instrumentError').textContent = analysisResult.instrumentError;
+            document.getElementById('qualityScore').textContent = analysisResult.qualityScore;
+            document.getElementById('qualityScore').className = analysisResult.qualityScore >= 80 ? 'text-2xl font-bold text-green-600' : 
+                                                               analysisResult.qualityScore >= 60 ? 'text-2xl font-bold text-yellow-600' : 'text-2xl font-bold text-red-600';
+            document.getElementById('kValue').textContent = analysisResult.k;
+            document.getElementById('r3Mean').textContent = analysisResult.r3Mean;
+            document.getElementById('relativeUncertainty').textContent = `${analysisResult.relativeUncertainty}%`;
+
+            generateAIFeedback();
+            updateDataTable();
+            drawChart();
+        }
+
+        let chartInstance = null;
+
+        function drawChart() {
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('dataChart').getContext('2d');
+            
+            const rxValues = experimentData.map(d => d.rx);
+            const dnValues = experimentData.map(d => d.dn);
+
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: '待测电阻 Rₓ (Ω)',
+                            data: rxValues.map((rx, i) => ({ x: i + 1, y: rx })),
+                            backgroundColor: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#ef4444' : '#06b6d4'
+                            ),
+                            borderColor: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? '#dc2626' : '#0891b2'
+                            ),
+                            borderWidth: 2,
+                            radius: 8,
+                            pointStyle: experimentData.map((_, i) => 
+                                analysisResult.anomalies.includes(i) ? 'crossRot' : 'circle'
+                            )
+                        },
+                        {
+                            label: '检流计偏转 Δn (格)',
+                            data: dnValues.map((dn, i) => ({ x: i + 1, y: dn })),
+                            backgroundColor: '#10b981',
+                            borderColor: '#059669',
+                            borderWidth: 2,
+                            radius: 6,
+                            pointStyle: 'triangle'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    return [
+                                        `数据点: ${idx + 1}`,
+                                        `Rₓ: ${experimentData[idx].rx} Ω`,
+                                        `Δn: ${experimentData[idx].dn} 格`,
+                                        `偏差: ${analysisResult.deviations[idx].toFixed(2)}%`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '测量次数',
+                                font: { weight: 'bold' }
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '数值',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateAIFeedback() {
+            const feedback = document.getElementById('aiFeedback');
+            feedback.innerHTML = '';
+
+            const items = [];
+
+            if (analysisResult.sensitivity >= 5) {
+                items.push({ type: 'success', text: `电桥灵敏度 S = ${analysisResult.sensitivity} 格/Ω，灵敏度高，测量精度良好` });
+            } else if (analysisResult.sensitivity >= 2) {
+                items.push({ type: 'warning', text: `电桥灵敏度 S = ${analysisResult.sensitivity} 格/Ω，灵敏度中等，建议适当提高电源电压` });
+            } else {
+                items.push({ type: 'error', text: `电桥灵敏度 S = ${analysisResult.sensitivity} 格/Ω，灵敏度较低，需检查检流计或增加电源电压` });
+            }
+
+            if (analysisResult.relativeUncertainty < 1) {
+                items.push({ type: 'success', text: `相对不确定度 ${analysisResult.relativeUncertainty}%，测量结果可靠` });
+            } else if (analysisResult.relativeUncertainty < 3) {
+                items.push({ type: 'warning', text: `相对不确定度 ${analysisResult.relativeUncertainty}%，测量结果基本可靠` });
+            } else {
+                items.push({ type: 'error', text: `相对不确定度 ${analysisResult.relativeUncertainty}%，建议重新测量` });
+            }
+
+            if (analysisResult.anomalies.length > 0) {
+                items.push({ type: 'error', text: `检测到 ${analysisResult.anomalies.length} 个异常数据点（第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 点），可能存在测量误差` });
+            } else {
+                items.push({ type: 'success', text: '未检测到异常数据点，数据一致性良好' });
+            }
+
+            items.forEach(item => {
+                const bgClass = item.type === 'success' ? 'bg-green-50 border-green-200' : 
+                               item.type === 'warning' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200';
+                const iconClass = item.type === 'success' ? 'text-green-600' : 
+                                  item.type === 'warning' ? 'text-yellow-600' : 'text-red-600';
+                const path = item.type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>' : 
+                             '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>';
+                
+                feedback.innerHTML += `
+                    <div class="${bgClass} border rounded-lg p-4 flex items-start">
+                        <svg class="w-5 h-5 ${iconClass} mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">${path}</svg>
+                        <span class="${item.type === 'success' ? 'text-green-800' : item.type === 'warning' ? 'text-yellow-800' : 'text-red-800'}">${item.text}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function updateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            experimentData.forEach((d, i) => {
+                const isAnomaly = analysisResult.anomalies.includes(i);
+                const deviation = analysisResult.deviations[i];
+                tbody.innerHTML += `
+                    <tr ${isAnomaly ? 'class="bg-red-50"' : ''}>
+                        <td class="border border-gray-300 px-4 py-2">${i + 1}</td>
+                        <td class="border border-gray-300 px-4 py-2">${d.r3}</td>
+                        <td class="border border-gray-300 px-4 py-2">${d.dn}</td>
+                        <td class="border border-gray-300 px-4 py-2">${d.rx.toFixed(2)}</td>
+                        <td class="border border-gray-300 px-4 py-2">${deviation.toFixed(2)}%</td>
+                        <td class="border border-gray-300 px-4 py-2">${isAnomaly ? '<span class="text-red-600 font-medium">异常</span>' : '<span class="text-green-600 font-medium">正常</span>'}</td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

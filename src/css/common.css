@@ -1,0 +1,149 @@
+html {
+    scroll-behavior: smooth;
+}
+.card-hover {
+    transition: all 0.3s ease;
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+.btn-hover {
+    transition: all 0.2s ease;
+}
+.btn-hover:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+.nav-link {
+    position: relative;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #3b82f6;
+    transition: width 0.3s ease;
+}
+.nav-link:hover::after {
+    width: 100%;
+}
+.active-nav::after {
+    width: 100%;
+}
+.experiment-selector {
+    position: relative;
+}
+.experiment-selector.active .experiment-dropdown {
+    display: block;
+}
+.experiment-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem;
+    min-width: 18rem;
+    z-index: 100;
+}
+.experiment-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+.experiment-item:hover {
+    background-color: #f3f4f6;
+    transform: translateX(4px);
+}
+.experiment-item.active {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 500;
+}
+.experiment-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.75rem;
+}
+.experiment-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    font-medium: 500;
+    font-size: 1rem;
+    border: 2px solid #3b82f6;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    justify-content: center;
+}
+.experiment-toggle-btn:hover {
+    background-color: #bfdbfe;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+.experiment-toggle-btn.active {
+    background-color: #3b82f6;
+    color: white;
+}
+.experiment-toggle-btn.active .arrow-icon {
+    transform: rotate(180deg);
+}
+.arrow-icon {
+    transition: transform 0.2s ease;
+    width: 1rem;
+    height: 1rem;
+}
+.collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+.collapse-content.open {
+    max-height: 600px;
+}
+.option-btn {
+    transition: all 0.2s ease;
+    border: 2px solid #e5e7eb;
+}
+.option-btn:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+.option-btn.selected {
+    border-color: #3b82f6;
+    background-color: #dbeafe;
+}
+.option-btn.correct {
+    border-color: #10b981;
+    background-color: #dcfce7;
+}
+.option-btn.incorrect {
+    border-color: #ef4444;
+    background-color: #fee2e2;
+}
+.chart-tabs button.active {
+    background-color: #3b82f6;
+    color: white;
+}
+.stat-card {
+    transition: all 0.3s ease;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}

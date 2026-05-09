@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据校验 - 金属丝杨氏模量的测定实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #6366f1;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .active-nav::after {
+            width: 100%;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">杨氏模量 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-indigo-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-indigo-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link active-nav text-indigo-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link text-gray-600 hover:text-indigo-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验中数据实时校验</h2>
+                <p class="text-gray-600">输入实验数据，系统将进行实时质量校验和 AI 分析</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">测量数据输入</h3>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-indigo-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-indigo-800 mb-3">基本参数</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">钢丝长度 L (cm)</label>
+                                <input type="number" step="0.1" id="lengthL" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="钢丝长度" value="50.0">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">镜面到标尺距离 D (cm)</label>
+                                <input type="number" step="0.1" id="distanceD" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="镜面到标尺距离" value="150.0">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">光杠杆臂长 b (cm)</label>
+                                <input type="number" step="0.01" id="armB" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="光杠杆臂长" value="7.00">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">砝码质量 F (kg)</label>
+                                <input type="number" step="0.001" id="forceF" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="砝码质量" value="1.000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-purple-800 mb-3">表3-13 用千分尺测量钢丝直径（单位：mm）</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-purple-100">
+                                    <th class="px-3 py-2 text-center text-sm font-medium">次数</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">dₐ (mm)</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">dᵦ (mm)</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">d (mm)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-3 py-2 text-center">1</td><td><input type="number" step="0.001" id="d_a1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.001" id="d_b1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">2</td><td><input type="number" step="0.001" id="d_a2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.001" id="d_b2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">3</td><td><input type="number" step="0.001" id="d_a3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.001" id="d_b3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">4</td><td><input type="number" step="0.001" id="d_a4" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.001" id="d_b4" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">5</td><td><input type="number" step="0.001" id="d_a5" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.001" id="d_b5" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">6</td><td><input type="number" step="0.001" id="d_a6" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.001" id="d_b6" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr class="bg-gray-50"><td class="px-3 py-2 text-center font-medium">平均值</td><td colspan="3" class="px-3 py-2 text-center font-medium" id="avgDiameter">-</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-blue-800 mb-3">表3-14 光杠杆读数</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-blue-100">
+                                    <th class="px-3 py-2 text-center text-sm font-medium">砝码重/g</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">加砝码 nᵢ/cm</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">减砝码 nᵢ'/cm</th>
+                                    <th class="px-3 py-2 text-center text-sm font-medium">平均值 nᵢ/cm</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-3 py-2 text-center">0</td><td><input type="number" step="0.01" id="n_add0" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="n_sub0" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">1000</td><td><input type="number" step="0.01" id="n_add1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="n_sub1" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">2000</td><td><input type="number" step="0.01" id="n_add2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="n_sub2" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">3000</td><td><input type="number" step="0.01" id="n_add3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="n_sub3" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">4000</td><td><input type="number" step="0.01" id="n_add4" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="n_sub4" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">5000</td><td><input type="number" step="0.01" id="n_add5" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="n_sub5" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">6000</td><td><input type="number" step="0.01" id="n_add6" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="n_sub6" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                                <tr><td class="px-3 py-2 text-center">7000</td><td><input type="number" step="0.01" id="n_add7" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td><input type="number" step="0.01" id="n_sub7" class="w-full px-2 py-1 border border-gray-300 rounded text-center"></td><td></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="validateData()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-6 py-3 rounded-lg transition-colors btn-hover">
+                        提交校验
+                    </button>
+                    <button onclick="clearAll()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-3 rounded-lg transition-colors btn-hover">
+                        清空数据
+                    </button>
+                </div>
+            </div>
+
+            <div id="validationResults" class="hidden">
+                <div class="grid md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">钢丝直径</div>
+                        <div class="text-2xl font-bold text-indigo-600" id="diameterResult">0.00 mm</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">标尺读数差 ΔN</div>
+                        <div class="text-2xl font-bold text-purple-600" id="deltaNResult">0.00 cm</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">杨氏模量</div>
+                        <div class="text-2xl font-bold text-blue-600" id="youngResult">0.00 × 10¹¹ N/m²</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">数据质量评分</div>
+                        <div class="text-2xl font-bold" id="qualityScore">0</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">📊 数据可视化分析</h3>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button onclick="switchChart('diameter')" class="chart-tab active px-4 py-2 rounded-lg bg-indigo-500 text-white">直径测量分布</button>
+                        <button onclick="switchChart('readings')" class="chart-tab px-4 py-2 rounded-lg bg-gray-100 text-gray-600">读数趋势</button>
+                        <button onclick="switchChart('comparison')" class="chart-tab px-4 py-2 rounded-lg bg-gray-100 text-gray-600">结果对比</button>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">AI 诊断反馈</h3>
+                        <div id="aiFeedback" class="space-y-2">
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">操作建议</h3>
+                        <div id="actionSuggestions" class="space-y-2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">测量数据记录</h3>
+                    <div id="dataTables">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <p>金属丝杨氏模量的测定实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script>
+        function validateData() {
+            const L = parseFloat(document.getElementById('lengthL').value) || 50.0;
+            const D = parseFloat(document.getElementById('distanceD').value) || 150.0;
+            const b = parseFloat(document.getElementById('armB').value) || 7.00;
+            const F = parseFloat(document.getElementById('forceF').value) || 1.000;
+
+            const diameterData = [
+                { a: parseFloat(document.getElementById('d_a1').value), b: parseFloat(document.getElementById('d_b1').value) },
+                { a: parseFloat(document.getElementById('d_a2').value), b: parseFloat(document.getElementById('d_b2').value) },
+                { a: parseFloat(document.getElementById('d_a3').value), b: parseFloat(document.getElementById('d_b3').value) },
+                { a: parseFloat(document.getElementById('d_a4').value), b: parseFloat(document.getElementById('d_b4').value) },
+                { a: parseFloat(document.getElementById('d_a5').value), b: parseFloat(document.getElementById('d_b5').value) },
+                { a: parseFloat(document.getElementById('d_a6').value), b: parseFloat(document.getElementById('d_b6').value) }
+            ];
+
+            const readings = [
+                { add: parseFloat(document.getElementById('n_add0').value), sub: parseFloat(document.getElementById('n_sub0').value) },
+                { add: parseFloat(document.getElementById('n_add1').value), sub: parseFloat(document.getElementById('n_sub1').value) },
+                { add: parseFloat(document.getElementById('n_add2').value), sub: parseFloat(document.getElementById('n_sub2').value) },
+                { add: parseFloat(document.getElementById('n_add3').value), sub: parseFloat(document.getElementById('n_sub3').value) },
+                { add: parseFloat(document.getElementById('n_add4').value), sub: parseFloat(document.getElementById('n_sub4').value) },
+                { add: parseFloat(document.getElementById('n_add5').value), sub: parseFloat(document.getElementById('n_sub5').value) },
+                { add: parseFloat(document.getElementById('n_add6').value), sub: parseFloat(document.getElementById('n_sub6').value) },
+                { add: parseFloat(document.getElementById('n_add7').value), sub: parseFloat(document.getElementById('n_sub7').value) }
+            ];
+
+            const result = analyzeData(L, D, b, F, diameterData, readings);
+            displayResults(result);
+        }
+
+        function analyzeData(L, D, b, F, diameterData, readings) {
+            const g = 9.8;
+
+            const diameters = diameterData.filter(d => d.a && d.b).map(d => (d.a + d.b) / 2);
+            const avgDiameter = diameters.length > 0 ? parseFloat(math.mean(diameters).toFixed(3)) : 0;
+            const diameterStd = diameters.length > 1 ? parseFloat(math.std(diameters).toFixed(4)) : 0;
+
+            const avgReadings = readings.filter(r => r.add && r.sub).map(r => (r.add + r.sub) / 2);
+            
+            let deltaN = 0;
+            if (avgReadings.length >= 2) {
+                const n0 = avgReadings[0];
+                const n4 = avgReadings.length > 4 ? avgReadings[4] : avgReadings[avgReadings.length - 1];
+                deltaN = parseFloat(Math.abs(n4 - n0).toFixed(2));
+            }
+
+            const d_m = avgDiameter / 1000;
+            const L_m = L / 100;
+            const D_m = D / 100;
+            const b_m = b / 100;
+            const deltaN_m = deltaN / 100;
+
+            let youngModulus = 0;
+            if (avgDiameter > 0 && deltaN > 0) {
+                youngModulus = (8 * F * g * D_m * L_m) / (Math.PI * Math.pow(d_m, 2) * b_m * deltaN_m);
+                youngModulus = parseFloat((youngModulus / 1e11).toFixed(2));
+            }
+
+            const standardYoung = 2.10;
+            const deviation = youngModulus > 0 ? parseFloat(Math.abs((youngModulus - standardYoung) / standardYoung * 100).toFixed(2)) : 0;
+
+            let qualityScore = 100;
+            if (diameterStd > 0.002) qualityScore -= Math.min(20, (diameterStd - 0.002) * 10000);
+            if (deviation > 5) qualityScore -= Math.min(30, (deviation - 5) * 6);
+            if (deltaN < 0.5) qualityScore -= Math.min(25, (0.5 - deltaN) * 50);
+            qualityScore = Math.max(0, Math.round(qualityScore));
+
+            return {
+                L, D, b, F,
+                diameters, avgDiameter, diameterStd,
+                avgReadings, deltaN,
+                youngModulus, deviation,
+                qualityScore
+            };
+        }
+
+        function displayResults(result) {
+            document.getElementById('validationResults').classList.remove('hidden');
+
+            document.getElementById('diameterResult').textContent = `${result.avgDiameter} mm`;
+            document.getElementById('deltaNResult').textContent = `${result.deltaN} cm`;
+            document.getElementById('youngResult').textContent = `${result.youngModulus} × 10¹¹ N/m²`;
+            
+            const qualityScoreEl = document.getElementById('qualityScore');
+            qualityScoreEl.textContent = result.qualityScore;
+            qualityScoreEl.className = result.qualityScore >= 90 ? 'text-2xl font-bold text-green-600' :
+                                     result.qualityScore >= 70 ? 'text-2xl font-bold text-yellow-600' :
+                                     'text-2xl font-bold text-red-600';
+
+            generateAIFeedback(result);
+            generateActionSuggestions(result);
+            updateDataTables(result);
+            renderCharts(result);
+        }
+
+        function generateAIFeedback(result) {
+            const feedback = document.getElementById('aiFeedback');
+            feedback.innerHTML = '';
+
+            const items = [];
+
+            if (result.qualityScore >= 90) {
+                items.push({ type: 'success', text: '数据质量优秀！实验结果与理论值吻合良好' });
+            } else if (result.qualityScore >= 70) {
+                items.push({ type: 'warning', text: '数据质量良好，但仍有改进空间' });
+            } else {
+                items.push({ type: 'error', text: '数据质量一般，建议检查实验操作' });
+            }
+
+            if (result.diameterStd <= 0.002) {
+                items.push({ type: 'success', text: `钢丝直径测量重复性良好（标准差 ${result.diameterStd} mm）` });
+            } else {
+                items.push({ type: 'warning', text: `钢丝直径测量重复性较差（标准差 ${result.diameterStd} mm），建议重新测量` });
+            }
+
+            if (result.deltaN >= 0.5) {
+                items.push({ type: 'success', text: `标尺读数差 ΔN = ${result.deltaN} cm，信号足够明显` });
+            } else {
+                items.push({ type: 'warning', text: `标尺读数差 ΔN = ${result.deltaN} cm，信号较小，建议增大砝码质量` });
+            }
+
+            if (result.youngModulus > 0) {
+                items.push({ type: result.deviation <= 5 ? 'success' : result.deviation <= 15 ? 'warning' : 'error', 
+                    text: `杨氏模量测量值 ${result.youngModulus} × 10¹¹ N/m²，与标准值 (2.10 × 10¹¹ N/m²) 偏差 ${result.deviation}%` });
+            }
+
+            items.forEach(item => {
+                feedback.innerHTML += `
+                    <div class="flex items-start p-3 rounded-lg ${item.type === 'success' ? 'bg-green-50' : item.type === 'warning' ? 'bg-yellow-50' : 'bg-red-50'}">
+                        <span class="mr-2">${item.type === 'success' ? '✓' : item.type === 'warning' ? '⚠' : '✗'}</span>
+                        <span class="${item.type === 'success' ? 'text-green-700' : item.type === 'warning' ? 'text-yellow-700' : 'text-red-700'}">${item.text}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function generateActionSuggestions(result) {
+            const suggestions = document.getElementById('actionSuggestions');
+            suggestions.innerHTML = '';
+
+            const items = [];
+
+            if (result.diameterStd > 0.002) {
+                items.push({ priority: 'high', text: `钢丝直径测量重复性较差，建议重新测量，确保千分尺使用正确` });
+            }
+            if (result.deltaN < 0.5) {
+                items.push({ priority: 'high', text: `标尺读数变化较小，建议增大镜面到标尺距离D或增加砝码质量` });
+            }
+            if (result.deviation > 5) {
+                items.push({ priority: 'medium', text: `杨氏模量偏差较大，检查光杠杆臂长b的测量是否准确` });
+            }
+            if (result.avgDiameter === 0) {
+                items.push({ priority: 'high', text: '请输入钢丝直径数据' });
+            }
+            if (result.deltaN === 0) {
+                items.push({ priority: 'high', text: '请输入光杠杆读数数据' });
+            }
+
+            if (items.length === 0) {
+                items.push({ priority: 'low', text: '实验操作规范，数据质量良好' });
+            }
+
+            items.forEach(item => {
+                suggestions.innerHTML += `
+                    <div class="flex items-start p-3 rounded-lg bg-gray-50">
+                        <span class="px-2 py-0.5 text-xs font-medium rounded ${item.priority === 'high' ? 'bg-red-100 text-red-700' : item.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'} mr-2">
+                            ${item.priority === 'high' ? '高' : item.priority === 'medium' ? '中' : '低'}
+                        </span>
+                        <span class="text-gray-700">${item.text}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function updateDataTables(result) {
+            const container = document.getElementById('dataTables');
+            container.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold text-gray-800 flex items-center">
+                                <span class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white text-sm mr-2">①</span>
+                                钢丝直径测量记录
+                            </h4>
+                            <span class="text-xs text-indigo-600 bg-indigo-100 px-2 py-1 rounded">表3-13</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="bg-indigo-100 rounded-lg">
+                                        <th class="px-3 py-2 text-left text-indigo-700 font-medium rounded-l-lg">次数</th>
+                                        <th class="px-3 py-2 text-right text-indigo-700 font-medium">直径 d (mm)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${result.diameters.map((d, i) => `
+                                        <tr class="border-b border-indigo-100 hover:bg-indigo-50 transition-colors">
+                                            <td class="px-3 py-2.5 text-gray-700">第${i + 1}次</td>
+                                            <td class="px-3 py-2.5 text-right text-gray-800 font-mono">${d.toFixed(3)}</td>
+                                        </tr>
+                                    `).join('')}
+                                    <tr class="bg-white rounded-b-lg">
+                                        <td class="px-3 py-2.5 font-semibold text-indigo-600">平均值</td>
+                                        <td class="px-3 py-2.5 text-right font-bold text-indigo-600 font-mono">${result.avgDiameter} mm</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3 grid grid-cols-2 gap-3 text-xs">
+                            <div class="bg-white rounded-lg px-3 py-2">
+                                <span class="text-gray-500">标准差</span>
+                                <div class="font-mono text-indigo-600">${result.diameterStd.toFixed(4)} mm</div>
+                            </div>
+                            <div class="bg-white rounded-lg px-3 py-2">
+                                <span class="text-gray-500">测量次数</span>
+                                <div class="font-mono text-indigo-600">${result.diameters.length} 次</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 border border-purple-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold text-gray-800 flex items-center">
+                                <span class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center text-white text-sm mr-2">②</span>
+                                光杠杆读数记录
+                            </h4>
+                            <span class="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded">表3-14</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="bg-purple-100 rounded-lg">
+                                        <th class="px-3 py-2 text-left text-purple-700 font-medium rounded-l-lg">砝码质量 (kg)</th>
+                                        <th class="px-3 py-2 text-right text-purple-700 font-medium">标尺读数 nᵢ (cm)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${result.avgReadings.map((n, i) => `
+                                        <tr class="border-b border-purple-100 hover:bg-purple-50 transition-colors">
+                                            <td class="px-3 py-2.5 text-gray-700">${i}</td>
+                                            <td class="px-3 py-2.5 text-right text-gray-800 font-mono">${n.toFixed(2)}</td>
+                                        </tr>
+                                    `).join('')}
+                                    <tr class="bg-white rounded-b-lg">
+                                        <td class="px-3 py-2.5 font-semibold text-purple-600">ΔN = n₄ - n₀</td>
+                                        <td class="px-3 py-2.5 text-right font-bold text-purple-600 font-mono">${result.deltaN} cm</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3 grid grid-cols-2 gap-3 text-xs">
+                            <div class="bg-white rounded-lg px-3 py-2">
+                                <span class="text-gray-500">初始读数 n₀</span>
+                                <div class="font-mono text-purple-600">${result.avgReadings[0]?.toFixed(2) || '-'} cm</div>
+                            </div>
+                            <div class="bg-white rounded-lg px-3 py-2">
+                                <span class="text-gray-500">最终读数 n₄</span>
+                                <div class="font-mono text-purple-600">${result.avgReadings[4]?.toFixed(2) || '-'} cm</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-5 border border-blue-100">
+                    <div class="flex items-center mb-3">
+                        <span class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white text-sm mr-2">③</span>
+                        <h4 class="font-semibold text-gray-800">实验参数汇总</h4>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <div class="text-xs text-gray-500 mb-1">钢丝长度 L</div>
+                            <div class="font-bold text-blue-600">${result.L} <span class="text-sm font-normal text-gray-500">cm</span></div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <div class="text-xs text-gray-500 mb-1">镜尺距离 D</div>
+                            <div class="font-bold text-blue-600">${result.D} <span class="text-sm font-normal text-gray-500">cm</span></div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <div class="text-xs text-gray-500 mb-1">光杠杆臂长 b</div>
+                            <div class="font-bold text-blue-600">${result.b} <span class="text-sm font-normal text-gray-500">cm</span></div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <div class="text-xs text-gray-500 mb-1">砝码质量 m</div>
+                            <div class="font-bold text-blue-600">${result.F} <span class="text-sm font-normal text-gray-500">kg</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        let currentChart = null;
+        let chartData = null;
+
+        function renderCharts(result) {
+            chartData = result;
+            renderDiameterChart();
+        }
+
+        function renderDiameterChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            destroyChart();
+            
+            const labels = chartData.diameters.map((_, i) => `第${i + 1}次`);
+            const avgLine = Array(chartData.diameters.length).fill(chartData.avgDiameter);
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '直径测量值 (mm)',
+                        data: chartData.diameters,
+                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }, {
+                        label: '平均值 (mm)',
+                        data: avgLine,
+                        type: 'line',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        tension: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: '钢丝直径测量分布', font: { size: 14 } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: Math.max(0, chartData.avgDiameter - 0.01),
+                            max: chartData.avgDiameter + 0.01,
+                            title: { display: true, text: '直径 (mm)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderReadingsChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            destroyChart();
+
+            const weights = chartData.avgReadings.map((_, i) => `${i} kg`);
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: weights,
+                    datasets: [{
+                        label: '标尺读数 (cm)',
+                        data: chartData.avgReadings,
+                        backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                        borderColor: 'rgba(168, 85, 247, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(168, 85, 247, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: '光杠杆读数随砝码质量变化', font: { size: 14 } }
+                    },
+                    scales: {
+                        y: { title: { display: true, text: '读数 nᵢ (cm)' } },
+                        x: { title: { display: true, text: '砝码质量' } }
+                    }
+                }
+            });
+        }
+
+        function renderComparisonChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            destroyChart();
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['测量值', '标准值'],
+                    datasets: [{
+                        label: '杨氏模量 (×10¹¹ N/m²)',
+                        data: [chartData.youngModulus, 2.10],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(239, 68, 68, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(239, 68, 68, 1)'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: `杨氏模量测量结果对比 (偏差: ${chartData.deviation}%)`, font: { size: 14 } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: Math.max(0, Math.min(chartData.youngModulus, 2.10) - 0.2),
+                            max: Math.max(chartData.youngModulus, 2.10) + 0.2,
+                            title: { display: true, text: '杨氏模量 (×10¹¹ N/m²)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function switchChart(type) {
+            document.querySelectorAll('.chart-tab').forEach(tab => {
+                tab.classList.remove('active', 'bg-indigo-500', 'text-white');
+                tab.classList.add('bg-gray-100', 'text-gray-600');
+            });
+            event.target.classList.add('active', 'bg-indigo-500', 'text-white');
+            event.target.classList.remove('bg-gray-100', 'text-gray-600');
+
+            if (type === 'diameter') {
+                renderDiameterChart();
+            } else if (type === 'readings') {
+                renderReadingsChart();
+            } else if (type === 'comparison') {
+                renderComparisonChart();
+            }
+        }
+
+        function destroyChart() {
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+            });
+            document.getElementById('validationResults').classList.add('hidden');
+            destroyChart();
+        }
+    </script>
+</body>
+</html>

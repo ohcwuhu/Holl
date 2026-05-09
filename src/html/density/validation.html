@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据校验 - 物体密度的测定实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #f97316;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .active-nav::after {
+            width: 100%;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .chart-tab {
+            transition: all 0.2s ease;
+            font-medium: 1;
+        }
+        .chart-tab:hover {
+            background-color: #fef3c7;
+        }
+        .chart-tab.active {
+            background-color: #f97316;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-orange-50 via-white to-amber-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">密度测定 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-orange-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-orange-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link active-nav text-orange-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link text-gray-600 hover:text-orange-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验中数据实时校验</h2>
+                <p class="text-gray-600">输入实验数据，系统将进行实时质量校验和 AI 分析</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">测量数据输入</h3>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-blue-800 mb-3">圆柱体质量测量</h4>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">质量 m (g)</label>
+                                <input type="number" step="0.01" id="massInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="输入圆柱体质量">
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-green-800 mb-3">圆柱体直径测量（螺旋测微计）</h4>
+                            <div class="space-y-2">
+                                <div class="grid grid-cols-3 gap-2">
+                                    <input type="number" step="0.001" id="diameter1" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量1">
+                                    <input type="number" step="0.001" id="diameter2" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量2">
+                                    <input type="number" step="0.001" id="diameter3" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量3">
+                                </div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <input type="number" step="0.001" id="diameter4" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量4">
+                                    <input type="number" step="0.001" id="diameter5" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量5">
+                                    <input type="number" step="0.001" id="diameter6" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量6">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-purple-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-purple-800 mb-3">圆柱体高度测量（游标卡尺）</h4>
+                            <div class="space-y-2">
+                                <div class="grid grid-cols-3 gap-2">
+                                    <input type="number" step="0.01" id="height1" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量1">
+                                    <input type="number" step="0.01" id="height2" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量2">
+                                    <input type="number" step="0.01" id="height3" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量3">
+                                </div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <input type="number" step="0.01" id="height4" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量4">
+                                    <input type="number" step="0.01" id="height5" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量5">
+                                    <input type="number" step="0.01" id="height6" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量6">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-orange-800 mb-3">水温（用于密度修正）</h4>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-1">水温 t (°C)</label>
+                                <input type="number" step="0.1" id="waterTemp" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="25.0" value="25.0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex gap-3">
+                    <button onclick="validateData()" class="bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-3 rounded-lg transition-colors btn-hover">
+                        提交校验
+                    </button>
+                    <button onclick="clearAll()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-3 rounded-lg transition-colors btn-hover">
+                        清空数据
+                    </button>
+                </div>
+            </div>
+
+            <div id="validationResults" class="hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视化分析</h3>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button onclick="switchChart('diameter')" class="chart-tab active px-4 py-2 rounded-lg bg-orange-500 text-white">直径分布</button>
+                        <button onclick="switchChart('height')" class="chart-tab px-4 py-2 rounded-lg bg-gray-100 text-gray-600">高度分布</button>
+                        <button onclick="switchChart('comparison')" class="chart-tab px-4 py-2 rounded-lg bg-gray-100 text-gray-600">结果对比</button>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">平均直径 D</div>
+                        <div class="text-2xl font-bold text-blue-600" id="avgDiameter">0.000 mm</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">平均高度 H</div>
+                        <div class="text-2xl font-bold text-green-600" id="avgHeight">0.00 mm</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">计算密度</div>
+                        <div class="text-2xl font-bold text-purple-600" id="calculatedDensity">0.00 g/cm³</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                        <div class="text-sm text-gray-500 mb-1">数据质量评分</div>
+                        <div class="text-2xl font-bold" id="qualityScore">0</div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">测量数据分析</h3>
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-700 font-medium">直径测量统计</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-gray-500">平均值</p>
+                                        <p class="font-mono text-blue-700" id="diameterMean">0.000 mm</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">标准差</p>
+                                        <p class="font-mono text-blue-700" id="diameterStd">0.000</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">不确定度</p>
+                                        <p class="font-mono text-blue-700" id="diameterUncertainty">0.000 mm</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-green-50 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-700 font-medium">高度测量统计</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-gray-500">平均值</p>
+                                        <p class="font-mono text-green-700" id="heightMean">0.00 mm</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">标准差</p>
+                                        <p class="font-mono text-green-700" id="heightStd">0.00</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500">不确定度</p>
+                                        <p class="font-mono text-green-700" id="heightUncertainty">0.00 mm</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-purple-50 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-700 font-medium">密度计算结果</span>
+                                </div>
+                                <p class="text-xl font-mono text-purple-700 mb-2">ρ = <span id="densityValue">0.00</span> g/cm³</p>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">与标准值偏差</span>
+                                    <span class="font-medium" id="deviation">0.00%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">AI 诊断反馈</h3>
+                        <div id="aiFeedback" class="space-y-3 max-h-96 overflow-y-auto"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">操作建议</h3>
+                    <div id="actionSuggestions" class="space-y-3 max-h-64 overflow-y-auto"></div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">测量数据表格</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">直径测量记录 (mm)</h4>
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-3 py-2 text-left">测量次数</th>
+                                        <th class="px-3 py-2 text-right">测量值</th>
+                                        <th class="px-3 py-2 text-center">状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="diameterTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">高度测量记录 (mm)</h4>
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-3 py-2 text-left">测量次数</th>
+                                        <th class="px-3 py-2 text-right">测量值</th>
+                                        <th class="px-3 py-2 text-center">状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="heightTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">物体密度的测定实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
+    <script>
+        new CozeWebSDK.WebChatClient({
+            config: {
+                bot_id: '7634527397312266266',
+            },
+            componentProps: {
+                title: '密度实验助手',
+            },
+            auth: {
+                type: 'token',
+                token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                onRefreshToken: function () {
+                    return 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP';
+                }
+            }
+        });
+    </script>
+    <script>
+        const STANDARD_DENSITY = 8.50;
+        const WATER_DENSITY = 0.997;
+
+        function validateData() {
+            const mass = parseFloat(document.getElementById('massInput').value);
+            const waterTemp = parseFloat(document.getElementById('waterTemp').value) || 25.0;
+            
+            const diameters = [
+                parseFloat(document.getElementById('diameter1').value),
+                parseFloat(document.getElementById('diameter2').value),
+                parseFloat(document.getElementById('diameter3').value),
+                parseFloat(document.getElementById('diameter4').value),
+                parseFloat(document.getElementById('diameter5').value),
+                parseFloat(document.getElementById('diameter6').value)
+            ].filter(v => !isNaN(v));
+            
+            const heights = [
+                parseFloat(document.getElementById('height1').value),
+                parseFloat(document.getElementById('height2').value),
+                parseFloat(document.getElementById('height3').value),
+                parseFloat(document.getElementById('height4').value),
+                parseFloat(document.getElementById('height5').value),
+                parseFloat(document.getElementById('height6').value)
+            ].filter(v => !isNaN(v));
+
+            if (isNaN(mass) || mass <= 0) {
+                alert('请输入有效的质量值');
+                return;
+            }
+            
+            if (diameters.length < 3) {
+                alert('至少需要测量3次直径');
+                return;
+            }
+            
+            if (heights.length < 3) {
+                alert('至少需要测量3次高度');
+                return;
+            }
+
+            const result = analyzeData(mass, diameters, heights, waterTemp);
+            displayResults(result);
+
+            localStorage.setItem('experimentData', JSON.stringify({ mass, diameters, heights, waterTemp }));
+            localStorage.setItem('analysisResult', JSON.stringify(result));
+        }
+
+        function analyzeData(mass, diameters, heights, waterTemp) {
+            const diameterMean = math.mean(diameters);
+            const diameterStd = math.std(diameters);
+            const diameterUncertainty = diameterStd / Math.sqrt(diameters.length);
+
+            const heightMean = math.mean(heights);
+            const heightStd = math.std(heights);
+            const heightUncertainty = heightStd / Math.sqrt(heights.length);
+
+            const volume = Math.PI * Math.pow(diameterMean / 2, 2) * heightMean / 1000;
+            const density = mass / volume;
+
+            const diameterAnomalies = detectAnomalies(diameters);
+            const heightAnomalies = detectAnomalies(heights);
+
+            const deviation = Math.abs((density - STANDARD_DENSITY) / STANDARD_DENSITY * 100);
+
+            const qualityScore = calculateQualityScore(diameterStd, heightStd, deviation);
+
+            return {
+                mass,
+                diameters,
+                heights,
+                waterTemp,
+                diameterMean: parseFloat(diameterMean.toFixed(3)),
+                diameterStd: parseFloat(diameterStd.toFixed(3)),
+                diameterUncertainty: parseFloat(diameterUncertainty.toFixed(3)),
+                diameterAnomalies,
+                heightMean: parseFloat(heightMean.toFixed(2)),
+                heightStd: parseFloat(heightStd.toFixed(2)),
+                heightUncertainty: parseFloat(heightUncertainty.toFixed(2)),
+                heightAnomalies,
+                volume: parseFloat(volume.toFixed(3)),
+                density: parseFloat(density.toFixed(2)),
+                deviation: parseFloat(deviation.toFixed(2)),
+                qualityScore
+            };
+        }
+
+        function detectAnomalies(data) {
+            const mean = math.mean(data);
+            const std = math.std(data);
+            const threshold = 2 * std;
+            return data.map((v, i) => Math.abs(v - mean) > threshold ? i : -1).filter(i => i !== -1);
+        }
+
+        function calculateQualityScore(diameterStd, heightStd, deviation) {
+            let score = 100;
+            
+            if (diameterStd > 0.005) score -= Math.min(20, (diameterStd - 0.005) * 4000);
+            if (heightStd > 0.05) score -= Math.min(20, (heightStd - 0.05) * 400);
+            if (deviation > 5) score -= Math.min(30, (deviation - 5) * 6);
+            
+            return Math.max(0, Math.round(score));
+        }
+
+        function generateAIFeedback(result) {
+            const feedback = document.getElementById('aiFeedback');
+            feedback.innerHTML = '';
+
+            const items = [];
+
+            if (result.qualityScore >= 90) {
+                items.push({ type: 'success', text: `数据质量优秀！密度测量值 ${result.density} g/cm³ 与标准值 ${STANDARD_DENSITY} g/cm³ 偏差仅 ${result.deviation}%` });
+            } else if (result.qualityScore >= 70) {
+                items.push({ type: 'warning', text: `数据质量良好。密度测量值 ${result.density} g/cm³，与标准值偏差 ${result.deviation}%` });
+            } else {
+                items.push({ type: 'error', text: `数据质量一般。密度测量值 ${result.density} g/cm³，与标准值偏差 ${result.deviation}%，建议检查测量过程` });
+            }
+
+            if (result.diameterAnomalies.length > 0) {
+                items.push({ type: 'error', text: `直径测量存在异常点（第 ${result.diameterAnomalies.map(i => i + 1).join('、')} 次测量），建议重新测量` });
+            } else {
+                items.push({ type: 'success', text: '直径测量数据一致，无异常点' });
+            }
+
+            if (result.heightAnomalies.length > 0) {
+                items.push({ type: 'error', text: `高度测量存在异常点（第 ${result.heightAnomalies.map(i => i + 1).join('、')} 次测量），建议重新测量` });
+            } else {
+                items.push({ type: 'success', text: '高度测量数据一致，无异常点' });
+            }
+
+            if (result.diameterStd > 0.005) {
+                items.push({ type: 'warning', text: `直径测量标准差 ${result.diameterStd} 较大，可能存在读数误差` });
+            }
+
+            if (result.heightStd > 0.05) {
+                items.push({ type: 'warning', text: `高度测量标准差 ${result.heightStd} 较大，可能存在读数误差` });
+            }
+
+            items.forEach(item => {
+                const bgClass = item.type === 'success' ? 'bg-green-50 border-green-200' :
+                               item.type === 'warning' ? 'bg-yellow-50 border-yellow-200' :
+                               'bg-red-50 border-red-200';
+                const iconClass = item.type === 'success' ? 'text-green-600' :
+                                  item.type === 'warning' ? 'text-yellow-600' :
+                                  'text-red-600';
+
+                feedback.innerHTML += `
+                    <div class="${bgClass} border rounded-lg p-4 flex items-start">
+                        <svg class="w-5 h-5 ${iconClass} mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${item.type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>' :
+                              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>'}
+                        </svg>
+                        <span class="${item.type === 'success' ? 'text-green-800' : item.type === 'warning' ? 'text-yellow-800' : 'text-red-800'}">${item.text}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function generateActionSuggestions(result) {
+            const suggestions = document.getElementById('actionSuggestions');
+            suggestions.innerHTML = '';
+
+            const actionItems = [];
+
+            if (result.diameterAnomalies.length > 0) {
+                actionItems.push({ priority: 'high', text: `重新测量第 ${result.diameterAnomalies.map(i => i + 1).join('、')} 次直径数据` });
+            }
+
+            if (result.heightAnomalies.length > 0) {
+                actionItems.push({ priority: 'high', text: `重新测量第 ${result.heightAnomalies.map(i => i + 1).join('、')} 次高度数据` });
+            }
+
+            if (result.deviation > 10) {
+                actionItems.push({ priority: 'high', text: '密度测量偏差较大，建议检查质量测量是否准确' });
+            }
+
+            if (result.diameterStd > 0.005) {
+                actionItems.push({ priority: 'medium', text: '直径测量重复性较差，建议使用棘轮装置并确保测量位置正确' });
+            }
+
+            if (result.heightStd > 0.05) {
+                actionItems.push({ priority: 'medium', text: '高度测量重复性较差，建议检查游标卡尺读数' });
+            }
+
+            actionItems.push({ priority: 'low', text: '实验前确保仪器归零，减小系统误差' });
+            actionItems.push({ priority: 'low', text: '测量时保持圆柱体清洁，避免杂质影响测量' });
+
+            if (actionItems.length === 0) {
+                suggestions.innerHTML = `
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-blue-800">数据质量优良，无需特殊操作建议</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            actionItems.forEach(item => {
+                const bgClass = item.priority === 'high' ? 'bg-red-50 border-red-200' :
+                               item.priority === 'medium' ? 'bg-yellow-50 border-yellow-200' :
+                               'bg-green-50 border-green-200';
+                const badgeClass = item.priority === 'high' ? 'bg-red-100 text-red-700' :
+                                   item.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                   'bg-green-100 text-green-700';
+                const badgeText = item.priority === 'high' ? '高优先级' :
+                                  item.priority === 'medium' ? '中优先级' : '低优先级';
+
+                suggestions.innerHTML += `
+                    <div class="${bgClass} border rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <svg class="w-4 h-4 ${item.priority === 'high' ? 'text-red-600' : item.priority === 'medium' ? 'text-yellow-600' : 'text-green-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-xs px-2 py-0.5 rounded-full ${badgeClass} font-medium">${badgeText}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm">${item.text}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function updateDataTables(result) {
+            const diameterBody = document.getElementById('diameterTableBody');
+            diameterBody.innerHTML = '';
+            
+            result.diameters.forEach((val, i) => {
+                const isAnomaly = result.diameterAnomalies.includes(i);
+                diameterBody.innerHTML += `
+                    <tr ${isAnomaly ? 'class="bg-red-50"' : ''}>
+                        <td class="px-3 py-2">${i + 1}</td>
+                        <td class="px-3 py-2 text-right">${val.toFixed(3)}</td>
+                        <td class="px-3 py-2 text-center">
+                            ${isAnomaly ? '<span class="text-red-500 text-xs">异常</span>' : '<span class="text-green-500 text-xs">正常</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            const heightBody = document.getElementById('heightTableBody');
+            heightBody.innerHTML = '';
+            
+            result.heights.forEach((val, i) => {
+                const isAnomaly = result.heightAnomalies.includes(i);
+                heightBody.innerHTML += `
+                    <tr ${isAnomaly ? 'class="bg-red-50"' : ''}>
+                        <td class="px-3 py-2">${i + 1}</td>
+                        <td class="px-3 py-2 text-right">${val.toFixed(2)}</td>
+                        <td class="px-3 py-2 text-center">
+                            ${isAnomaly ? '<span class="text-red-500 text-xs">异常</span>' : '<span class="text-green-500 text-xs">正常</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function clearAll() {
+            document.getElementById('massInput').value = '';
+            document.getElementById('waterTemp').value = '25.0';
+            
+            ['diameter1', 'diameter2', 'diameter3', 'diameter4', 'diameter5', 'diameter6'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            
+            ['height1', 'height2', 'height3', 'height4', 'height5', 'height6'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            
+            document.getElementById('validationResults').classList.add('hidden');
+        }
+
+        let chartInstance = null;
+        let currentChartType = 'diameter';
+        let currentResult = null;
+
+        function switchChart(type) {
+            currentChartType = type;
+            document.querySelectorAll('.chart-tab').forEach(tab => {
+                tab.classList.remove('active', 'bg-orange-500', 'text-white');
+                tab.classList.add('bg-gray-100', 'text-gray-600');
+            });
+            event.target.classList.add('active', 'bg-orange-500', 'text-white');
+            event.target.classList.remove('bg-gray-100', 'text-gray-600');
+            
+            if (currentResult) {
+                drawChart();
+            }
+        }
+
+        function drawChart() {
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            
+            if (currentChartType === 'diameter') {
+                const labels = currentResult.diameters.map((_, i) => `测量${i + 1}`);
+                const data = currentResult.diameters;
+                const anomalies = currentResult.diameterAnomalies;
+                
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '直径测量值 (mm)',
+                            data: data,
+                            backgroundColor: data.map((_, i) => anomalies.includes(i) ? '#ef4444' : '#3b82f6'),
+                            borderColor: data.map((_, i) => anomalies.includes(i) ? '#dc2626' : '#2563eb'),
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `直径: ${context.parsed.y.toFixed(3)} mm`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: { display: true, text: '直径 (mm)', font: { weight: 'bold' } },
+                                min: Math.min(...data) - 0.01,
+                                max: Math.max(...data) + 0.01
+                            },
+                            x: {
+                                title: { display: true, text: '测量次数', font: { weight: 'bold' } }
+                            }
+                        }
+                    }
+                });
+            } else if (currentChartType === 'height') {
+                const labels = currentResult.heights.map((_, i) => `测量${i + 1}`);
+                const data = currentResult.heights;
+                const anomalies = currentResult.heightAnomalies;
+                
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '高度测量值 (mm)',
+                            data: data,
+                            backgroundColor: data.map((_, i) => anomalies.includes(i) ? '#ef4444' : '#22c55e'),
+                            borderColor: data.map((_, i) => anomalies.includes(i) ? '#dc2626' : '#16a34a'),
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `高度: ${context.parsed.y.toFixed(2)} mm`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: { display: true, text: '高度 (mm)', font: { weight: 'bold' } },
+                                min: Math.min(...data) - 0.1,
+                                max: Math.max(...data) + 0.1
+                            },
+                            x: {
+                                title: { display: true, text: '测量次数', font: { weight: 'bold' } }
+                            }
+                        }
+                    }
+                });
+            } else if (currentChartType === 'comparison') {
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['测量密度', '标准密度'],
+                        datasets: [{
+                            label: '密度值 (g/cm³)',
+                            data: [currentResult.density, STANDARD_DENSITY],
+                            backgroundColor: ['#f97316', '#6b7280'],
+                            borderColor: ['#ea580c', '#4b5563'],
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            annotation: {
+                                annotations: {
+                                    line1: {
+                                        type: 'line',
+                                        yMin: currentResult.density,
+                                        yMax: currentResult.density,
+                                        borderColor: '#f97316',
+                                        borderWidth: 2,
+                                        borderDash: [5, 5],
+                                        label: {
+                                            display: true,
+                                            content: `偏差: ${currentResult.deviation}%`,
+                                            position: 'end'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: { display: true, text: '密度 (g/cm³)', font: { weight: 'bold' } },
+                                min: Math.min(currentResult.density, STANDARD_DENSITY) - 0.5,
+                                max: Math.max(currentResult.density, STANDARD_DENSITY) + 0.5
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function displayResults(result) {
+            currentResult = result;
+            document.getElementById('validationResults').classList.remove('hidden');
+
+            document.getElementById('avgDiameter').textContent = `${result.diameterMean} mm`;
+            document.getElementById('avgHeight').textContent = `${result.heightMean} mm`;
+            document.getElementById('calculatedDensity').textContent = `${result.density} g/cm³`;
+            
+            const qualityScoreEl = document.getElementById('qualityScore');
+            qualityScoreEl.textContent = result.qualityScore;
+            qualityScoreEl.className = result.qualityScore >= 90 ? 'text-2xl font-bold text-green-600' :
+                                     result.qualityScore >= 70 ? 'text-2xl font-bold text-yellow-600' :
+                                     'text-2xl font-bold text-red-600';
+
+            document.getElementById('diameterMean').textContent = `${result.diameterMean} mm`;
+            document.getElementById('diameterStd').textContent = result.diameterStd;
+            document.getElementById('diameterUncertainty').textContent = `${result.diameterUncertainty} mm`;
+            
+            document.getElementById('heightMean').textContent = `${result.heightMean} mm`;
+            document.getElementById('heightStd').textContent = result.heightStd;
+            document.getElementById('heightUncertainty').textContent = `${result.heightUncertainty} mm`;
+
+            document.getElementById('densityValue').textContent = result.density;
+            
+            const deviationEl = document.getElementById('deviation');
+            deviationEl.textContent = `${result.deviation}%`;
+            deviationEl.className = result.deviation <= 5 ? 'font-medium text-green-600' :
+                                   result.deviation <= 10 ? 'font-medium text-yellow-600' :
+                                   'font-medium text-red-600';
+
+            generateAIFeedback(result);
+            generateActionSuggestions(result);
+            updateDataTables(result);
+            drawChart();
+        }
+    </script>
+</body>
+</html>

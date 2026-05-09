@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预习诊断 - 电阻伏安特性研究 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+        .btn-hover { transition: all 0.2s ease; }
+        .btn-hover:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background-color: #3b82f6; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .active-nav::after { width: 100%; }
+        .collapse-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .collapse-content.open { max-height: 600px; }
+        .option-btn { transition: all 0.2s ease; border: 2px solid #e5e7eb; }
+        .option-btn:hover { border-color: #3b82f6; background-color: #eff6ff; }
+        .option-btn.selected { border-color: #3b82f6; background-color: #dbeafe; }
+        .option-btn.correct { border-color: #10b981; background-color: #dcfce7; }
+        .option-btn.incorrect { border-color: #ef4444; background-color: #fee2e2; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">电阻伏安特性 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link active-nav text-blue-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验前 AI 预习诊断</h2>
+                <p class="text-gray-600">通过视频学习和问答测试，评估您的预习效果</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">预习视频</h3>
+                <div class="relative bg-gray-900 rounded-lg aspect-video overflow-hidden">
+                    <img src="https://neeko-copilot.bytedance.net/api/text2image?prompt=Voltage%20current%20characteristics%20experiment%20setup%20with%20resistor%20diode%20and%20multimeter%20in%20physics%20laboratory&image_size=landscape_16_9" 
+                         alt="电阻伏安特性实验" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div class="text-white text-center">
+                            <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-lg font-medium">电阻伏安特性研究实验介绍</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">预习问答测试</h3>
+                    <div class="text-sm text-gray-500">已答: <span id="answeredCount">0</span> / <span id="totalCount">4</span></div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="border border-gray-200 rounded-xl p-6" id="question1">
+                        <div class="flex items-start mb-4">
+                            <span class="flex-shrink-0 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">1</span>
+                            <h4 class="text-lg font-medium text-gray-800">欧姆定律的表达式是什么？</h4>
+                        </div>
+                        <div class="space-y-3 ml-11">
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'A')">
+                                <span class="font-medium">A. \( U = IR \)</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'B')">
+                                <span class="font-medium">B. \( I = UR \)</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'C')">
+                                <span class="font-medium">C. \( R = UI \)</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(1, 'D')">
+                                <span class="font-medium">D. \( P = UI \)</span>
+                            </button>
+                        </div>
+                        <div id="q1-explanation" class="collapse-content mt-4 ml-11">
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <p class="text-gray-700 mb-2"><strong>正确答案：A</strong></p>
+                                <p class="text-gray-600 text-sm">欧姆定律表达式为 \( U = IR \)，即电压等于电流乘以电阻。对于线性电阻，电压和电流成正比，伏安特性曲线是一条过原点的直线。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-6" id="question2">
+                        <div class="flex items-start mb-4">
+                            <span class="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">2</span>
+                            <h4 class="text-lg font-medium text-gray-800">测量二极管正向特性时，电流表应如何连接？</h4>
+                        </div>
+                        <div class="space-y-3 ml-11">
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'A')">
+                                <span class="font-medium">A. 内接法（电流表在电压表内侧）</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'B')">
+                                <span class="font-medium">B. 外接法（电流表在电压表外侧）</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'C')">
+                                <span class="font-medium">C. 串联在电路中即可，无内外之分</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(2, 'D')">
+                                <span class="font-medium">D. 并联在二极管两端</span>
+                            </button>
+                        </div>
+                        <div id="q2-explanation" class="collapse-content mt-4 ml-11">
+                            <div class="p-4 bg-emerald-50 rounded-lg">
+                                <p class="text-gray-700 mb-2"><strong>正确答案：A</strong></p>
+                                <p class="text-gray-600 text-sm">测量二极管正向特性时，二极管电阻较小，应采用内接法（电流表在电压表内侧），这样可以减小电流表内阻带来的测量误差。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-6" id="question3">
+                        <div class="flex items-start mb-4">
+                            <span class="flex-shrink-0 w-8 h-8 bg-teal-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">3</span>
+                            <h4 class="text-lg font-medium text-gray-800">滑线变阻器在分压电路中的作用是什么？</h4>
+                        </div>
+                        <div class="space-y-3 ml-11">
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'A')">
+                                <span class="font-medium">A. 保护电路</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'B')">
+                                <span class="font-medium">B. 调节输出电压</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'C')">
+                                <span class="font-medium">C. 改变电路电阻</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(3, 'D')">
+                                <span class="font-medium">D. 以上都是</span>
+                            </button>
+                        </div>
+                        <div id="q3-explanation" class="collapse-content mt-4 ml-11">
+                            <div class="p-4 bg-teal-50 rounded-lg">
+                                <p class="text-gray-700 mb-2"><strong>正确答案：D</strong></p>
+                                <p class="text-gray-600 text-sm">滑线变阻器在分压电路中具有多重作用：保护电路（防止电流过大）、调节输出电压（从0到电源电压连续可调）、改变电路总电阻。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-6" id="question4">
+                        <div class="flex items-start mb-4">
+                            <span class="flex-shrink-0 w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">4</span>
+                            <h4 class="text-lg font-medium text-gray-800">稳压二极管反向击穿后，其特性是什么？</h4>
+                        </div>
+                        <div class="space-y-3 ml-11">
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'A')">
+                                <span class="font-medium">A. 电流急剧增大，电压基本不变</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'B')">
+                                <span class="font-medium">B. 电压急剧增大，电流基本不变</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'C')">
+                                <span class="font-medium">C. 电流和电压都急剧增大</span>
+                            </button>
+                            <button class="option-btn w-full p-4 rounded-lg text-left" onclick="selectAnswer(4, 'D')">
+                                <span class="font-medium">D. 电流和电压都基本不变</span>
+                            </button>
+                        </div>
+                        <div id="q4-explanation" class="collapse-content mt-4 ml-11">
+                            <div class="p-4 bg-cyan-50 rounded-lg">
+                                <p class="text-gray-700 mb-2"><strong>正确答案：A</strong></p>
+                                <p class="text-gray-600 text-sm">稳压二极管反向击穿后，电流会急剧增大，但两端电压基本保持恒定，这就是稳压二极管的稳压特性。正是利用这一特性，稳压二极管被用于稳定电路电压。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button id="submitAnswers" class="bg-green-500 hover:bg-green-600 text-white font-medium px-8 py-3 rounded-lg transition-colors btn-hover">
+                        提交答案并查看诊断结果
+                    </button>
+                </div>
+            </div>
+
+            <div id="diagnosisResult" class="hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">预习诊断结果</h3>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">答题正确率</p>
+                            <p class="text-4xl font-bold" id="accuracy">0%</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">掌握程度</p>
+                            <p class="text-4xl font-bold" id="masteryLevel">0%</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-6 text-white text-center">
+                            <p class="text-sm opacity-80 mb-2">评级</p>
+                            <p class="text-4xl font-bold" id="grade">-</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-yellow-50 rounded-lg p-4">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <span class="font-medium text-gray-800">薄弱知识点</span>
+                            </div>
+                            <ul class="text-sm text-gray-600 space-y-1" id="weakPoints"></ul>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <span class="font-medium text-gray-800">掌握较好</span>
+                            </div>
+                            <ul class="text-sm text-gray-600 space-y-1" id="strongPoints"></ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <p class="text-green-800">
+                            <strong>学习建议：</strong><span id="suggestion"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">电阻伏安特性研究实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
+    <script>
+        new CozeWebSDK.WebChatClient({
+            config: { bot_id: '7634527397312266266' },
+            componentProps: { title: '电阻伏安特性实验助手' },
+            auth: {
+                type: 'token',
+                token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                onRefreshToken: () => 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP'
+            }
+        });
+    </script>
+    <script>
+        const questions = [
+            { id: 1, correctAnswer: 'A', topic: '欧姆定律', knowledge: '基础概念' },
+            { id: 2, correctAnswer: 'A', topic: '电流表接法', knowledge: '测量方法' },
+            { id: 3, correctAnswer: 'D', topic: '滑线变阻器作用', knowledge: '仪器使用' },
+            { id: 4, correctAnswer: 'A', topic: '稳压管特性', knowledge: '元件特性' }
+        ];
+
+        const studentAnswers = {};
+        let isSubmitted = false;
+
+        function selectAnswer(questionId, answer) {
+            if (isSubmitted) return;
+            const questionDiv = document.getElementById(`question${questionId}`);
+            const options = questionDiv.querySelectorAll('.option-btn');
+            options.forEach(opt => opt.classList.remove('selected'));
+            const selectedOption = questionDiv.querySelector(`button[onclick="selectAnswer(${questionId}, '${answer}')"]`);
+            if (selectedOption) selectedOption.classList.add('selected');
+            studentAnswers[questionId] = answer;
+            updateAnsweredCount();
+        }
+
+        function updateAnsweredCount() {
+            const answered = Object.keys(studentAnswers).length;
+            document.getElementById('answeredCount').textContent = answered;
+        }
+
+        document.getElementById('submitAnswers').addEventListener('click', () => {
+            if (Object.keys(studentAnswers).length < questions.length) {
+                alert('请先回答所有问题');
+                return;
+            }
+            isSubmitted = true;
+            evaluateAnswers();
+            showExplanations();
+            document.getElementById('diagnosisResult').classList.remove('hidden');
+        });
+
+        function evaluateAnswers() {
+            let correctCount = 0;
+            const weakTopics = [], strongTopics = [];
+
+            questions.forEach(q => {
+                const isCorrect = studentAnswers[q.id] === q.correctAnswer;
+                if (isCorrect) { correctCount++; strongTopics.push(q.topic); }
+                else weakTopics.push(q.topic);
+            });
+
+            const accuracy = Math.round((correctCount / questions.length) * 100);
+            document.getElementById('accuracy').textContent = `${accuracy}%`;
+            document.getElementById('masteryLevel').textContent = `${accuracy}%`;
+            document.getElementById('grade').textContent = accuracy >= 90 ? 'A' : accuracy >= 80 ? 'B' : accuracy >= 70 ? 'C' : accuracy >= 60 ? 'D' : 'F';
+
+            const weakPointsList = document.getElementById('weakPoints');
+            const strongPointsList = document.getElementById('strongPoints');
+            
+            if (weakTopics.length > 0) {
+                weakTopics.forEach(topic => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `• ${topic}`;
+                    weakPointsList.appendChild(li);
+                });
+            } else {
+                weakPointsList.innerHTML = '<li>• 暂无薄弱知识点</li>';
+            }
+
+            if (strongTopics.length > 0) {
+                strongTopics.forEach(topic => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `• ${topic}`;
+                    strongPointsList.appendChild(li);
+                });
+            } else {
+                strongPointsList.innerHTML = '<li>• 暂无掌握较好的知识点</li>';
+            }
+
+            document.getElementById('suggestion').textContent = generateSuggestion(accuracy, weakTopics);
+        }
+
+        function showExplanations() {
+            questions.forEach(q => {
+                document.getElementById(`q${q.id}-explanation`).classList.add('open');
+                const options = document.getElementById(`question${q.id}`).querySelectorAll('.option-btn');
+                options.forEach(opt => {
+                    opt.classList.remove('selected');
+                    const isCorrectOption = opt.textContent.trim().startsWith(q.correctAnswer);
+                    const isStudentAnswer = opt.textContent.trim().startsWith(studentAnswers[q.id]);
+                    if (isCorrectOption) opt.classList.add('correct');
+                    else if (isStudentAnswer && !isCorrectOption) opt.classList.add('incorrect');
+                    opt.style.pointerEvents = 'none';
+                });
+            });
+        }
+
+        function generateSuggestion(accuracy, weakTopics) {
+            if (accuracy >= 90) return '预习效果优秀！您已掌握电阻伏安特性实验的核心知识点，可以进入实验环节。建议重点复习数据处理方法。';
+            if (accuracy >= 70) return `预习效果良好，但仍有部分知识点需要加强。建议重点复习：${weakTopics.join('、')}。`;
+            if (accuracy >= 50) return `预习效果一般，建议重新学习伏安特性相关知识，重点理解：${weakTopics.join('、')}。`;
+            return '建议重新学习电阻伏安特性的相关知识，重点关注欧姆定律、测量方法和元件特性。';
+        }
+    </script>
+</body>
+</html>

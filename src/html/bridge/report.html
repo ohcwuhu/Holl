@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报告诊断 - 电桥法测电阻实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+        .btn-hover { transition: all 0.2s ease; }
+        .btn-hover:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background-color: #3b82f6; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .active-nav::after { width: 100%; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-cyan-50 via-white to-teal-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-cyan-500 to-teal-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">电桥法测电阻 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link active-nav text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验后 AI 报告诊断</h2>
+                <p class="text-gray-600">数据可视化分析与智能诊断报告生成</p>
+            </div>
+
+            <div id="reportContent" class="hidden">
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">测量结果</h3>
+                        <div class="space-y-4">
+                            <div class="bg-cyan-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-600 mb-1">测量公式</p>
+                                <p class="text-xl font-mono text-cyan-600 font-semibold">Rₓ = k × R₃</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">待测电阻 Rₓ</p>
+                                    <p class="text-2xl font-bold text-cyan-600" id="rxValue">0.00 Ω</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">比例系数 k</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="kValue">0.00</p>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-4">
+                                <p class="text-sm text-gray-600 mb-1">相对不确定度</p>
+                                <p class="text-xl font-mono text-green-600 font-semibold" id="relativeUncertainty">0.00%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">电桥灵敏度分析</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600">灵敏度 S</span>
+                                <span class="text-xl font-bold text-teal-600" id="sensitivity">0.00 格/Ω</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600">灵敏度等级</span>
+                                <span class="text-xl font-bold" id="sensitivityLevel">-</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600">仪器误差 u(R)</span>
+                                <span class="text-xl font-bold text-purple-600" id="instrumentError">0.00 Ω</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600">数据质量评分</span>
+                                <span class="text-xl font-bold" id="qualityScore">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">智能诊断报告</h3>
+                    <div id="diagnosticReport" class="space-y-4"></div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="downloadReport()" class="bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-white font-medium px-8 py-3 rounded-lg transition-colors btn-hover">
+                        下载诊断报告
+                    </button>
+                </div>
+            </div>
+
+            <div id="noDataHint" class="bg-white rounded-xl shadow-lg p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">暂无实验数据</h3>
+                <p class="text-gray-600 mb-4">请先在「数据校验」模块输入并校验实验数据</p>
+                <a href="validation.html" class="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-medium px-6 py-2 rounded-lg transition-colors">
+                    去输入数据
+                </a>
+            </div>
+
+            <div id="reportModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto m-4">
+                    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-gray-800">电桥法测电阻实验诊断报告</h3>
+                        <button onclick="closeReportModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-6" id="reportPreview"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">电桥法测电阻实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
+    <script>
+        new CozeWebSDK.WebChatClient({
+            config: { bot_id: '7634527397312266266' },
+            componentProps: { title: '电桥法测电阻实验助手' },
+            auth: {
+                type: 'token',
+                token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                onRefreshToken: () => 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP'
+            }
+        });
+    </script>
+    <script>
+        let experimentData = null;
+        let analysisResult = null;
+
+        document.addEventListener('DOMContentLoaded', loadData);
+
+        function loadData() {
+            const dataStr = localStorage.getItem('experimentData');
+            const resultStr = localStorage.getItem('analysisResult');
+            
+            if (dataStr && resultStr) {
+                const dataObj = JSON.parse(dataStr);
+                const resultObj = JSON.parse(resultStr);
+                
+                if (dataObj.experiment === 'bridge' && resultObj.experiment === 'bridge') {
+                    experimentData = dataObj.data;
+                    analysisResult = resultObj.data;
+                    displayReport();
+                }
+            }
+        }
+
+        function displayReport() {
+            document.getElementById('noDataHint').classList.add('hidden');
+            document.getElementById('reportContent').classList.remove('hidden');
+
+            const sensitivity = analysisResult.sensitivity;
+            const displaySensitivity = isFinite(sensitivity) && sensitivity > 0 ? sensitivity : '无法计算';
+            const sensitivityLevel = analysisResult.sensitivityLevel;
+            
+            document.getElementById('rxValue').textContent = `${analysisResult.rxMean} Ω`;
+            document.getElementById('kValue').textContent = analysisResult.k;
+            document.getElementById('relativeUncertainty').textContent = `${analysisResult.relativeUncertainty}%`;
+            document.getElementById('sensitivity').textContent = `${displaySensitivity} 格/Ω`;
+            document.getElementById('sensitivityLevel').textContent = sensitivityLevel;
+            document.getElementById('sensitivityLevel').className = sensitivityLevel === '高' ? 'text-xl font-bold text-green-600' : 
+                                                                  sensitivityLevel === '中' ? 'text-xl font-bold text-yellow-600' : 
+                                                                  sensitivityLevel === '低' ? 'text-xl font-bold text-orange-600' : 'text-xl font-bold text-gray-500';
+            document.getElementById('instrumentError').textContent = `${analysisResult.instrumentError} Ω`;
+            document.getElementById('qualityScore').textContent = analysisResult.qualityScore;
+            document.getElementById('qualityScore').className = analysisResult.qualityScore >= 80 ? 'text-xl font-bold text-green-600' : 
+                                                               analysisResult.qualityScore >= 60 ? 'text-xl font-bold text-yellow-600' : 'text-xl font-bold text-red-600';
+
+            generateDiagnosticReport();
+        }
+
+        function generateDiagnosticReport() {
+            const report = document.getElementById('diagnosticReport');
+            
+            const sensitivity = analysisResult.sensitivity;
+            const displaySensitivity = isFinite(sensitivity) && sensitivity > 0 ? sensitivity : '无法计算';
+            const sensitivityLevel = analysisResult.sensitivityLevel;
+            
+            const sensitivityText = sensitivityLevel === '无法计算' ? '所有测量数据相同，无法计算灵敏度。建议改变测量条件获取不同数据点。' :
+                                   sensitivity >= 5 ? '灵敏度较高，电桥性能良好，能够准确检测微小电阻变化。' : 
+                                   sensitivity >= 2 ? '灵敏度中等，基本满足测量要求。' : 
+                                   '灵敏度较低，建议检查检流计或提高电源电压。';
+            
+            report.innerHTML = `
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg p-4 text-white">
+                        <p class="text-sm opacity-80">待测电阻</p>
+                        <p class="text-3xl font-bold">${analysisResult.rxMean} Ω</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg p-4 text-white">
+                        <p class="text-sm opacity-80">电桥灵敏度</p>
+                        <p class="text-3xl font-bold">${displaySensitivity}</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                        <p class="text-sm opacity-80">数据质量评分</p>
+                        <p class="text-3xl font-bold">${analysisResult.qualityScore}分</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-gray-800 mb-2">一、测量结果分析</h4>
+                        <p class="text-gray-600 text-sm">
+                            本次实验采用惠斯通电桥测量待测电阻，共采集 ${analysisResult.n} 组数据。
+                            根据电桥平衡条件 \( R_x = \frac{R_2}{R_1} \times R_3 \)，计算得到待测电阻 \( R_x = ${analysisResult.rxMean} \, \Omega \)。
+                            测量结果的相对不确定度为 ${analysisResult.relativeUncertainty}%。
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-gray-800 mb-2">二、灵敏度分析</h4>
+                        <ul class="text-gray-600 text-sm space-y-1">
+                            <li>• 电桥灵敏度：${displaySensitivity} 格/Ω</li>
+                            <li>• 灵敏度等级：${sensitivityLevel}</li>
+                            <li>• 仪器误差：${analysisResult.instrumentError} Ω</li>
+                        </ul>
+                        <p class="text-gray-600 text-sm mt-2">
+                            ${sensitivityText}
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-gray-800 mb-2">三、误差分析</h4>
+                        <p class="text-gray-600 text-sm">
+                            ${analysisResult.relativeUncertainty < 1 ? '测量结果可靠，误差在允许范围内。' : 
+                              analysisResult.relativeUncertainty < 3 ? '测量结果基本可靠，建议重复测量验证。' : 
+                              '误差较大，建议检查实验装置和测量方法。'}
+                            ${analysisResult.anomalies.length > 0 ? `检测到 ${analysisResult.anomalies.length} 个异常数据点，可能存在测量失误。` : '未检测到异常数据点。'}
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-cyan-50 rounded-lg">
+                        <h4 class="font-semibold text-cyan-800 mb-2">四、改进建议</h4>
+                        <ul class="text-cyan-700 text-sm space-y-1">
+                            ${analysisResult.sensitivity < 5 ? '<li>• 适当提高电源电压以增加电桥灵敏度</li>' : ''}
+                            ${analysisResult.anomalies.length > 0 ? '<li>• 重新测量异常数据点，排除测量失误</li>' : ''}
+                            <li>• 实验前检查各接线是否牢固，避免接触不良</li>
+                            <li>• 建议使用交换法消除比例臂误差</li>
+                            <li>• 多次测量取平均值，提高结果可靠性</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function downloadReport() {
+            const reportPreview = document.getElementById('reportPreview');
+            
+            const sensitivity = analysisResult.sensitivity;
+            const displaySensitivity = isFinite(sensitivity) && sensitivity > 0 ? sensitivity : '无法计算';
+            const sensitivityLevel = analysisResult.sensitivityLevel;
+            
+            reportPreview.innerHTML = `
+                <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">电桥法测电阻实验诊断报告</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">一、实验数据概览</h3>
+                    <table class="w-full text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 px-3 py-2">序号</th>
+                                <th class="border border-gray-300 px-3 py-2">标准电阻 R₃ (Ω)</th>
+                                <th class="border border-gray-300 px-3 py-2">偏转 Δn (格)</th>
+                                <th class="border border-gray-300 px-3 py-2">计算 Rₓ (Ω)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${experimentData.map((d, i) => `
+                                <tr>
+                                    <td class="border border-gray-300 px-3 py-2">${i + 1}</td>
+                                    <td class="border border-gray-300 px-3 py-2">${d.r3}</td>
+                                    <td class="border border-gray-300 px-3 py-2">${d.dn}</td>
+                                    <td class="border border-gray-300 px-3 py-2">${d.rx.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">二、测量结果</h3>
+                    <div class="bg-cyan-50 p-4 rounded-lg">
+                        <p class="text-cyan-800 font-mono text-lg">Rₓ = ${analysisResult.rxMean} Ω</p>
+                        <p class="text-cyan-600 mt-2">比例系数 k = ${analysisResult.k}</p>
+                        <p class="text-cyan-600">相对不确定度 = ${analysisResult.relativeUncertainty}%</p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">三、灵敏度分析</h3>
+                    <ul class="text-gray-600 space-y-1">
+                        <li>• 电桥灵敏度：${displaySensitivity} 格/Ω</li>
+                        <li>• 灵敏度等级：${sensitivityLevel}</li>
+                        <li>• 仪器误差：${analysisResult.instrumentError} Ω</li>
+                    </ul>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">四、诊断结论</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-gray-700">
+                            数据质量评分：${analysisResult.qualityScore}分<br>
+                            ${analysisResult.qualityScore >= 80 ? '测量结果优良，实验操作规范。' : 
+                              analysisResult.qualityScore >= 60 ? '测量结果良好，建议进一步优化。' : 
+                              '数据质量一般，建议重新测量并检查实验装置。'}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">五、改进建议</h3>
+                    <ul class="text-gray-600 space-y-1">
+                        ${sensitivityLevel !== '无法计算' && sensitivity < 5 ? '<li>• 适当提高电源电压以增加电桥灵敏度</li>' : ''}
+                        ${analysisResult.anomalies.length > 0 ? '<li>• 重新测量异常数据点，排除测量失误</li>' : ''}
+                        <li>• 实验前检查各接线是否牢固，避免接触不良</li>
+                        <li>• 建议使用交换法消除比例臂误差</li>
+                        <li>• 多次测量取平均值，提高结果可靠性</li>
+                    </ul>
+                </div>
+
+                <div class="text-right text-gray-400 text-sm">
+                    电桥法测电阻实验 AI 辅助诊断系统生成
+                </div>
+            `;
+
+            document.getElementById('reportModal').classList.remove('hidden');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+            localStorage.setItem('experimentData', JSON.stringify({ experiment: '', data: null }));
+            localStorage.setItem('analysisResult', JSON.stringify({ experiment: '', data: null }));
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>霍尔效应位移测量实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .active-nav::after {
+            width: 100%;
+        }
+        .experiment-selector {
+            position: relative;
+        }
+        .experiment-selector.active .experiment-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .experiment-dropdown {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 12px;
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06),
+                0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            padding: 0.5rem;
+            min-width: 20rem;
+            z-index: 50;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(-8px);
+        }
+        .experiment-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 16px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-left: 1px solid rgba(59, 130, 246, 0.15);
+            border-top: 1px solid rgba(59, 130, 246, 0.15);
+            transform: rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .experiment-item {
+            padding: 0.875rem 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .experiment-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #3b82f6 0%, #8b5cf6 100%);
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
+        .experiment-item:hover {
+            background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 50%, #faf5ff 100%);
+            transform: translateX(6px);
+        }
+        .experiment-item:hover::before {
+            transform: scaleY(1);
+        }
+        .experiment-item.active {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            font-weight: 600;
+        }
+        .experiment-item.active::before {
+            transform: scaleY(1);
+        }
+        .experiment-icon {
+            width: 1.75rem;
+            height: 1.75rem;
+            flex-shrink: 0;
+            padding: 0.375rem;
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.1);
+            transition: all 0.2s ease;
+        }
+        .experiment-item:hover .experiment-icon {
+            transform: scale(1.1);
+        }
+        .experiment-item.active .experiment-icon {
+            background: rgba(59, 130, 246, 0.2);
+        }
+        .experiment-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 130px;
+            justify-content: center;
+            box-shadow: 
+                0 4px 6px -1px rgba(59, 130, 246, 0.3),
+                0 2px 4px -1px rgba(59, 130, 246, 0.2);
+        }
+        .experiment-toggle-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 
+                0 10px 20px -5px rgba(59, 130, 246, 0.4),
+                0 4px 6px -2px rgba(59, 130, 246, 0.3);
+        }
+        .experiment-toggle-btn.active {
+            background: linear-gradient(135deg, #1e40af 0%, #4f46e5 100%);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.2),
+                0 2px 4px rgba(59, 130, 246, 0.3);
+            transform: translateY(1px);
+        }
+        .experiment-toggle-btn.active .arrow-icon {
+            transform: rotate(180deg);
+        }
+        .experiment-toggle-btn.active .btn-icon {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .arrow-icon {
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 1rem;
+            height: 1rem;
+            flex-shrink: 0;
+        }
+        .btn-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <div class="experiment-selector" id="experimentSelector">
+                        <button class="experiment-toggle-btn" id="experimentToggleBtn">
+                            <svg id="btnIcon" class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <span id="currentExperiment">霍尔效应</span>
+                            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="experiment-dropdown">
+                            <div class="experiment-item active" data-experiment="hall">
+                                <div class="experiment-icon bg-blue-100">
+                                    <svg class="w-full h-full text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                                <span>霍尔效应位移测量</span>
+                            </div>
+                            <div class="experiment-item" data-experiment="pendulum">
+                                <div class="experiment-icon bg-green-100">
+                                    <svg class="w-full h-full text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                </div>
+                                <span>单摆测量重力加速度</span>
+                            </div>
+                            <div class="experiment-item" data-experiment="resistance">
+                                <div class="experiment-icon bg-purple-100">
+                                    <svg class="w-full h-full text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <span>伏安法测量电阻</span>
+                            </div>
+                            <div class="experiment-item" data-experiment="density">
+                                <div class="experiment-icon bg-orange-100">
+                                    <svg class="w-full h-full text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <span>物体密度的测定</span>
+                            </div>
+                            <div class="experiment-item" data-experiment="bridge">
+                                <div class="experiment-icon bg-cyan-100">
+                                    <svg class="w-full h-full text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <span>电桥法测电阻</span>
+                            </div>
+                            <div class="experiment-item" data-experiment="michelson">
+                                <div class="experiment-icon bg-purple-100">
+                                    <svg class="w-full h-full text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                </div>
+                                <span>迈克尔逊干涉仪</span>
+                            </div>
+                            <div class="experiment-item" data-experiment="voltagecurrent">
+                                <div class="experiment-icon bg-green-100">
+                                    <svg class="w-full h-full text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <span>电阻伏安特性研究</span>
+                            </div>
+                            <div class="experiment-item" data-experiment="airtrack">
+                                <div class="experiment-icon bg-teal-100">
+                                    <svg class="w-full h-full text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                </div>
+                                <span>气垫技术及其应用</span>
+                            </div>
+                            <div class="experiment-item" data-experiment="young">
+                                <div class="experiment-icon bg-indigo-100">
+                                    <svg class="w-full h-full text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z"></path>
+                                    </svg>
+                                </div>
+                                <span>金属丝杨氏模量的测定</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="index.html" class="nav-link active-nav text-blue-600 font-medium">首页</a>
+                    <a id="navPreview" href="hall/preview.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">预习诊断</a>
+                    <a id="navValidation" href="hall/validation.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
+                    <a id="navReport" href="hall/report.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h1 id="mainTitle" class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">霍尔效应位移测量实验</h1>
+                <h2 id="mainSubtitle" class="text-2xl md:text-3xl font-semibold text-blue-600 mb-6">AI 辅助诊断系统</h2>
+                <p id="mainDescription" class="text-lg text-gray-600 max-w-3xl mx-auto">基于人工智能技术的霍尔效应实验辅助诊断平台，为高校物理实验提供智能化的数据校验和分析服务</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800">实验痛点</h3>
+                    </div>
+                    <ul id="painPointsList" class="space-y-2 text-gray-600">
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span><span>学生预习效果难以评估</span></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span><span>实验数据准确性无法实时校验</span></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span><span>实验报告分析缺乏针对性建议</span></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span><span>指导教师工作量大，反馈滞后</span></li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800">AI 辅助价值</h3>
+                    </div>
+                    <ul id="valuesList" class="space-y-2 text-gray-600">
+                        <li class="flex items-start"><span class="text-green-500 mr-2">•</span><span>智能评估预习效果，精准定位薄弱点</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">•</span><span>实时数据校验，即时发现异常</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">•</span><span>自动生成诊断报告，提供改进建议</span></li>
+                        <li class="flex items-start"><span class="text-green-500 mr-2">•</span><span>减轻教师负担，提升教学效率</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+                <h3 class="text-xl font-semibold text-gray-800 text-center mb-8">系统流程</h3>
+                <div id="processContainer" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                            <span class="text-2xl font-bold text-blue-600">1</span>
+                        </div>
+                        <div class="text-center">
+                            <p class="font-medium text-gray-800">实验前预习</p>
+                            <p class="text-sm text-gray-500">视频学习 + 问答测试</p>
+                        </div>
+                    </div>
+                    <div class="hidden md:block text-3xl text-gray-300">→</div>
+                    <div class="md:hidden text-2xl text-gray-300">↓</div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                            <span class="text-2xl font-bold text-green-600">2</span>
+                        </div>
+                        <div class="text-center">
+                            <p class="font-medium text-gray-800">实验中校验</p>
+                            <p class="text-sm text-gray-500">实时数据质量检测</p>
+                        </div>
+                    </div>
+                    <div class="hidden md:block text-3xl text-gray-300">→</div>
+                    <div class="md:hidden text-2xl text-gray-300">↓</div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                            <span class="text-2xl font-bold text-purple-600">3</span>
+                        </div>
+                        <div class="text-center">
+                            <p class="font-medium text-gray-800">实验后诊断</p>
+                            <p class="text-sm text-gray-500">智能分析 + 报告生成</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="featuresContainer" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <a href="hall/preview.html" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6 text-center btn-hover">
+                    <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-semibold mb-2">预习诊断</h4>
+                    <p class="text-sm opacity-90">评估预习效果，定位薄弱知识点</p>
+                </a>
+                <a href="hall/validation.html" class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl shadow-lg p-6 text-center btn-hover">
+                    <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-semibold mb-2">数据校验</h4>
+                    <p class="text-sm opacity-90">实时检测数据质量，识别异常点</p>
+                </a>
+                <a href="hall/report.html" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6 text-center btn-hover">
+                    <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-semibold mb-2">报告诊断</h4>
+                    <p class="text-sm opacity-90">生成智能诊断报告，提供改进建议</p>
+                </a>
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl shadow-lg p-6 text-center btn-hover cursor-pointer" id="aiAssistantCard">
+                    <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-semibold mb-2">AI 助教</h4>
+                    <p class="text-sm opacity-90">点击右下方悬浮窗 智能答疑</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <p id="footerTitle" class="text-gray-400">霍尔效应位移测量实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
+    <script>
+        const experiments = {
+            hall: {
+                name: '霍尔效应',
+                fullName: '霍尔效应位移测量实验',
+                title: '霍尔效应位移测量实验',
+                subtitle: 'AI 辅助诊断系统',
+                description: '基于人工智能技术的霍尔效应实验辅助诊断平台，为高校物理实验提供智能化的数据校验和分析服务',
+                painPoints: [
+                    '学生预习效果难以评估',
+                    '实验数据准确性无法实时校验',
+                    '实验报告分析缺乏针对性建议',
+                    '指导教师工作量大，反馈滞后'
+                ],
+                values: [
+                    '智能评估预习效果，精准定位薄弱点',
+                    '实时数据校验，即时发现异常',
+                    '自动生成诊断报告，提供改进建议',
+                    '减轻教师负担，提升教学效率'
+                ],
+                process: [
+                    { step: 1, title: '实验前预习', desc: '视频学习 + 问答测试' },
+                    { step: 2, title: '实验中校验', desc: '实时数据质量检测' },
+                    { step: 3, title: '实验后诊断', desc: '智能分析 + 报告生成' }
+                ],
+                features: [
+                    { name: '预习诊断', desc: '评估预习效果，定位薄弱知识点', color: 'from-blue-500 to-blue-600', url: 'hall/preview.html' },
+                    { name: '数据校验', desc: '实时检测数据质量，识别异常点', color: 'from-green-500 to-green-600', url: 'hall/validation.html' },
+                    { name: '报告诊断', desc: '生成智能诊断报告，提供改进建议', color: 'from-purple-500 to-purple-600', url: 'hall/report.html' },
+                    { name: 'AI 助教', desc: '点击右下方悬浮窗 智能答疑', color: 'from-orange-500 to-orange-600', url: '#' }
+                ],
+                gradient: 'from-blue-50 via-white to-indigo-50'
+            },
+            pendulum: {
+                name: '单摆测G',
+                fullName: '单摆测量重力加速度实验',
+                title: '单摆测量重力加速度',
+                subtitle: 'AI 辅助诊断系统',
+                description: '基于人工智能技术的单摆实验辅助诊断平台，帮助学生精确测量重力加速度',
+                painPoints: [
+                    '摆长测量误差影响实验结果',
+                    '周期计时准确性难以保证',
+                    '数据线性拟合效果不佳',
+                    '空气阻力影响未被充分考虑'
+                ],
+                values: [
+                    '智能分析摆长与周期关系',
+                    '自动检测异常数据点',
+                    '精确计算重力加速度',
+                    '提供实验改进建议'
+                ],
+                process: [
+                    { step: 1, title: '实验前预习', desc: '单摆原理学习' },
+                    { step: 2, title: '数据采集', desc: '测量摆长与周期' },
+                    { step: 3, title: '数据处理', desc: '拟合计算重力加速度' }
+                ],
+                features: [
+                    { name: '预习诊断', desc: '评估单摆实验知识掌握', color: 'from-green-500 to-green-600', url: 'pendulum/preview.html' },
+                    { name: '数据校验', desc: '检测周期数据异常', color: 'from-cyan-500 to-cyan-600', url: 'pendulum/validation.html' },
+                    { name: '报告诊断', desc: '分析重力加速度测量结果', color: 'from-teal-500 to-teal-600', url: 'pendulum/report.html' },
+                    { name: 'AI 助教', desc: '智能答疑单摆实验问题', color: 'from-orange-500 to-orange-600', url: '#' }
+                ],
+                gradient: 'from-green-50 via-white to-emerald-50'
+            },
+            resistance: {
+                name: '伏安法测电阻',
+                fullName: '伏安法测量电阻实验',
+                title: '伏安法测量电阻',
+                subtitle: 'AI 辅助诊断系统',
+                description: '基于人工智能技术的伏安法实验辅助诊断平台，帮助学生准确测量电阻值',
+                painPoints: [
+                    '电流表电压表连接方式易错',
+                    '读数误差影响测量精度',
+                    '数据线性度难以保证',
+                    '系统误差分析复杂'
+                ],
+                values: [
+                    '智能判断接线方式正确性',
+                    '实时检测数据质量',
+                    '精确计算电阻值',
+                    '分析系统误差来源'
+                ],
+                process: [
+                    { step: 1, title: '实验前预习', desc: '伏安法原理学习' },
+                    { step: 2, title: '电路连接', desc: '正确连接测量电路' },
+                    { step: 3, title: '数据处理', desc: '计算电阻并分析误差' }
+                ],
+                features: [
+                    { name: '预习诊断', desc: '评估伏安法知识掌握', color: 'from-purple-500 to-purple-600', url: 'resistance/preview.html' },
+                    { name: '数据校验', desc: '验证电压电流数据', color: 'from-pink-500 to-pink-600', url: 'resistance/validation.html' },
+                    { name: '报告诊断', desc: '分析电阻测量结果', color: 'from-rose-500 to-rose-600', url: 'resistance/report.html' },
+                    { name: 'AI 助教', desc: '智能答疑伏安法问题', color: 'from-orange-500 to-orange-600', url: '#' }
+                ],
+                gradient: 'from-purple-50 via-white to-pink-50'
+            },
+            density: {
+                name: '密度测定',
+                fullName: '物体密度的测定实验',
+                title: '物体密度的测定',
+                subtitle: 'AI 辅助诊断系统',
+                description: '基于人工智能技术的密度测量实验辅助诊断平台，帮助学生准确测量黄铜密度',
+                painPoints: [
+                    '游标卡尺读数误差较大',
+                    '螺旋测微计使用不熟练',
+                    '物理天平操作不当',
+                    '数据处理复杂容易出错'
+                ],
+                values: [
+                    '智能评估测量数据质量',
+                    '自动检测异常数据点',
+                    '精确计算密度值',
+                    '分析测量误差来源'
+                ],
+                process: [
+                    { step: 1, title: '实验前预习', desc: '密度测量原理学习' },
+                    { step: 2, title: '数据采集', desc: '测量质量与尺寸' },
+                    { step: 3, title: '数据处理', desc: '计算密度并分析误差' }
+                ],
+                features: [
+                    { name: '预习诊断', desc: '评估密度测量知识掌握', color: 'from-orange-500 to-orange-600', url: 'density/preview.html' },
+                    { name: '数据校验', desc: '验证测量数据准确性', color: 'from-amber-500 to-amber-600', url: 'density/validation.html' },
+                    { name: '报告诊断', desc: '分析密度测量结果', color: 'from-yellow-500 to-yellow-600', url: 'density/report.html' },
+                    { name: 'AI 助教', desc: '智能答疑密度实验问题', color: 'from-orange-500 to-orange-600', url: '#' }
+                ],
+                gradient: 'from-orange-50 via-white to-amber-50'
+            },
+            airtrack: {
+                name: '气垫导轨',
+                fullName: '气垫技术及其应用实验',
+                title: '气垫技术及其应用',
+                subtitle: 'AI 辅助诊断系统',
+                description: '基于人工智能技术的气垫导轨实验辅助诊断平台，帮助学生验证牛顿第二定律和动量守恒定律',
+                painPoints: [
+                    '气垫导轨调平困难',
+                    '数字毫秒计使用不熟练',
+                    '碰撞实验操作复杂',
+                    '数据处理繁琐易出错'
+                ],
+                values: [
+                    '智能评估实验操作规范',
+                    '自动检测数据异常',
+                    '精确验证物理定律',
+                    '分析误差来源与改进建议'
+                ],
+                process: [
+                    { step: 1, title: '实验前预习', desc: '气垫导轨原理学习' },
+                    { step: 2, title: '数据采集', desc: '测量加速度与碰撞数据' },
+                    { step: 3, title: '数据处理', desc: '验证定律并分析误差' }
+                ],
+                features: [
+                    { name: '预习诊断', desc: '评估气垫导轨知识掌握', color: 'from-teal-500 to-teal-600', url: 'airtrack/preview.html' },
+                    { name: '数据校验', desc: '验证测量数据准确性', color: 'from-cyan-500 to-cyan-600', url: 'airtrack/validation.html' },
+                    { name: '报告诊断', desc: '分析实验结果与验证定律', color: 'from-blue-500 to-blue-600', url: 'airtrack/report.html' },
+                    { name: 'AI 助教', desc: '智能答疑气垫实验问题', color: 'from-teal-500 to-teal-600', url: '#' }
+                ],
+                gradient: 'from-teal-50 via-white to-cyan-50'
+            },
+            bridge: {
+                name: '电桥法测电阻',
+                fullName: '电桥法测电阻实验',
+                title: '电桥法测电阻',
+                subtitle: 'AI 辅助诊断系统',
+                description: '基于人工智能技术的电桥法测电阻实验辅助诊断平台，帮助学生掌握惠斯通电桥测量原理和灵敏度分析',
+                painPoints: [
+                    '电桥灵敏度调节困难',
+                    '比例臂选择不当影响精度',
+                    '检流计使用不熟练',
+                    '误差分析复杂'
+                ],
+                values: [
+                    '智能评估电桥灵敏度',
+                    '自动检测数据异常',
+                    '精确计算待测电阻',
+                    '分析误差来源与改进建议'
+                ],
+                process: [
+                    { step: 1, title: '实验前预习', desc: '电桥原理学习' },
+                    { step: 2, title: '数据采集', desc: '调节电桥平衡并记录数据' },
+                    { step: 3, title: '数据处理', desc: '计算电阻并分析灵敏度' }
+                ],
+                features: [
+                    { name: '预习诊断', desc: '评估电桥法知识掌握', color: 'from-cyan-500 to-cyan-600', url: 'bridge/preview.html' },
+                    { name: '数据校验', desc: '验证测量数据准确性', color: 'from-teal-500 to-teal-600', url: 'bridge/validation.html' },
+                    { name: '报告诊断', desc: '分析实验结果与误差', color: 'from-cyan-500 to-cyan-600', url: 'bridge/report.html' },
+                    { name: 'AI 助教', desc: '智能答疑电桥实验问题', color: 'from-cyan-500 to-cyan-600', url: '#' }
+                ],
+                gradient: 'from-cyan-50 via-white to-teal-50'
+            },
+            michelson: {
+                name: '迈克尔逊干涉仪',
+                fullName: '迈克尔逊干涉仪实验',
+                title: '迈克尔逊干涉仪',
+                subtitle: 'AI 辅助诊断系统',
+                description: '基于人工智能技术的迈克尔逊干涉仪实验辅助诊断平台，帮助学生测量激光波长并理解干涉原理',
+                painPoints: [
+                    '干涉条纹调节困难',
+                    '读数方法不易掌握',
+                    '空程误差难以避免',
+                    '数据处理繁琐'
+                ],
+                values: [
+                    '智能评估实验操作规范',
+                    '自动检测数据异常',
+                    '精确测量激光波长',
+                    '分析误差来源与改进建议'
+                ],
+                process: [
+                    { step: 1, title: '实验前预习', desc: '干涉仪原理学习' },
+                    { step: 2, title: '数据采集', desc: '调节干涉条纹并记录数据' },
+                    { step: 3, title: '数据处理', desc: '计算波长并分析误差' }
+                ],
+                features: [
+                    { name: '预习诊断', desc: '评估干涉仪知识掌握', color: 'from-purple-500 to-purple-600', url: 'michelson/preview.html' },
+                    { name: '数据校验', desc: '验证测量数据准确性', color: 'from-indigo-500 to-indigo-600', url: 'michelson/validation.html' },
+                    { name: '报告诊断', desc: '分析实验结果与误差', color: 'from-blue-500 to-blue-600', url: 'michelson/report.html' },
+                    { name: 'AI 助教', desc: '智能答疑干涉仪实验问题', color: 'from-purple-500 to-purple-600', url: '#' }
+                ],
+                gradient: 'from-purple-50 via-white to-indigo-50'
+            },
+            voltagecurrent: {
+                name: '电阻伏安特性',
+                fullName: '电阻伏安特性研究实验',
+                title: '电阻伏安特性的研究',
+                subtitle: 'AI 辅助诊断系统',
+                description: '基于人工智能技术的电阻伏安特性实验辅助诊断平台，帮助学生测量电阻和二极管的伏安特性曲线',
+                painPoints: [
+                    '电流表内外接法选择困难',
+                    '滑线变阻器分压接法调节复杂',
+                    '二极管特性测量需注意极性',
+                    '伏安曲线绘制与分析难度高'
+                ],
+                values: [
+                    '智能评估实验操作规范',
+                    '自动检测数据异常',
+                    '精确绘制伏安特性曲线',
+                    '分析误差来源与改进建议'
+                ],
+                process: [
+                    { step: 1, title: '实验前预习', desc: '欧姆定律与伏安特性原理学习' },
+                    { step: 2, title: '数据采集', desc: '测量电压电流数据' },
+                    { step: 3, title: '数据处理', desc: '绘制伏安曲线并分析特性' }
+                ],
+                features: [
+                    { name: '预习诊断', desc: '评估伏安特性知识掌握', color: 'from-green-500 to-green-600', url: 'voltagecurrent/preview.html' },
+                    { name: '数据校验', desc: '验证测量数据准确性', color: 'from-emerald-500 to-emerald-600', url: 'voltagecurrent/validation.html' },
+                    { name: '报告诊断', desc: '分析实验结果与伏安特性', color: 'from-teal-500 to-teal-600', url: 'voltagecurrent/report.html' },
+                    { name: 'AI 助教', desc: '智能答疑伏安特性实验问题', color: 'from-green-500 to-green-600', url: '#' }
+                ],
+                gradient: 'from-green-50 via-white to-emerald-50'
+            },
+            young: {
+                name: '杨氏模量',
+                fullName: '金属丝杨氏模量的测定实验',
+                title: '金属丝杨氏模量的测定',
+                subtitle: 'AI 辅助诊断系统',
+                description: '基于人工智能技术的杨氏模量测量实验辅助诊断平台，帮助学生掌握光杠杆放大法测量微小长度变化',
+                painPoints: [
+                    '光杠杆调节困难',
+                    '望远镜读数误差大',
+                    '数据处理公式复杂',
+                    '误差分析难度高'
+                ],
+                values: [
+                    '智能评估实验操作规范',
+                    '自动检测数据异常',
+                    '精确计算杨氏模量',
+                    '分析误差来源与改进建议'
+                ],
+                process: [
+                    { step: 1, title: '实验前预习', desc: '光杠杆原理学习' },
+                    { step: 2, title: '数据采集', desc: '测量钢丝直径与光杠杆读数' },
+                    { step: 3, title: '数据处理', desc: '计算杨氏模量并分析误差' }
+                ],
+                features: [
+                    { name: '预习诊断', desc: '评估杨氏模量知识掌握', color: 'from-indigo-500 to-indigo-600', url: 'young/preview.html' },
+                    { name: '数据校验', desc: '验证测量数据准确性', color: 'from-purple-500 to-purple-600', url: 'young/validation.html' },
+                    { name: '报告诊断', desc: '分析实验结果与误差', color: 'from-violet-500 to-violet-600', url: 'young/report.html' },
+                    { name: 'AI 助教', desc: '智能答疑杨氏模量实验问题', color: 'from-indigo-500 to-indigo-600', url: '#' }
+                ],
+                gradient: 'from-indigo-50 via-white to-purple-50'
+            }
+        };
+
+        function switchExperiment(experimentId) {
+            const experiment = experiments[experimentId];
+            if (!experiment) return;
+
+            localStorage.setItem('selectedExperiment', experimentId);
+
+            document.querySelectorAll('.experiment-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-experiment="${experimentId}"]`).classList.add('active');
+
+            document.getElementById('currentExperiment').textContent = experiment.name;
+            
+            const iconPaths = {
+                hall: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+                pendulum: 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z',
+                resistance: 'M13 10V3L4 14h7v7l9-11h-7z',
+                density: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
+                bridge: 'M13 10V3L4 14h7v7l9-11h-7z',
+                michelson: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
+                voltagecurrent: 'M13 10V3L4 14h7v7l9-11h-7z',
+                airtrack: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
+                young: 'M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z'
+            };
+            document.getElementById('btnIcon').querySelector('path').setAttribute('d', iconPaths[experimentId]);
+            
+            document.getElementById('mainTitle').textContent = experiment.title;
+            document.getElementById('mainSubtitle').textContent = experiment.subtitle;
+            document.getElementById('mainDescription').textContent = experiment.description;
+
+            document.querySelector('body').className = `bg-gradient-to-br ${experiment.gradient} min-h-screen`;
+
+            const painPointsList = document.getElementById('painPointsList');
+            painPointsList.innerHTML = experiment.painPoints.map(point => 
+                `<li class="flex items-start"><span class="text-blue-500 mr-2">•</span><span>${point}</span></li>`
+            ).join('');
+
+            const valuesList = document.getElementById('valuesList');
+            valuesList.innerHTML = experiment.values.map(value => 
+                `<li class="flex items-start"><span class="text-green-500 mr-2">•</span><span>${value}</span></li>`
+            ).join('');
+
+            const processContainer = document.getElementById('processContainer');
+            processContainer.innerHTML = experiment.process.map((item, index) => `
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 ${index === 0 ? 'bg-blue-100' : index === 1 ? 'bg-green-100' : 'bg-purple-100'} rounded-full flex items-center justify-center mb-3">
+                        <span class="text-2xl font-bold ${index === 0 ? 'text-blue-600' : index === 1 ? 'text-green-600' : 'text-purple-600'}">${item.step}</span>
+                    </div>
+                    <div class="text-center">
+                        <p class="font-medium text-gray-800">${item.title}</p>
+                        <p class="text-sm text-gray-500">${item.desc}</p>
+                    </div>
+                </div>
+                ${index < experiment.process.length - 1 ? '<div class="hidden md:block text-3xl text-gray-300">→</div><div class="md:hidden text-2xl text-gray-300">↓</div>' : ''}
+            `).join('');
+
+            const featuresContainer = document.getElementById('featuresContainer');
+            featuresContainer.innerHTML = experiment.features.map((feature, index) => `
+                ${index === 3 ? `
+                    <div class="bg-gradient-to-r ${feature.color} text-white rounded-xl shadow-lg p-6 text-center btn-hover cursor-pointer" id="aiAssistantCard">
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-lg font-semibold mb-2">${feature.name}</h4>
+                        <p class="text-sm opacity-90">${feature.desc}</p>
+                    </div>
+                ` : `
+                    <a href="${feature.url}" class="bg-gradient-to-r ${feature.color} text-white rounded-xl shadow-lg p-6 text-center btn-hover">
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                ${index === 0 ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>' :
+                                  index === 1 ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>' :
+                                  '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>'}
+                            </svg>
+                        </div>
+                        <h4 class="text-lg font-semibold mb-2">${feature.name}</h4>
+                        <p class="text-sm opacity-90">${feature.desc}</p>
+                    </a>
+                `}
+            `).join('');
+
+            document.getElementById('footerTitle').textContent = experiment.fullName + ' AI 辅助诊断系统';
+
+            document.getElementById('navPreview').href = `${experimentId}/preview.html`;
+            document.getElementById('navValidation').href = `${experimentId}/validation.html`;
+            document.getElementById('navReport').href = `${experimentId}/report.html`;
+        }
+
+        const experimentSelector = document.getElementById('experimentSelector');
+        const experimentToggleBtn = document.getElementById('experimentToggleBtn');
+
+        experimentToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            experimentSelector.classList.toggle('active');
+            experimentToggleBtn.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.experiment-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const experimentId = item.getAttribute('data-experiment');
+                switchExperiment(experimentId);
+                experimentSelector.classList.remove('active');
+                experimentToggleBtn.classList.remove('active');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!experimentSelector.contains(e.target)) {
+                experimentSelector.classList.remove('active');
+                experimentToggleBtn.classList.remove('active');
+            }
+        });
+
+        let webChatClient;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedExperiment = localStorage.getItem('selectedExperiment') || 'hall';
+            switchExperiment(savedExperiment);
+
+            webChatClient = new CozeWebSDK.WebChatClient({
+                config: {
+                    bot_id: '7634527397312266266',
+                },
+                componentProps: {
+                    title: '霍尔效应实验助手',
+                },
+                auth: {
+                    type: 'token',
+                    token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                    onRefreshToken: function () {
+                        return 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP';
+                    }
+                }
+            });
+            
+            document.getElementById('aiAssistantCard').addEventListener('click', () => {
+                document.querySelector('.coze-launch-btn')?.click();
+            });
+        });
+    </script>
+</body>
+</html>
