@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报告诊断 - 牛顿环实验 AI 辅助诊断系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+        .btn-hover { transition: all 0.2s ease; }
+        .btn-hover:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background-color: #3b82f6; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .active-nav::after { width: 100%; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .badge-success { background-color: #dcfce7; color: #166534; }
+        .badge-warning { background-color: #fef3c7; color: #b45309; }
+        .badge-danger { background-color: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">牛顿环 AI 诊断</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="../index.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="preview.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">预习诊断</a>
+                    <a href="validation.html" class="nav-link text-gray-600 hover:text-blue-600 font-medium">数据校验</a>
+                    <a href="report.html" class="nav-link active-nav text-blue-600 font-medium">报告诊断</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验报告 AI 智能诊断</h2>
+                <p class="text-gray-600">基于实验数据生成专业的诊断报告</p>
+            </div>
+
+            <div id="noData" class="bg-white rounded-xl shadow-lg p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">暂无实验数据</h3>
+                <p class="text-gray-600 mb-6">请先在「数据校验」页面输入实验数据</p>
+                <a href="validation.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-2 rounded-lg transition-colors">
+                    前往数据校验
+                </a>
+            </div>
+
+            <div id="reportContent" style="display: none;">
+                <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">牛顿环实验报告</h1>
+                            <p class="text-gray-500 mt-2">生成时间: <span id="reportTime">-</span></p>
+                        </div>
+                        <button id="downloadBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-2 rounded-lg transition-colors btn-hover">
+                            下载报告
+                        </button>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+                            <p class="text-sm opacity-80 mb-2">光源波长</p>
+                            <p class="text-2xl font-bold" id="reportWavelength">-</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-6 text-white">
+                            <p class="text-sm opacity-80 mb-2">曲率半径</p>
+                            <p class="text-2xl font-bold" id="reportRadius">-</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white">
+                            <p class="text-sm opacity-80 mb-2">数据质量评分</p>
+                            <p class="text-2xl font-bold" id="reportScore">-</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">一、实验原理与仪器</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-blue-50 rounded-xl p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">实验原理</h4>
+                                <div class="space-y-3 text-gray-600">
+                                    <p><strong>牛顿环干涉：</strong>平凸透镜与平面玻璃之间形成空气薄膜，单色光垂直入射时产生薄膜干涉，形成同心圆环条纹。</p>
+                                    <p><strong>曲率半径公式：</strong> \( R = \frac{D_m^2 - D_n^2}{4(m-n)\lambda} \)</p>
+                                    <p><strong>逐差法：</strong>采用逐差法处理数据，可消除系统误差，提高测量精度。</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-indigo-50 rounded-xl p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">实验仪器</h4>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li>• 牛顿环装置</li>
+                                    <li>• 读数显微镜</li>
+                                    <li>• 钠光灯（λ=589.3nm）</li>
+                                    <li>• 分光玻璃片</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">二、实验数据记录</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">环数</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">左读数 (mm)</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">右读数 (mm)</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">直径 D (mm)</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-600 border">\( D^2 \) (\( mm^2 \))</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">三、数据处理与结果分析</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-blue-50 rounded-xl p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">测量结果</h4>
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center py-3 border-b border-blue-200">
+                                        <span class="text-gray-600">光源波长</span>
+                                        <span class="font-medium text-gray-800" id="resultWavelength">-</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-3 border-b border-blue-200">
+                                        <span class="text-gray-600">级数差 (m-n)</span>
+                                        <span class="font-medium text-gray-800" id="resultOrderDiff">-</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-3 border-b border-blue-200">
+                                        <span class="text-gray-600">曲率半径</span>
+                                        <span class="font-medium text-gray-800" id="resultRadius">-</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-3">
+                                        <span class="text-gray-600">相对不确定度</span>
+                                        <span class="font-medium text-gray-800" id="resultUncertainty">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 rounded-xl p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">误差分析</h4>
+                                <div class="space-y-3 text-gray-600">
+                                    <p><strong>仪器误差：</strong>读数显微镜的精度（通常0.001mm）决定了系统误差下限。</p>
+                                    <p><strong>回程差：</strong>螺纹传动机构存在间隙，采用单向转动测量可消除回程差。</p>
+                                    <p><strong>数环误差：</strong>环数计数错误会直接影响测量结果，需仔细计数。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">四、AI 智能诊断报告</h3>
+                        
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+                            <h4 class="font-semibold text-gray-800 mb-4">诊断结果</h4>
+                            <div id="diagnosisResult"></div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-blue-50 rounded-xl p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">实验亮点</h4>
+                                <ul id="strengthsList" class="space-y-2 text-gray-600"></ul>
+                            </div>
+                            
+                            <div class="bg-orange-50 rounded-xl p-6">
+                                <h4 class="font-semibold text-gray-800 mb-4">改进建议</h4>
+                                <ul id="suggestionsList" class="space-y-2 text-gray-600"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">五、注意事项</h3>
+                        <div class="bg-red-50 rounded-xl p-6">
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">⚠</span>
+                                    <span>测量时测微鼓轮只能朝一个方向转动，中途不可反转读数</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">⚠</span>
+                                    <span>牛顿环左右环圈数要数清楚，对称的环圈数不可数错</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">⚠</span>
+                                    <span>测量过程不可触动牛顿环装置</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">⚠</span>
+                                    <span>牛顿环装置上的螺旋不可旋太紧，以免压破牛顿环</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400">牛顿环实验 AI 辅助诊断系统</p>
+            <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
+        </div>
+    </footer>
+
+    <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
+    <script>
+        new CozeWebSDK.WebChatClient({
+            config: { bot_id: '7634527397312266266' },
+            componentProps: { title: '牛顿环实验助手' },
+            auth: {
+                type: 'token',
+                token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                onRefreshToken: () => 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP'
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReport();
+            
+            document.getElementById('downloadBtn').addEventListener('click', downloadReport);
+        });
+
+        function loadReport() {
+            const data = localStorage.getItem('experimentData');
+            if (!data) {
+                document.getElementById('noData').style.display = 'block';
+                document.getElementById('reportContent').style.display = 'none';
+                return;
+            }
+            
+            const parsedData = JSON.parse(data);
+            
+            if (parsedData.experiment !== 'newtonring') {
+                document.getElementById('noData').style.display = 'block';
+                document.getElementById('reportContent').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('noData').style.display = 'none';
+            document.getElementById('reportContent').style.display = 'block';
+            
+            document.getElementById('reportTime').textContent = new Date().toLocaleString('zh-CN');
+            
+            document.getElementById('reportWavelength').textContent = parsedData.wavelength + ' nm';
+            document.getElementById('reportRadius').textContent = parsedData.analysis.radius.toFixed(2) + ' mm';
+            document.getElementById('reportScore').textContent = parsedData.analysis.qualityScore + ' 分';
+            
+            document.getElementById('resultWavelength').textContent = parsedData.wavelength + ' nm';
+            document.getElementById('resultOrderDiff').textContent = parsedData.orderDiff;
+            document.getElementById('resultRadius').textContent = parsedData.analysis.radius.toFixed(2) + ' mm';
+            document.getElementById('resultUncertainty').textContent = parsedData.analysis.uncertainty.toFixed(2) + '%';
+            
+            fillReportTable(parsedData.data);
+            generateDiagnosis(parsedData);
+        }
+
+        function fillReportTable(data) {
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = '';
+            
+            data.sort((a, b) => b.order - a.order);
+            
+            data.forEach((item, i) => {
+                const diameter = Math.abs(item.right - item.left);
+                const diameterSquare = diameter * diameter;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-3 border text-sm">${item.order}</td>
+                    <td class="px-4 py-3 border text-sm">${item.left.toFixed(3)}</td>
+                    <td class="px-4 py-3 border text-sm">${item.right.toFixed(3)}</td>
+                    <td class="px-4 py-3 border text-sm">${diameter.toFixed(3)}</td>
+                    <td class="px-4 py-3 border text-sm">${diameterSquare.toFixed(3)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function generateDiagnosis(data) {
+            const diagnosisDiv = document.getElementById('diagnosisResult');
+            const strengthsList = document.getElementById('strengthsList');
+            const suggestionsList = document.getElementById('suggestionsList');
+            
+            const strengths = [];
+            const suggestions = [];
+            
+            if (data.analysis.qualityScore >= 80) {
+                strengths.push('• 数据质量优秀，测量结果可靠');
+            } else if (data.analysis.qualityScore >= 60) {
+                strengths.push('• 数据质量良好，基本满足实验要求');
+            }
+            
+            if (data.analysis.uncertainty < 1) {
+                strengths.push('• 相对不确定度低，测量精度高');
+            } else if (data.analysis.uncertainty < 3) {
+                strengths.push('• 测量精度满足实验要求');
+            }
+            
+            if (data.data.length >= 6) {
+                strengths.push('• 测量数据点充足，结果具有较好的统计意义');
+            } else {
+                suggestions.push('• 建议增加测量数据点，提高结果可靠性');
+            }
+            
+            if (data.analysis.qualityScore < 60) {
+                suggestions.push('• 建议重新进行实验测量，提高数据质量');
+            }
+            
+            if (data.analysis.uncertainty >= 5) {
+                suggestions.push('• 相对不确定度较高，建议检查测量方法');
+            }
+            
+            let scoreColor = 'badge-success';
+            let scoreText = '优秀';
+            if (data.analysis.qualityScore < 60) {
+                scoreColor = 'badge-danger';
+                scoreText = '需改进';
+            } else if (data.analysis.qualityScore < 80) {
+                scoreColor = 'badge-warning';
+                scoreText = '良好';
+            }
+            
+            diagnosisDiv.innerHTML = `
+                <div class="flex items-center mb-4">
+                    <span class="badge ${scoreColor}">${scoreText}</span>
+                    <span class="ml-2 text-gray-600">数据质量评分: ${data.analysis.qualityScore} 分</span>
+                </div>
+                <p class="text-gray-700">
+                    本次实验使用钠光灯（波长${data.wavelength}nm）测量了${data.data.length}组牛顿环数据，采用逐差法（级数差${data.orderDiff}）计算得到平凸透镜的曲率半径为${data.analysis.radius.toFixed(2)}mm，相对不确定度为${data.analysis.uncertainty.toFixed(2)}%。
+                </p>
+            `;
+            
+            strengths.forEach(strength => {
+                const li = document.createElement('li');
+                li.innerHTML = strength;
+                strengthsList.appendChild(li);
+            });
+            
+            suggestions.forEach(suggestion => {
+                const li = document.createElement('li');
+                li.innerHTML = suggestion;
+                suggestionsList.appendChild(li);
+            });
+            
+            if (strengths.length === 0) {
+                strengthsList.innerHTML = '<li>• 继续努力，提高实验技能</li>';
+            }
+            
+            if (suggestions.length === 0) {
+                suggestionsList.innerHTML = '<li>• 实验完成良好，无需特别改进</li>';
+            }
+        }
+
+        function downloadReport() {
+            const reportContent = document.getElementById('reportContent').innerHTML;
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html lang="zh-CN">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>牛顿环实验报告</title>
+                    <style>
+                        body { font-family: 'SimSun', serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+                        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                        th { background-color: #f5f5f5; }
+                        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+                        .badge-success { background-color: #dcfce7; color: #166534; }
+                        .badge-warning { background-color: #fef3c7; color: #b45309; }
+                        .badge-danger { background-color: #fee2e2; color: #991b1b; }
+                    </style>
+                </head>
+                <body>${reportContent}</body>
+                </html>
+            `;
+            
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '牛顿环实验报告.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

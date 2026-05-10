@@ -104,21 +104,10 @@
 
             <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
                 <h3 class="text-xl font-semibold text-gray-800 mb-6">预习视频</h3>
-                <div class="relative bg-gray-900 rounded-lg aspect-video overflow-hidden">
-                    <img src="https://neeko-copilot.bytedance.net/api/text2image?prompt=Wheatstone%20bridge%20circuit%20experiment%20setup%20with%20resistors%20and%20galvanometer%20in%20physics%20laboratory&image_size=landscape_16_9" 
-                         alt="电桥法测电阻实验" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <div class="text-white text-center">
-                            <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-lg font-medium">电桥法测电阻实验介绍</p>
-                        </div>
-                    </div>
-                </div>
+                <video controls class="w-full h-full bg-gray-900 rounded-lg">
+                    <source src="../../../assets/videos/单臂电桥.mp4" type="video/mp4">
+                    您的浏览器不支持视频播放。
+                </video>
             </div>
 
             <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
@@ -314,7 +303,7 @@
                 bot_id: '7634527397312266266',
             },
             componentProps: {
-                title: '电桥法测电阻实验助手',
+                title: "大学物理实验助手",
             },
             auth: {
                 type: 'token',
