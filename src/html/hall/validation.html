@@ -83,8 +83,8 @@
     <section class="pt-24 pb-16 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验中数据实时校�?/h2>
-                <p class="text-gray-600">输入实验数据，系统将进行实时质量校验�?AI 分析</p>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验中数据实时校验</h2>
+                <p class="text-gray-600">输入实验数据，系统将进行实时质量校验与 AI 分析</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
@@ -123,7 +123,7 @@
                 </div>
                 <div class="flex gap-3 mb-4">
                     <button onclick="addRow()" class="bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">
-                        + 添加�?                    </button>
+                        + 添加行</button>
                     <button onclick="clearAll()" class="bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg transition-colors btn-hover">
                         清空数据
                     </button>
@@ -134,7 +134,7 @@
             </div>
 
             <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视�?/h3>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视化</h3>
                 <div class="flex flex-wrap gap-2 mb-4 chart-tabs">
                     <button onclick="switchChart('fit')" class="px-4 py-2 rounded-lg bg-blue-500 text-white font-medium">拟合曲线</button>
                     <button onclick="switchChart('residual')" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 font-medium hover:bg-gray-200">残差分布</button>
@@ -156,15 +156,15 @@
                         <div class="text-2xl font-bold" id="rSquared">0.00</div>
                     </div>
                     <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
-                        <div class="text-sm text-gray-500 mb-1">灵敏�?k</div>
+                        <div class="text-sm text-gray-500 mb-1">灵敏度 k</div>
                         <div class="text-2xl font-bold text-blue-600" id="sensitivity">0.00</div>
                     </div>
                     <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
-                        <div class="text-sm text-gray-500 mb-1">异常点数�?/div>
+                        <div class="text-sm text-gray-500 mb-1">异常点数量</div>
                         <div class="text-2xl font-bold" id="anomalyCount">0</div>
                     </div>
                     <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
-                        <div class="text-sm text-gray-500 mb-1">残差标准�?/div>
+                        <div class="text-sm text-gray-500 mb-1">残差标准差</div>
                         <div class="text-2xl font-bold text-purple-600" id="residualStd">0.00</div>
                     </div>
                     <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
@@ -179,7 +179,7 @@
                         <div class="space-y-4">
                             <div class="bg-purple-50 rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-2">
-                                    <span class="text-gray-700 font-medium">残差正态性检�?/span>
+                                    <span class="text-gray-700 font-medium">残差正态性检验</span>
                                     <span id="normalityResult" class="px-3 py-1 rounded-full text-sm font-medium"></span>
                                 </div>
                                 <p class="text-sm text-gray-600">偏度: <span id="skewness">0.00</span> | 峰度: <span id="kurtosis">0.00</span></p>
@@ -187,7 +187,7 @@
                             </div>
                             <div class="bg-orange-50 rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-2">
-                                    <span class="text-gray-700 font-medium">异方差检�?/span>
+                                    <span class="text-gray-700 font-medium">异方差检验</span>
                                     <span id="heteroResult" class="px-3 py-1 rounded-full text-sm font-medium"></span>
                                 </div>
                                 <p class="text-sm text-gray-600" id="heteroDesc"></p>
@@ -209,7 +209,7 @@
                             </div>
                             <div class="bg-blue-50 rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-2">
-                                    <span class="text-gray-700 font-medium">数据完整性评�?/span>
+                                    <span class="text-gray-700 font-medium">数据完整性评估</span>
                                     <span id="completenessScore" class="px-3 py-1 rounded-full text-sm font-medium"></span>
                                 </div>
                                 <p class="text-sm text-gray-600" id="completenessDesc"></p>
@@ -237,10 +237,10 @@
                                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">序号</th>
                                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">位移 x (mm)</th>
                                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">霍尔电压 U (mV)</th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">拟合�?(mV)</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">拟合值 (mV)</th>
                                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">残差 (mV)</th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">残差标准�?/th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">状�?/th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">残差标准差</th>
+                                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">状态</th>
                                 </tr>
                             </thead>
                             <tbody id="dataTableBody"></tbody>
@@ -315,16 +315,16 @@
                     }
                 }
             } catch (e) {
-                alert('数据格式错误，请检查输�?);
+                alert('数据格式错误，请检查输入');
                 return;
             }
 
             if (data.length === 0) {
-                alert('请输入实验数�?);
+                alert('请输入实验数据');
                 return;
             }
             if (data.length < 3) {
-                alert('至少需�?个数据点进行分析');
+                alert('至少需要 3 个数据点进行分析');
                 return;
             }
 
@@ -565,12 +565,12 @@
             const heteroEl = document.getElementById('heteroResult');
             if (heteroStatus === 'homoscedastic') {
                 heteroEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700';
-                heteroEl.textContent = '齐�?;
+                heteroEl.textContent = '齐性';
                 document.getElementById('heteroDesc').textContent = '残差方差均匀，不存在明显的异方差现象';
             } else {
                 heteroEl.className = 'px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-700';
-                heteroEl.textContent = '异方�?;
-                document.getElementById('heteroDesc').textContent = '残差方差存在变化，建议检查测量精度是否一�?;
+                heteroEl.textContent = '异方差';
+                document.getElementById('heteroDesc').textContent = '残差方差存在变化，建议检查测量精度是否一致';
             }
 
             document.getElementById('kConfidence').textContent = `[${analysisResult.kConfidence.lower}, ${analysisResult.kConfidence.upper}]`;
@@ -608,19 +608,19 @@
             }
 
             if (analysisResult.anomalies.length > 0) {
-                items.push({ type: 'error', text: `检测到 ${analysisResult.anomalies.length} 个异常点（第 ${analysisResult.anomalies.map(i => i + 1).join('�?)} 个数据点），可能存在测量误差` });
+                items.push({ type: 'error', text: `检测到 ${analysisResult.anomalies.length} 个异常点（第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 个数据点），可能存在测量误差` });
             } else {
                 items.push({ type: 'success', text: '未检测到异常点，数据质量良好' });
             }
 
             if (analysisResult.jumps.length > 0) {
-                items.push({ type: 'error', text: `检测到电压跳变（第 ${analysisResult.jumps.map(i => i + 1).join('�?)} 个数据点），建议检查连接线是否松动` });
+                items.push({ type: 'error', text: `检测到电压跳变（第 ${analysisResult.jumps.map(i => i + 1).join('、')} 个数据点），建议检查连接线是否松动` });
             }
 
             if (!analysisResult.isMonotonic) {
                 items.push({ type: 'warning', text: '数据非单调递增，霍尔电压应随位移增大而增大，请检查测量顺序或数据输入' });
             } else {
-                items.push({ type: 'success', text: '数据单调递增，符合霍尔效应规�? });
+                items.push({ type: 'success', text: '数据单调递增，符合霍尔效应规律' });
             }
 
             if (Math.abs(analysisResult.skewness) > 1.0 || Math.abs(analysisResult.kurtosis) > 2.0) {
@@ -657,28 +657,28 @@
             const actionItems = [];
 
             if (analysisResult.rSquared < 0.95) {
-                actionItems.push({ priority: 'high', text: '检查传感器接线是否牢固，确保接触良�? });
-                actionItems.push({ priority: 'high', text: '检查实验装置是否处于稳定状�? });
+                actionItems.push({ priority: 'high', text: '检查传感器接线是否牢固，确保接触良好' });
+                actionItems.push({ priority: 'high', text: '检查实验装置是否处于稳定状态' });
             }
 
             if (analysisResult.anomalies.length > 0) {
-                actionItems.push({ priority: 'high', text: `重新测量�?${analysisResult.anomalies.map(i => i + 1).join('�?)} 个数据点，排除测量失误` });
+                actionItems.push({ priority: 'high', text: `重新测量第 ${analysisResult.anomalies.map(i => i + 1).join('、')} 个数据点，排除测量失误` });
             }
 
             if (analysisResult.jumps.length > 0) {
-                actionItems.push({ priority: 'high', text: '检查连接线，避免接触不良导致电压跳�? });
+                actionItems.push({ priority: 'high', text: '检查连接线，避免接触不良导致电压跳变' });
             }
 
             if (!analysisResult.isMonotonic) {
-                actionItems.push({ priority: 'medium', text: '检查测量顺序是否正确，霍尔电压应随位移增大而增�? });
+                actionItems.push({ priority: 'medium', text: '检查测量顺序是否正确，霍尔电压应随位移增大而增大' });
             }
 
             if (Math.abs(analysisResult.skewness) > 1.0 || Math.abs(analysisResult.kurtosis) > 2.0) {
-                actionItems.push({ priority: 'medium', text: '排查系统误差来源，可能存在未建模的影响因�? });
+                actionItems.push({ priority: 'medium', text: '排查系统误差来源，可能存在未建模的影响因素' });
             }
 
             if (analysisResult.qualityScore < 70) {
-                actionItems.push({ priority: 'high', text: '建议重新进行实验测量，确保数据质�? });
+                actionItems.push({ priority: 'high', text: '建议重新进行实验测量，确保数据质量' });
             }
 
             actionItems.push({ priority: 'low', text: '建议增加数据采集点，提高测量精度' });
@@ -769,7 +769,7 @@
                             )
                         },
                         {
-                            label: '线性拟�?,
+                            label: '线性拟合',
                             data: xValues.map((x, i) => ({ x, y: fitValues[i] })),
                             type: 'line',
                             borderColor: '#10b981',
@@ -831,7 +831,7 @@
                 data: {
                     datasets: [
                         {
-                            label: '残差�?,
+                            label: '残差图',
                             data: xValues.map((x, i) => ({ x, y: residuals[i] })),
                             backgroundColor: analysisResult.anomalies.map((_, i) => 
                                 analysisResult.anomalies.includes(i) ? '#ef4444' : '#3b82f6'
@@ -885,7 +885,7 @@
                                     return [
                                         `位移: ${context.parsed.x} mm`,
                                         `残差: ${residuals[idx]} mV`,
-                                        `标准化残�? ${stdResiduals[idx]}`
+                                        `标准化残差: ${stdResiduals[idx]}`
                                     ];
                                 }
                             }
@@ -947,7 +947,7 @@
                             )
                         },
                         {
-                            label: '线性拟�?,
+                            label: '线性拟合',
                             data: xValues.map((x, i) => ({ x, y: fitValues[i] })),
                             type: 'line',
                             borderColor: '#10b981',

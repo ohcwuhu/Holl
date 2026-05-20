@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据校验 - 物体密度的测定实�?AI 辅助诊断系统</title>
+    <title>数据校验 - 物体密度的测定实验 AI 辅助诊断系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.min.js"></script>
@@ -90,8 +90,8 @@
     <section class="pt-24 pb-16 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验中数据实时校�?/h2>
-                <p class="text-gray-600">输入实验数据，系统将进行实时质量校验�?AI 分析</p>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">实验中数据实时校验</h2>
+                <p class="text-gray-600">输入实验数据，系统将进行实时质量校验与 AI 分析</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
@@ -100,10 +100,10 @@
                 <div class="grid md:grid-cols-2 gap-6">
                     <div class="space-y-4">
                         <div class="bg-blue-50 rounded-lg p-4">
-                            <h4 class="font-semibold text-blue-800 mb-3">圆柱体质量测�?/h4>
+                            <h4 class="font-semibold text-blue-800 mb-3">圆柱体质量测量</h4>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">质量 m (g)</label>
-                                <input type="number" step="0.01" id="massInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="输入圆柱体质�?>
+                                <input type="number" step="0.01" id="massInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="输入圆柱体质量">
                             </div>
                         </div>
 
@@ -126,7 +126,7 @@
 
                     <div class="space-y-4">
                         <div class="bg-purple-50 rounded-lg p-4">
-                            <h4 class="font-semibold text-purple-800 mb-3">圆柱体高度测量（游标卡尺�?/h4>
+                            <h4 class="font-semibold text-purple-800 mb-3">圆柱体高度测量（游标卡尺）</h4>
                             <div class="space-y-2">
                                 <div class="grid grid-cols-3 gap-2">
                                     <input type="number" step="0.01" id="height1" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="测量1">
@@ -163,7 +163,7 @@
 
             <div id="validationResults" class="hidden">
                 <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视化分�?/h3>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">数据可视化分析</h3>
                     <div class="flex flex-wrap gap-2 mb-4">
                         <button onclick="switchChart('diameter')" class="chart-tab active px-4 py-2 rounded-lg bg-orange-500 text-white">直径分布</button>
                         <button onclick="switchChart('height')" class="chart-tab px-4 py-2 rounded-lg bg-gray-100 text-gray-600">高度分布</button>
@@ -203,11 +203,11 @@
                                 </div>
                                 <div class="grid grid-cols-3 gap-4 text-sm">
                                     <div>
-                                        <p class="text-gray-500">平均�?/p>
+                                        <p class="text-gray-500">平均值</p>
                                         <p class="font-mono text-blue-700" id="diameterMean">0.000 mm</p>
                                     </div>
                                     <div>
-                                        <p class="text-gray-500">标准�?/p>
+                                        <p class="text-gray-500">标准差</p>
                                         <p class="font-mono text-blue-700" id="diameterStd">0.000</p>
                                     </div>
                                     <div>
@@ -223,11 +223,11 @@
                                 </div>
                                 <div class="grid grid-cols-3 gap-4 text-sm">
                                     <div>
-                                        <p class="text-gray-500">平均�?/p>
+                                        <p class="text-gray-500">平均值</p>
                                         <p class="font-mono text-green-700" id="heightMean">0.00 mm</p>
                                     </div>
                                     <div>
-                                        <p class="text-gray-500">标准�?/p>
+                                        <p class="text-gray-500">标准差</p>
                                         <p class="font-mono text-green-700" id="heightStd">0.00</p>
                                     </div>
                                     <div>
@@ -243,7 +243,7 @@
                                 </div>
                                 <p class="text-xl font-mono text-purple-700 mb-2">ρ = <span id="densityValue">0.00</span> g/cm³</p>
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">与标准值偏�?/span>
+                                    <span class="text-gray-600">与标准值偏差</span>
                                     <span class="font-medium" id="deviation">0.00%</span>
                                 </div>
                             </div>
@@ -270,8 +270,8 @@
                                 <thead>
                                     <tr class="bg-gray-50">
                                         <th class="px-3 py-2 text-left">测量次数</th>
-                                        <th class="px-3 py-2 text-right">测量�?/th>
-                                        <th class="px-3 py-2 text-center">状�?/th>
+                                        <th class="px-3 py-2 text-right">测量值</th>
+                                        <th class="px-3 py-2 text-center">状态</th>
                                     </tr>
                                 </thead>
                                 <tbody id="diameterTableBody"></tbody>
@@ -283,8 +283,8 @@
                                 <thead>
                                     <tr class="bg-gray-50">
                                         <th class="px-3 py-2 text-left">测量次数</th>
-                                        <th class="px-3 py-2 text-right">测量�?/th>
-                                        <th class="px-3 py-2 text-center">状�?/th>
+                                        <th class="px-3 py-2 text-right">测量值</th>
+                                        <th class="px-3 py-2 text-center">状态</th>
                                     </tr>
                                 </thead>
                                 <tbody id="heightTableBody"></tbody>
@@ -298,7 +298,7 @@
 
     <footer class="bg-gray-800 text-white py-8 px-4 mt-16">
         <div class="max-w-7xl mx-auto text-center">
-            <p class="text-gray-400">物体密度的测定实�?AI 辅助诊断系统</p>
+            <p class="text-gray-400">物体密度的测定实验 AI 辅助诊断系统</p>
             <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
         </div>
     </footer>
@@ -335,17 +335,17 @@
             ].filter(v => !isNaN(v));
 
             if (isNaN(mass) || mass <= 0) {
-                alert('请输入有效的质量�?);
+                alert('请输入有效的质量');
                 return;
             }
             
             if (diameters.length < 3) {
-                alert('至少需要测�?次直�?);
+                alert('至少需要测量 3 次直径');
                 return;
             }
             
             if (heights.length < 3) {
-                alert('至少需要测�?次高�?);
+                alert('至少需要测量 3 次高度');
                 return;
             }
 
@@ -419,31 +419,31 @@
             const items = [];
 
             if (result.qualityScore >= 90) {
-                items.push({ type: 'success', text: `数据质量优秀！密度测量�?${result.density} g/cm³ 与标准�?${STANDARD_DENSITY} g/cm³ 偏差�?${result.deviation}%` });
+                items.push({ type: 'success', text: `数据质量优秀！密度测量值 ${result.density} g/cm³，与标准值 ${STANDARD_DENSITY} g/cm³ 偏差 ${result.deviation}%` });
             } else if (result.qualityScore >= 70) {
-                items.push({ type: 'warning', text: `数据质量良好。密度测量�?${result.density} g/cm³，与标准值偏�?${result.deviation}%` });
+                items.push({ type: 'warning', text: `数据质量良好。密度测量值 ${result.density} g/cm³，与标准值偏差 ${result.deviation}%` });
             } else {
-                items.push({ type: 'error', text: `数据质量一般。密度测量�?${result.density} g/cm³，与标准值偏�?${result.deviation}%，建议检查测量过程` });
+                items.push({ type: 'error', text: `数据质量一般。密度测量值 ${result.density} g/cm³，与标准值偏差 ${result.deviation}%，建议检查测量过程` });
             }
 
             if (result.diameterAnomalies.length > 0) {
-                items.push({ type: 'error', text: `直径测量存在异常点（�?${result.diameterAnomalies.map(i => i + 1).join('�?)} 次测量），建议重新测量` });
+                items.push({ type: 'error', text: `直径测量存在异常点（第 ${result.diameterAnomalies.map(i => i + 1).join('、')} 次测量），建议重新测量` });
             } else {
                 items.push({ type: 'success', text: '直径测量数据一致，无异常点' });
             }
 
             if (result.heightAnomalies.length > 0) {
-                items.push({ type: 'error', text: `高度测量存在异常点（�?${result.heightAnomalies.map(i => i + 1).join('�?)} 次测量），建议重新测量` });
+                items.push({ type: 'error', text: `高度测量存在异常点（第 ${result.heightAnomalies.map(i => i + 1).join('、')} 次测量），建议重新测量` });
             } else {
                 items.push({ type: 'success', text: '高度测量数据一致，无异常点' });
             }
 
             if (result.diameterStd > 0.005) {
-                items.push({ type: 'warning', text: `直径测量标准�?${result.diameterStd} 较大，可能存在读数误差` });
+                items.push({ type: 'warning', text: `直径测量标准差 ${result.diameterStd} 较大，可能存在读数误差` });
             }
 
             if (result.heightStd > 0.05) {
-                items.push({ type: 'warning', text: `高度测量标准�?${result.heightStd} 较大，可能存在读数误差` });
+                items.push({ type: 'warning', text: `高度测量标准差 ${result.heightStd} 较大，可能存在读数误差` });
             }
 
             items.forEach(item => {
@@ -473,27 +473,27 @@
             const actionItems = [];
 
             if (result.diameterAnomalies.length > 0) {
-                actionItems.push({ priority: 'high', text: `重新测量�?${result.diameterAnomalies.map(i => i + 1).join('�?)} 次直径数据` });
+                actionItems.push({ priority: 'high', text: `重新测量第 ${result.diameterAnomalies.map(i => i + 1).join('、')} 次直径数据` });
             }
 
             if (result.heightAnomalies.length > 0) {
-                actionItems.push({ priority: 'high', text: `重新测量�?${result.heightAnomalies.map(i => i + 1).join('�?)} 次高度数据` });
+                actionItems.push({ priority: 'high', text: `重新测量第 ${result.heightAnomalies.map(i => i + 1).join('、')} 次高度数据` });
             }
 
             if (result.deviation > 10) {
-                actionItems.push({ priority: 'high', text: '密度测量偏差较大，建议检查质量测量是否准�? });
+                actionItems.push({ priority: 'high', text: '密度测量偏差较大，建议检查质量测量是否准确' });
             }
 
             if (result.diameterStd > 0.005) {
-                actionItems.push({ priority: 'medium', text: '直径测量重复性较差，建议使用棘轮装置并确保测量位置正�? });
+                actionItems.push({ priority: 'medium', text: '直径测量重复性较差，建议使用棘轮装置并确保测量位置正确' });
             }
 
             if (result.heightStd > 0.05) {
-                actionItems.push({ priority: 'medium', text: '高度测量重复性较差，建议检查游标卡尺读�? });
+                actionItems.push({ priority: 'medium', text: '高度测量重复性较差，建议检查游标卡尺读数' });
             }
 
             actionItems.push({ priority: 'low', text: '实验前确保仪器归零，减小系统误差' });
-            actionItems.push({ priority: 'low', text: '测量时保持圆柱体清洁，避免杂质影响测�? });
+            actionItems.push({ priority: 'low', text: '测量时保持圆柱体清洁，避免杂质影响测量结果' });
 
             if (actionItems.length === 0) {
                 suggestions.innerHTML = `
@@ -617,7 +617,7 @@
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: '直径测量�?(mm)',
+                            label: '直径测量值 (mm)',
                             data: data,
                             backgroundColor: data.map((_, i) => anomalies.includes(i) ? '#ef4444' : '#3b82f6'),
                             borderColor: data.map((_, i) => anomalies.includes(i) ? '#dc2626' : '#2563eb'),
@@ -660,7 +660,7 @@
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: '高度测量�?(mm)',
+                            label: '高度测量值 (mm)',
                             data: data,
                             backgroundColor: data.map((_, i) => anomalies.includes(i) ? '#ef4444' : '#22c55e'),
                             borderColor: data.map((_, i) => anomalies.includes(i) ? '#dc2626' : '#16a34a'),
@@ -699,7 +699,7 @@
                     data: {
                         labels: ['测量密度', '标准密度'],
                         datasets: [{
-                            label: '密度�?(g/cm³)',
+                            label: '密度值 (g/cm³)',
                             data: [currentResult.density, STANDARD_DENSITY],
                             backgroundColor: ['#f97316', '#6b7280'],
                             borderColor: ['#ea580c', '#4b5563'],

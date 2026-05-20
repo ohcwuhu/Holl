@@ -114,7 +114,7 @@
                 </button>
             </div>
 
-            <div id="analysisResult" style="display: none;">
+            <div id="analysisResult">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     <div class="bg-white rounded-xl shadow-lg p-6 text-center">
                         <p class="text-sm text-gray-500 mb-2">数据点数</p>
@@ -224,6 +224,45 @@
             document.getElementById('addRowBtn').addEventListener('click', addRow);
             document.getElementById('clearDataBtn').addEventListener('click', clearData);
             document.getElementById('submitBtn').addEventListener('click', submitValidation);
+            drawEmptyChart();
+        }
+
+        function drawEmptyChart() {
+            const ctx = document.getElementById('dataChart').getContext('2d');
+            
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '伏安特性',
+                        data: [],
+                        backgroundColor: '#22c55e',
+                        borderColor: '#166534',
+                        borderWidth: 2,
+                        radius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { enabled: true }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: '电压 U (V)', font: { weight: 'bold' } },
+                            min: 0,
+                            max: 10
+                        },
+                        y: {
+                            title: { display: true, text: '电流 I (mA)', font: { weight: 'bold' } },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
         }
 
         function addRow() {
@@ -264,7 +303,17 @@
                     <td class="px-4 py-2 text-center">-</td>
                 </tr>
             `;
-            document.getElementById('analysisResult').style.display = 'none';
+            document.getElementById('dataPoints').textContent = '-';
+            document.getElementById('avgResistance').textContent = '-';
+            document.getElementById('correlation').textContent = '-';
+            document.getElementById('qualityScore').textContent = '-';
+            document.getElementById('displayType').textContent = '-';
+            document.getElementById('displayResistance').textContent = '-';
+            document.getElementById('displayCorrelation').textContent = '-';
+            document.getElementById('curveType').textContent = '-';
+            document.getElementById('aiFeedback').innerHTML = '<p class="text-gray-400 text-center py-4">请输入数据后点击"提交校验"按钮进行分析</p>';
+            document.getElementById('resultTableBody').innerHTML = '';
+            drawEmptyChart();
         }
 
         function submitValidation() {
