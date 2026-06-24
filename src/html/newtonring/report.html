@@ -234,8 +234,8 @@
             componentProps: { title: '牛顿环实验助手' },
             auth: {
                 type: 'token',
-                token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
-                onRefreshToken: () => 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP'
+                token: 'pat_paLq8pHgqcP8PbzsPwyqWY8wi9UHiauAscqLxmtsMeh4qZJWRxAkYJpilQ698QHw',
+                onRefreshToken: () => 'pat_paLq8pHgqcP8PbzsPwyqWY8wi9UHiauAscqLxmtsMeh4qZJWRxAkYJpilQ698QHw'
             }
         });
     </script>
@@ -255,16 +255,31 @@
                 return;
             }
             
-            const parsedData = JSON.parse(data);
-            
-            if (parsedData.experiment !== 'newtonring') {
+            try {
+                const parsedData = JSON.parse(data);
+                
+                // 检查数据格式是否正确
+                if (!parsedData || typeof parsedData !== 'object' || parsedData.experiment !== 'newtonring') {
+                    document.getElementById('noData').style.display = 'block';
+                    document.getElementById('reportContent').style.display = 'none';
+                    return;
+                }
+                
+                // 检查必要字段是否存在
+                if (!parsedData.wavelength || !parsedData.analysis || typeof parsedData.analysis.radius !== 'number') {
+                    document.getElementById('noData').style.display = 'block';
+                    document.getElementById('reportContent').style.display = 'none';
+                    return;
+                }
+                
+                document.getElementById('noData').style.display = 'none';
+                document.getElementById('reportContent').style.display = 'block';
+            } catch (e) {
+                // JSON解析失败
                 document.getElementById('noData').style.display = 'block';
                 document.getElementById('reportContent').style.display = 'none';
                 return;
             }
-            
-            document.getElementById('noData').style.display = 'none';
-            document.getElementById('reportContent').style.display = 'block';
             
             document.getElementById('reportTime').textContent = new Date().toLocaleString('zh-CN');
             

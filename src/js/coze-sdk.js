@@ -13,9 +13,9 @@ function initCozeSDK(botTitle = '霍尔效应实验助手') {
         },
         auth: {
             type: 'token',
-            token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+            token: 'pat_paLq8pHgqcP8PbzsPwyqWY8wi9UHiauAscqLxmtsMeh4qZJWRxAkYJpilQ698QHw',
             onRefreshToken: function () {
-                return 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP';
+                return 'pat_paLq8pHgqcP8PbzsPwyqWY8wi9UHiauAscqLxmtsMeh4qZJWRxAkYJpilQ698QHw';
             }
         }
     });

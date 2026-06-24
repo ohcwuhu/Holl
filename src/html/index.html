@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>霍尔效应位移测量实验 AI 辅助诊断系统</title>
+    <title>霍尔效应位移测量实验 Ai辅助实验教学系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
@@ -301,8 +301,8 @@
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12">
                 <h1 id="mainTitle" class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">霍尔效应位移测量实验</h1>
-                <h2 id="mainSubtitle" class="text-2xl md:text-3xl font-semibold text-blue-600 mb-6">AI 辅助诊断系统</h2>
-                <p id="mainDescription" class="text-lg text-gray-600 max-w-3xl mx-auto">基于人工智能技术的霍尔效应实验辅助诊断平台，为高校物理实验提供智能化的数据校验和分析服务</p>
+                <h2 id="mainSubtitle" class="text-2xl md:text-3xl font-semibold text-blue-600 mb-6">Ai辅助实验教学系统</h2>
+                <p id="mainDescription" class="text-lg text-gray-600 max-w-3xl mx-auto">基于人工智能技术的霍尔效应实验辅助教学平台，为高校物理实验提供智能化的预习评估、数据校验和分析服务</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8 mb-12">
@@ -421,20 +421,24 @@
 
     <footer class="bg-gray-800 text-white py-8 px-4">
         <div class="max-w-7xl mx-auto text-center">
-            <p id="footerTitle" class="text-gray-400">霍尔效应位移测量实验 AI 辅助诊断系统</p>
+            <p id="footerTitle" class="text-gray-400">霍尔效应位移测量实验 Ai辅助实验教学系统</p>
             <p class="text-gray-500 text-sm mt-2">基于 HTML + CSS + JavaScript + Tailwind CSS + Chart.js + Math.js + Coze AI 构建</p>
         </div>
     </footer>
 
     <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.19/libs/cn/index.js"></script>
     <script>
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+
         const experiments = {
             hall: {
                 name: '霍尔效应',
                 fullName: '霍尔效应位移测量实验',
                 title: '霍尔效应位移测量实验',
-                subtitle: 'AI 辅助诊断系统',
-                description: '基于人工智能技术的霍尔效应实验辅助诊断平台，为高校物理实验提供智能化的数据校验和分析服务',
+                subtitle: 'Ai辅助实验教学系统',
+                description: '基于人工智能技术的霍尔效应实验辅助教学平台，为高校物理实验提供智能化的预习评估、数据校验和分析服务',
                 painPoints: [
                     '学生预习效果难以评估',
                     '实验数据准确性无法实时校验',
@@ -464,7 +468,7 @@
                 name: '单摆测G',
                 fullName: '单摆测量重力加速度实验',
                 title: '单摆测量重力加速度',
-                subtitle: 'AI 辅助诊断系统',
+                subtitle: 'Ai辅助实验教学系统',
                 description: '基于人工智能技术的单摆实验辅助诊断平台，帮助学生精确测量重力加速度',
                 painPoints: [
                     '摆长测量误差影响实验结果',
@@ -495,7 +499,7 @@
                 name: '密度测定',
                 fullName: '物体密度的测定实验',
                 title: '物体密度的测定',
-                subtitle: 'AI 辅助诊断系统',
+                subtitle: 'Ai辅助实验教学系统',
                 description: '基于人工智能技术的密度测量实验辅助诊断平台，帮助学生准确测量黄铜密度',
                 painPoints: [
                     '游标卡尺读数误差较大',
@@ -526,7 +530,7 @@
                 name: '气垫导轨',
                 fullName: '气垫技术及其应用实验',
                 title: '气垫技术及其应用',
-                subtitle: 'AI 辅助诊断系统',
+                subtitle: 'Ai辅助实验教学系统',
                 description: '基于人工智能技术的气垫导轨实验辅助诊断平台，帮助学生验证牛顿第二定律和动量守恒定律',
                 painPoints: [
                     '气垫导轨调平困难',
@@ -557,7 +561,7 @@
                 name: '电桥法测电阻',
                 fullName: '电桥法测电阻实验',
                 title: '电桥法测电阻',
-                subtitle: 'AI 辅助诊断系统',
+                subtitle: 'Ai辅助实验教学系统',
                 description: '基于人工智能技术的电桥法测电阻实验辅助诊断平台，帮助学生掌握惠斯通电桥测量原理和灵敏度分析',
                 painPoints: [
                     '电桥灵敏度调节困难',
@@ -588,7 +592,7 @@
                 name: '迈克尔逊干涉仪',
                 fullName: '迈克尔逊干涉仪实验',
                 title: '迈克尔逊干涉仪',
-                subtitle: 'AI 辅助诊断系统',
+                subtitle: 'Ai辅助实验教学系统',
                 description: '基于人工智能技术的迈克尔逊干涉仪实验辅助诊断平台，帮助学生测量激光波长并理解干涉原理',
                 painPoints: [
                     '干涉条纹调节困难',
@@ -619,7 +623,7 @@
                 name: '电阻伏安特性',
                 fullName: '电阻伏安特性研究实验',
                 title: '电阻伏安特性的研究',
-                subtitle: 'AI 辅助诊断系统',
+                subtitle: 'Ai辅助实验教学系统',
                 description: '基于人工智能技术的电阻伏安特性实验辅助诊断平台，帮助学生测量电阻和二极管的伏安特性曲线',
                 painPoints: [
                     '电流表内外接法选择困难',
@@ -650,7 +654,7 @@
                 name: '牛顿环',
                 fullName: '牛顿环实验',
                 title: '牛顿环干涉实验',
-                subtitle: 'AI 辅助诊断系统',
+                subtitle: 'Ai辅助实验教学系统',
                 description: '基于人工智能技术的牛顿环实验辅助诊断平台，帮助学生测量平凸透镜的曲率半径',
                 painPoints: [
                     '干涉条纹调节困难',
@@ -681,7 +685,7 @@
                 name: '杨氏模量',
                 fullName: '金属丝杨氏模量的测定实验',
                 title: '金属丝杨氏模量的测定',
-                subtitle: 'AI 辅助诊断系统',
+                subtitle: 'Ai辅助实验教学系统',
                 description: '基于人工智能技术的杨氏模量测量实验辅助诊断平台，帮助学生掌握光杠杆放大法测量微小长度变化',
                 painPoints: [
                     '光杠杆调节困难',
@@ -793,7 +797,7 @@
                 `}
             `).join('');
 
-            document.getElementById('footerTitle').textContent = experiment.fullName + ' AI 辅助诊断系统';
+            document.getElementById('footerTitle').textContent = experiment.fullName + ' Ai辅助实验教学系统';
 
             document.getElementById('navPreview').href = `${experimentId}/preview.html`;
             document.getElementById('navValidation').href = `${experimentId}/validation.html`;
@@ -840,9 +844,9 @@
                 },
                 auth: {
                     type: 'token',
-                    token: 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP',
+                    token: 'pat_paLq8pHgqcP8PbzsPwyqWY8wi9UHiauAscqLxmtsMeh4qZJWRxAkYJpilQ698QHw',
                     onRefreshToken: function () {
-                        return 'pat_h7gRNuMk3lZkjlmiou3r9ZHrhfEkMsivPQTL7EnNMDjU4PQ2tngFwJRdpnOIQnGP';
+                        return 'pat_paLq8pHgqcP8PbzsPwyqWY8wi9UHiauAscqLxmtsMeh4qZJWRxAkYJpilQ698QHw';
                     }
                 }
             });
